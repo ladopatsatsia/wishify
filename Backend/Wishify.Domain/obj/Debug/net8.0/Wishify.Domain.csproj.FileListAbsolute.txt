@@ -10,3 +10,4 @@ C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Domain\obj\Debug\net8.0\Wis
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Domain\obj\Debug\net8.0\refint\Wishify.Domain.dll
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Domain\obj\Debug\net8.0\Wishify.Domain.pdb
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Domain\obj\Debug\net8.0\ref\Wishify.Domain.dll
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Domain\obj\Debug\net8.0\Wishify.Domain.sourcelink.json

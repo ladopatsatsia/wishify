@@ -24,5 +24,9 @@ public class Card
     public string? CustomEmoji { get; set; }
     public string? CustomBgGradient { get; set; }
     
+    // Additional features
+    public string? GiftBoxUrl { get; set; }
+    public string? ImagesJson { get; set; }
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -51,7 +51,6 @@ public class CardService : ICardService
     public async Task<Card?> GetCardByIdAsync(Guid cardId)
     {
         return await _context.Cards
-            .Include(c => c.Template)
             .FirstOrDefaultAsync(c => c.Id == cardId);
     }
 
@@ -61,5 +60,15 @@ public class CardService : ICardService
             .Where(c => c.CreatorId == userId)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
+    }
+
+    public async Task<bool> DeleteCardAsync(Guid cardId, string userId)
+    {
+        var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardId && c.CreatorId == userId);
+        if (card == null) return false;
+
+        _context.Cards.Remove(card);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

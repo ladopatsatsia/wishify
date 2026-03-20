@@ -16,4 +16,5 @@ public interface ICardService
     Task<Card?> CreateCardAsync(Card card);
     Task<Card?> GetCardByIdAsync(Guid cardId);
     Task<IEnumerable<Card>> GetUserCardsAsync(string userId);
+    Task<bool> DeleteCardAsync(Guid cardId, string userId);
 }
