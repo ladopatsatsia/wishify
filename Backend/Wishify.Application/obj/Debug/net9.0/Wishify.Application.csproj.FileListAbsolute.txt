@@ -1,0 +1,15 @@
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\bin\Debug\net9.0\Wishify.Application.deps.json
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\bin\Debug\net9.0\Wishify.Application.dll
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\bin\Debug\net9.0\Wishify.Application.pdb
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\bin\Debug\net9.0\Wishify.Domain.dll
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\bin\Debug\net9.0\Wishify.Domain.pdb
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\Wishify.Application.csproj.AssemblyReference.cache
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\Wishify.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\Wishify.Application.AssemblyInfoInputs.cache
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\Wishify.Application.AssemblyInfo.cs
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\Wishify.Application.csproj.CoreCompileInputs.cache
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\Wishify..19E2F6BD.Up2Date
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\Wishify.Application.dll
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\refint\Wishify.Application.dll
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\Wishify.Application.pdb
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net9.0\ref\Wishify.Application.dll
