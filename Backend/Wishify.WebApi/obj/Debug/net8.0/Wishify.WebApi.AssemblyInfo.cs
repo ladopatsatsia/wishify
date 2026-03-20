@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Wishify.WebApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e2ae01d715e5a1cb9da5c80059f2e861e59cfeb0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a4704055e9995f19bfca5a7ebe5ed36c2ac1a186")]
 [assembly: System.Reflection.AssemblyProductAttribute("Wishify.WebApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Wishify.WebApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
