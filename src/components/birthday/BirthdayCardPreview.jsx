@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const audioRef = useRef(null);
 
   const {
@@ -60,27 +61,35 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
         {/* Top bar */}
-        <div className="flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur border-b border-white/10">
+        <div className="flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur border-b border-white/10 shrink-0">
           <button
             onClick={handleClose}
             className="flex items-center gap-2 text-white/70 hover:text-white font-semibold transition-colors cursor-pointer"
           >
-            <span>←</span> Back to Birthday Cards
+            <span>←</span> <span className="hidden sm:inline">Back</span>
           </button>
-          {onPersonalize && (
-            <button
-              onClick={onPersonalize}
-              className="bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer"
-            >
-              ✏️ Personalize
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <button className="bg-white/10 hover:bg-white/20 text-white text-sm sm:text-base font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-white/20 transition-all flex items-center gap-2 cursor-pointer">
+              💾 <span className="hidden sm:inline">Save</span>
             </button>
-          )}
+            <button className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm sm:text-base font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer">
+              🔗 <span className="hidden sm:inline">Get Link</span>
+            </button>
+            {onPersonalize && (
+              <button
+                onClick={onPersonalize}
+                className="bg-gradient-to-r from-violet-600 to-pink-600 text-white text-sm sm:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer ml-1 sm:ml-2"
+              >
+                ✏️ <span className="hidden sm:inline">Personalize</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {audioSrc && <audio ref={audioRef} src={audioSrc} loop />}
 
         {/* Card area */}
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className={`flex-1 overflow-y-auto p-6 flex ${!isOpen ? 'items-center justify-center' : 'items-start justify-center pt-8 sm:pt-12 pb-24'}`}>
           {!isOpen ? (
             /* CLOSED CARD */
             <div style={{ perspective: '1200px' }}>
@@ -146,19 +155,23 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
                       <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
                         📸 Special Moments
                       </h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        {images.map((img, i) => (
-                          <div
-                            key={i}
-                            className="aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-slate-100 hover:scale-[1.02] transition-transform"
-                          >
-                            <img
-                              src={typeof img === 'string' ? img : URL.createObjectURL(img)}
-                              alt={`Memory ${i + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ))}
+                      <div className="flex flex-wrap justify-center gap-3">
+                        {images.map((img, i) => {
+                          const imgSrc = typeof img === 'string' ? img : URL.createObjectURL(img);
+                          return (
+                            <div
+                              key={i}
+                              onClick={() => setSelectedImage(imgSrc)}
+                              className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-md border-[3px] border-slate-100 hover:scale-[1.05] hover:shadow-lg transition-all cursor-pointer"
+                            >
+                              <img
+                                src={imgSrc}
+                                alt={`Memory ${i + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -230,7 +243,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
 
   // MODAL MODE (used when called from editor preview)
   return (
-    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div className={`fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex ${!isOpen ? 'items-center' : 'items-start py-12 sm:py-16'} justify-center p-4 overflow-y-auto`}>
       <button
         onClick={handleClose}
         className="fixed top-6 right-6 z-[210] w-10 h-10 bg-white/20 backdrop-blur border border-white/30 rounded-full text-white font-bold text-xl hover:bg-white/40 transition-all flex items-center justify-center cursor-pointer"
@@ -377,8 +390,26 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-10px) rotate(2deg); }
         }
-        .animate-gift-float { animation: gift-float 3s ease-in-out infinite; }
-      `}</style>
-    </div>
+          .animate-gift-float { animation: gift-float 3s ease-in-out infinite; }
+        `}</style>
+      
+        {/* Photo Gallery Lightbox (shared between both modes) */}
+        {selectedImage && (
+          <div 
+            className="fixed inset-0 z-[500] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm"
+            onClick={() => setSelectedImage(null)}
+          >
+            <button className="absolute top-6 right-6 text-white text-4xl hover:scale-110 transition-transform cursor-pointer">
+              ×
+            </button>
+            <img 
+              src={selectedImage} 
+              alt="Gallery Enlarge" 
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" 
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
+      </div>
   );
 }

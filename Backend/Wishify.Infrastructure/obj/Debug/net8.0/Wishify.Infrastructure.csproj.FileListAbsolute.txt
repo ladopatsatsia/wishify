@@ -17,3 +17,4 @@ C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\ne
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net8.0\Wishify.Infrastructure.pdb
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net8.0\Wishify.Infrastructure.genruntimeconfig.cache
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net8.0\ref\Wishify.Infrastructure.dll
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net8.0\Wishify.Infrastructure.sourcelink.json

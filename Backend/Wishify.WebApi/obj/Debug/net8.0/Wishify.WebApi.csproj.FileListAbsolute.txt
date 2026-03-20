@@ -144,3 +144,4 @@ C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.WebApi\obj\Debug\net8.0\ref
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.WebApi\obj\Debug\net8.0\Wishify.WebApi.pdb
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.WebApi\obj\Debug\net8.0\Wishify.WebApi.genruntimeconfig.cache
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.WebApi\obj\Debug\net8.0\ref\Wishify.WebApi.dll
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.WebApi\obj\Debug\net8.0\Wishify.WebApi.sourcelink.json

@@ -231,6 +231,97 @@ namespace Wishify.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Wishify.Domain.Entities.BirthdayCardImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BirthdayCardTemplateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BirthdayCardTemplateId");
+
+                    b.ToTable("BirthdayCardImages");
+                });
+
+            modelBuilder.Entity("Wishify.Domain.Entities.BirthdayCardTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BgGradient")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Emoji")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FontFamily")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("GiftBoxEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("GiftBoxUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Heading")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("MusicEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MusicLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MusicUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Recipient")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Signature")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ThemeColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BirthdayCardTemplates");
+                });
+
             modelBuilder.Entity("Wishify.Domain.Entities.Card", b =>
                 {
                     b.Property<Guid>("Id")
@@ -411,6 +502,17 @@ namespace Wishify.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Wishify.Domain.Entities.BirthdayCardImage", b =>
+                {
+                    b.HasOne("Wishify.Domain.Entities.BirthdayCardTemplate", "BirthdayCardTemplate")
+                        .WithMany("Images")
+                        .HasForeignKey("BirthdayCardTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BirthdayCardTemplate");
+                });
+
             modelBuilder.Entity("Wishify.Domain.Entities.Card", b =>
                 {
                     b.HasOne("Wishify.Domain.Entities.ApplicationUser", "Creator")
@@ -435,6 +537,11 @@ namespace Wishify.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Wishify.Domain.Entities.BirthdayCardTemplate", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Wishify.Domain.Entities.Category", b =>

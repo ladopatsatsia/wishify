@@ -13,3 +13,4 @@ C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net8.
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net8.0\refint\Wishify.Application.dll
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net8.0\Wishify.Application.pdb
 C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net8.0\ref\Wishify.Application.dll
+C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Application\obj\Debug\net8.0\Wishify.Application.sourcelink.json
