@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
+import confetti from 'canvas-confetti';
+// Trigger HMR to resolve npm install
 
 export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack, onSave, saving, isSaved, onGoToSaved }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const audioRef = useRef(null);
+  const fireworksIntervalRef = useRef(null);
 
   const {
     title = 'Happy Birthday!',
@@ -32,6 +35,22 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
       if (musicEnabled && audioRef.current) {
         audioRef.current.play().catch(e => console.log('Audio play blocked:', e));
       }
+
+      // Trigger continuous beautiful fireworks when card opens
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 300, colors: ['#ff0080', '#ff8c00', '#40e0d0', '#9932cc', '#ffd700'] };
+      const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+      fireworksIntervalRef.current = setInterval(function() {
+        const particleCount = 25;
+        confetti({
+          ...defaults, particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        });
+        confetti({
+          ...defaults, particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        });
+      }, 350);
     }, 800);
   };
 
@@ -39,6 +58,9 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+    }
+    if (fireworksIntervalRef.current) {
+      clearInterval(fireworksIntervalRef.current);
     }
     setIsOpen(false);
     setIsFlipping(false);

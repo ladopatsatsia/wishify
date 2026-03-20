@@ -51,7 +51,6 @@ public class CardService : ICardService
     public async Task<Card?> GetCardByIdAsync(Guid cardId)
     {
         return await _context.Cards
-            .Include(c => c.Template)
             .FirstOrDefaultAsync(c => c.Id == cardId);
     }
 

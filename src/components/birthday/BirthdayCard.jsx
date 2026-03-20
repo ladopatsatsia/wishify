@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import BirthdayCardPreview from './BirthdayCardPreview';
 import BirthdayCardEditor from './BirthdayCardEditor';
@@ -24,26 +24,66 @@ export default function BirthdayCard() {
   const navigate = useNavigate();
   const { cardId } = useParams();
   const [mode, setMode] = useState('preview'); // 'preview' | 'edit'
+  const [dbCard, setDbCard] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Find the card from cardsData if cardId is provided, otherwise use default
-  const templateCard = cardId
+  useEffect(() => {
+    // Treat cardId as a Database ID if it looks like a GUID (longer than 20 chars)
+    if (cardId && cardId.length > 20) {
+      setLoading(true);
+      fetch(`http://localhost:5153/api/cards/${cardId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.id) setDbCard(data);
+        })
+        .catch(err => console.error('Failed to load card from DB', err))
+        .finally(() => setLoading(false));
+    }
+  }, [cardId]);
+
+  // Find the card from cardsData if cardId is provided and NOT a GUID
+  const templateCard = (cardId && cardId.length < 20)
     ? cardsData.birthday?.find(c => c.id === cardId)
     : null;
 
-  // Build default data from either the found template or our hardcoded default
-  const defaultData = templateCard
+  // Build default data from either DB Card, Template Card, or Hardcoded Default
+  const defaultData = dbCard 
     ? {
-      title: templateCard.content?.heading || DEFAULT_BIRTHDAY_CARD.title,
-      message: `${templateCard.content?.message1 || ''}\n\n${templateCard.content?.message2 || ''}`,
-      signature: 'With Love ❤️',
-      images: [],
-      musicEnabled: !!templateCard.content?.audioUrl,
-      musicUrl: templateCard.content?.audioUrl || null,
-      giftBoxEnabled: !!templateCard.content?.giftLink,
-      giftBoxUrl: templateCard.content?.giftLink || '',
-      style: templateCard.style || DEFAULT_BIRTHDAY_CARD.style,
+      title: dbCard.heading,
+      message: [dbCard.message1, dbCard.message2].filter(Boolean).join('\n\n'),
+      signature: dbCard.footer,
+      images: dbCard.imagesJson ? JSON.parse(dbCard.imagesJson).filter(img => img) : [],
+      musicEnabled: !!dbCard.audioUrl,
+      musicUrl: dbCard.audioUrl || null,
+      giftBoxEnabled: !!dbCard.giftBoxUrl,
+      giftBoxUrl: dbCard.giftBoxUrl || '',
+      style: {
+        bgGradient: dbCard.customBgGradient || 'from-pink-400 via-rose-400 to-violet-500',
+        emoji: dbCard.customEmoji || '🎂',
+      }
     }
-    : DEFAULT_BIRTHDAY_CARD;
+    : templateCard
+      ? {
+        title: templateCard.content?.heading || DEFAULT_BIRTHDAY_CARD.title,
+        message: `${templateCard.content?.message1 || ''}\n\n${templateCard.content?.message2 || ''}`,
+        signature: 'With Love ❤️',
+        images: [],
+        musicEnabled: !!templateCard.content?.audioUrl,
+        musicUrl: templateCard.content?.audioUrl || null,
+        giftBoxEnabled: !!templateCard.content?.giftLink,
+        giftBoxUrl: templateCard.content?.giftLink || '',
+        style: templateCard.style || DEFAULT_BIRTHDAY_CARD.style,
+      }
+      : DEFAULT_BIRTHDAY_CARD;
+
+  // Render a loading state if we're aggressively fetching from DB
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-violet-500 border-t-pink-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (mode === 'edit') {
     return (

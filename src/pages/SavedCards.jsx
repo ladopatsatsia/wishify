@@ -127,7 +127,7 @@ export default function SavedCards() {
 
                     <div className="mt-auto grid grid-cols-2 gap-2">
                        <button
-                        onClick={() => navigate(`/view/${card.id}`)}
+                        onClick={() => navigate(`/birthday-card/${card.id}`)}
                         className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer"
                        >
                          👀 View
