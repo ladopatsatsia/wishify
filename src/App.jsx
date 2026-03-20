@@ -14,6 +14,7 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import InteractiveCardView from './components/InteractiveCardView';
 import BirthdayCard from './components/birthday/BirthdayCard';
+import SavedCards from './pages/SavedCards';
 import { cardsData } from './data/cardsData';
 
 // Observe all fade-in elements on the landing page after it mounts
@@ -77,6 +78,7 @@ export default function App() {
         <Route path="/view/:categoryId/:cardId" element={<InteractiveCardView />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/profile/saved" element={<SavedCards />} />
         <Route path="/birthday-card" element={<BirthdayCard />} />
         <Route path="/birthday-card/:cardId" element={<BirthdayCard />} />
       </Routes>

@@ -62,4 +62,14 @@ public class CardService : ICardService
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
+
+    public async Task<bool> DeleteCardAsync(Guid cardId, string userId)
+    {
+        var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardId && c.CreatorId == userId);
+        if (card == null) return false;
+
+        _context.Cards.Remove(card);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

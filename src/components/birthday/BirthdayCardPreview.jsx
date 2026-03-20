@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack }) {
+export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack, onSave, saving, isSaved, onGoToSaved }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -69,12 +69,6 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
             <span>←</span> <span className="hidden sm:inline">Back</span>
           </button>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <button className="bg-white/10 hover:bg-white/20 text-white text-sm sm:text-base font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-white/20 transition-all flex items-center gap-2 cursor-pointer">
-              💾 <span className="hidden sm:inline">Save</span>
-            </button>
-            <button className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm sm:text-base font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer">
-              🔗 <span className="hidden sm:inline">Get Link</span>
-            </button>
             {onPersonalize && (
               <button
                 onClick={onPersonalize}
@@ -244,9 +238,40 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
   // MODAL MODE (used when called from editor preview)
   return (
     <div className={`fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex ${!isOpen ? 'items-center' : 'items-start py-12 sm:py-16'} justify-center p-4 overflow-y-auto`}>
+      <div className="fixed top-6 left-6 z-[210] flex items-center gap-3">
+        {isSaved ? (
+          <div className="flex items-center gap-2">
+            <span className="bg-green-500/20 text-green-300 font-bold px-3 py-2 rounded-xl flex items-center border border-green-500/30 text-sm sm:text-base">
+              ✅ <span className="hidden sm:inline ml-1">Saved Successfully!</span>
+            </span>
+            <button 
+              onClick={onGoToSaved}
+              className="bg-white hover:bg-slate-100 text-violet-600 text-sm sm:text-base font-bold px-4 py-2 rounded-xl border border-white/20 shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+            >
+              📂 <span className="hidden sm:inline">Go to Saved Cards</span>
+            </button>
+          </div>
+        ) : (
+          <button 
+            onClick={onSave}
+            disabled={saving}
+            className="bg-white/10 hover:bg-white/20 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur transition-all flex items-center gap-2 cursor-pointer shadow-lg disabled:opacity-50"
+          >
+            {saving ? (
+              <>⏳ <span className="hidden sm:inline">Saving...</span></>
+            ) : (
+              <>💾 <span className="hidden sm:inline">Save</span></>
+            )}
+          </button>
+        )}
+        <button className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer">
+          🔗 <span className="hidden sm:inline">Get Link</span>
+        </button>
+      </div>
+      
       <button
         onClick={handleClose}
-        className="fixed top-6 right-6 z-[210] w-10 h-10 bg-white/20 backdrop-blur border border-white/30 rounded-full text-white font-bold text-xl hover:bg-white/40 transition-all flex items-center justify-center cursor-pointer"
+        className="fixed top-6 right-6 z-[210] w-10 h-10 bg-white/20 backdrop-blur border border-white/30 rounded-full text-white font-bold text-xl hover:bg-white/40 transition-all flex items-center justify-center cursor-pointer shadow-lg"
       >
         ×
       </button>

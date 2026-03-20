@@ -1,7 +1,10 @@
 import { useState, useRef } from 'react';
 import BirthdayCardPreview from './BirthdayCardPreview';
+import { useAuth } from '../../context/AuthContext';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function BirthdayCardEditor({ defaultData, onBack }) {
+  const navigate = useNavigate();
   // Editable state initialized from defaults
   const [title, setTitle] = useState(defaultData.title || 'Happy Birthday!');
   const [message, setMessage] = useState(defaultData.message || 'Wishing you a wonderful day!');
@@ -12,8 +15,13 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
   const [giftBoxEnabled, setGiftBoxEnabled] = useState(defaultData.giftBoxEnabled || false);
   const [giftBoxUrl, setGiftBoxUrl] = useState(defaultData.giftBoxUrl || '');
   const [showPreview, setShowPreview] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const imageInputRef = useRef(null);
   const musicInputRef = useRef(null);
+  
+  const { user } = useAuth();
+  const { cardId, categoryId } = useParams();
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -51,8 +59,79 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
 
   const { bgGradient = 'from-pink-400 via-rose-400 to-violet-500', emoji = '🎂' } = defaultData.style || {};
 
+  const fileToBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+
+  const handleSave = async () => {
+    if (!user) {
+      alert("Please log in to save your personalize cards!");
+      return;
+    }
+    setSaving(true);
+    try {
+      // Convert all images to base64
+      const base64Images = await Promise.all(
+        images.map(async (img) => {
+          if (typeof img === 'string') return img; // existing picture string
+          return await fileToBase64(img);
+        })
+      );
+
+      const cardData = {
+        templateId: cardId, // or link to specific template
+        recipientName: title, 
+        heading: title,
+        message1: message,
+        message2: '', 
+        footer: signature,
+        audioUrl: musicEnabled && musicFile ? "Custom Music Not Supported Yet" : (musicEnabled ? defaultData.musicUrl : null),
+        customEmoji: emoji,
+        customBgGradient: bgGradient,
+        giftBoxUrl: giftBoxEnabled ? giftBoxUrl : null,
+        imagesJson: JSON.stringify(base64Images)
+      };
+
+      const response = await fetch('http://localhost:5153/api/cards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify(cardData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save card');
+      }
+
+      const savedCard = await response.json();
+      setIsSaved(true);
+    } catch (e) {
+      console.error(e);
+      alert('Error saving card: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (showPreview) {
-    return <BirthdayCardPreview data={getPreviewData()} onClose={() => setShowPreview(false)} />;
+    return (
+      <BirthdayCardPreview 
+        data={getPreviewData()} 
+        onClose={() => {
+          setShowPreview(false);
+          setIsSaved(false); // reset if they go back to editor
+        }} 
+        onSave={handleSave} 
+        saving={saving}
+        isSaved={isSaved}
+        onGoToSaved={() => navigate('/profile/saved')}
+      />
+    );
   }
 
   return (

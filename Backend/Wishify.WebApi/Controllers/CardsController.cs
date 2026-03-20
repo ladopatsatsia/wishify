@@ -47,4 +47,17 @@ public class CardsController : ControllerBase
         var cards = await _cardService.GetUserCardsAsync(userId);
         return Ok(cards);
     }
+
+    [Authorize]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCard(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var success = await _cardService.DeleteCardAsync(id, userId);
+        if (!success) return NotFound();
+
+        return NoContent();
+    }
 }

@@ -11,10 +11,10 @@ export const categories = [
 export const cardsData = {
   birthday: [
     {
-      id: 'bday-1',
+      id: 'b1',
       title: 'Happy Birthday',
       recipient: 'Someone Special',
-      customRoute: '/birthday-card/bday-1',
+      customRoute: '/birthday-card/b1',
       style: {
         bgGradient: 'from-pink-400 via-rose-400 to-violet-500',
         emoji: '🎂',
