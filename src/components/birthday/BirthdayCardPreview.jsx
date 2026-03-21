@@ -75,6 +75,10 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
   useEffect(() => {
     return () => {
       if (musicFile) URL.revokeObjectURL(audioSrc);
+      // Clean up the fireworks interval safely on unmount
+      if (fireworksIntervalRef.current) {
+        clearInterval(fireworksIntervalRef.current);
+      }
     };
   }, [musicFile]);
 
