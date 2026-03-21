@@ -27,7 +27,7 @@ export default function BirthdayCard({ subdomainSlug }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { cardId } = useParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { language } = useLanguage();
   const [mode, setMode] = useState('preview'); // 'preview' | 'edit'
   const [dbCard, setDbCard] = useState(null);
@@ -35,6 +35,8 @@ export default function BirthdayCard({ subdomainSlug }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (authLoading) return; // Wait for auth to initialize from localStorage
+
     if (cardId && cardId.length > 20) {
       setLoading(true);
       
@@ -49,7 +51,7 @@ export default function BirthdayCard({ subdomainSlug }) {
         .then(res => {
           if (res.status === 403 || res.status === 401) {
              if (!user) {
-                navigate('/login');
+                navigate('/login', { state: { from: location.pathname } });
                 return null;
              }
              throw new Error(language === 'ka' ? "თქვენ არ გაქვთ ამ ბარათის ნახვის უფლება." : language === 'ru' ? "У вас нет прав для просмотра этой открытки." : "You don't have permission to view this card.");
@@ -83,7 +85,7 @@ export default function BirthdayCard({ subdomainSlug }) {
         })
         .finally(() => setLoading(false));
     }
-  }, [cardId, subdomainSlug, user, navigate]);
+  }, [cardId, subdomainSlug, user, navigate, authLoading, language, location.pathname]);
 
   // Find the card from cardsData if cardId is provided and NOT a GUID
   const templateCard = (cardId && cardId.length < 20)

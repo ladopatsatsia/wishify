@@ -38,22 +38,29 @@ export default function ReelBirthdayCardPreview({
     }
   }, [isPlaying, isMuted, musicEnabled, musicUrl]);
 
-  // Initial confetti when card opens
+  // Looping fireworks when card opens
   useEffect(() => {
-    if (cardOpened) {
+    let timeoutId;
+    let isMounted = true;
+
+    const startFireworks = () => {
+      if (!cardOpened || !isMounted) return;
+
       const duration = 3000;
       const end = Date.now() + duration;
 
       const frame = () => {
+        if (!isMounted) return;
+
         confetti({
-          particleCount: 5,
+          particleCount: 2,
           angle: 60,
           spread: 55,
           origin: { x: 0 },
           colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
         });
         confetti({
-          particleCount: 5,
+          particleCount: 2,
           angle: 120,
           spread: 55,
           origin: { x: 1 },
@@ -62,10 +69,23 @@ export default function ReelBirthdayCardPreview({
 
         if (Date.now() < end) {
           requestAnimationFrame(frame);
+        } else {
+          // Burst ended, wait 1s then restart
+          timeoutId = setTimeout(startFireworks, 1000);
         }
       };
       frame();
+    };
+
+    if (cardOpened) {
+      startFireworks();
     }
+
+    return () => {
+      isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+      confetti.reset(); // Stop everything when component unmounts
+    };
   }, [cardOpened]);
 
   const handleTogglePlay = () => {

@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import PublishModal from '../components/profile/PublishModal';
 
 export default function SavedCards() {
-  const { user, logout } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [cards, setCards] = useState([]);
@@ -13,8 +13,10 @@ export default function SavedCards() {
   const [publishModal, setPublishModal] = useState({ open: false, card: null });
 
   useEffect(() => {
+    if (authLoading) return; // Wait for auth to initialize
+
     if (!user) {
-      navigate('/login');
+      navigate('/login', { state: { from: '/profile/saved' } });
       return;
     }
 
@@ -28,7 +30,7 @@ export default function SavedCards() {
 
         if (response.status === 401) {
           logout();
-          navigate('/login');
+          navigate('/login', { state: { from: '/profile/saved' } });
           return;
         }
 
@@ -37,7 +39,6 @@ export default function SavedCards() {
         }
 
         const data = await response.json();
-        // Normalize casing from server (PascalCase to camelCase)
         const normalizedData = data.map(c => ({
           ...c,
           isPublic: c.isPublic ?? c.IsPublic
@@ -51,7 +52,7 @@ export default function SavedCards() {
     };
 
     fetchSavedCards();
-  }, [user, navigate]);
+  }, [user, navigate, authLoading, logout]);
 
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
