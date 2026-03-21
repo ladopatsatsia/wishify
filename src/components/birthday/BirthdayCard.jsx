@@ -21,7 +21,7 @@ const DEFAULT_BIRTHDAY_CARD = {
   },
 };
 
-export default function BirthdayCard() {
+export default function BirthdayCard({ subdomainSlug }) {
   const navigate = useNavigate();
   const { cardId } = useParams();
   const { user } = useAuth();
@@ -31,7 +31,6 @@ export default function BirthdayCard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Treat cardId as a Database ID if it looks like a GUID (longer than 20 chars)
     if (cardId && cardId.length > 20) {
       setLoading(true);
       
@@ -64,8 +63,23 @@ export default function BirthdayCard() {
           }
         })
         .finally(() => setLoading(false));
+    } else if (subdomainSlug) {
+      setLoading(true);
+      fetch(`http://localhost:5153/api/cards/slug/${subdomainSlug}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Card not found or is private.");
+          return res.json();
+        })
+        .then(data => {
+          if (data && data.id) setDbCard(data);
+        })
+        .catch(err => {
+          console.error('Failed to load card by slug', err);
+          setError(err.message);
+        })
+        .finally(() => setLoading(false));
     }
-  }, [cardId, user, navigate]);
+  }, [cardId, subdomainSlug, user, navigate]);
 
   // Find the card from cardsData if cardId is provided and NOT a GUID
   const templateCard = (cardId && cardId.length < 20)
@@ -142,9 +156,9 @@ export default function BirthdayCard() {
     <BirthdayCardPreview
       data={defaultData}
       standalone={true}
-      isPublic={dbCard?.isPublic || dbCard?.IsPublic}
-      onPersonalize={() => setMode('edit')}
-      onBack={() => navigate('/browse/birthday')}
+      isPublic={dbCard?.isPublic || dbCard?.IsPublic || !!subdomainSlug}
+      onPersonalize={subdomainSlug ? undefined : () => setMode('edit')}
+      onBack={subdomainSlug ? undefined : () => navigate('/browse/birthday')}
     />
   );
 }

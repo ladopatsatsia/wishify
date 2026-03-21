@@ -41,6 +41,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(e => e.Creator)
                 .WithMany()
                 .HasForeignKey(e => e.CreatorId);
+
+            entity.HasIndex(e => e.UrlSlug).IsUnique();
         });
     }
 }

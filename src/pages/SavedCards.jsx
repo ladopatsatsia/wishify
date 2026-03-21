@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import PublishModal from '../components/profile/PublishModal';
 
 export default function SavedCards() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [publishModal, setPublishModal] = useState({ open: false, card: null });
 
   useEffect(() => {
     if (!user) {
@@ -80,27 +82,15 @@ export default function SavedCards() {
     }
   };
 
-  const handleTogglePublish = async (cardId) => {
-    try {
-      const response = await fetch(`http://localhost:5153/api/cards/${cardId}/toggle-public`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
-      });
+  const handleTogglePublish = (cardId) => {
+    const card = cards.find(c => c.id === cardId);
+    if (!card) return;
+    setPublishModal({ open: true, card });
+  };
 
-      if (!response.ok) {
-        throw new Error('Failed to toggle visibility');
-      }
-
-      // Update local state
-      setCards(prev => prev.map(c => 
-        c.id === cardId ? { ...c, isPublic: !c.isPublic } : c
-      ));
-    } catch (err) {
-      console.error(err);
-      alert("Error updating card visibility.");
-    }
+  const startPublishProcess = (cardId, slug) => {
+    setPublishModal({ open: false, card: null });
+    navigate('/payment', { state: { cardId, slug } });
   };
 
   if (loading) {
@@ -112,8 +102,9 @@ export default function SavedCards() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <>
+      <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto">
@@ -207,5 +198,13 @@ export default function SavedCards() {
         )}
       </div>
     </div>
+
+    <PublishModal
+      isOpen={publishModal.open}
+      card={publishModal.card}
+      onClose={() => setPublishModal({ open: false, card: null })}
+      onProceed={startPublishProcess}
+    />
+    </>
   );
 }

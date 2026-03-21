@@ -16,6 +16,7 @@ import InteractiveCardView from './components/InteractiveCardView';
 import BirthdayCard from './components/birthday/BirthdayCard';
 import SavedCards from './pages/SavedCards';
 import PublishedCards from './pages/PublishedCards';
+import PaymentPage from './pages/PaymentPage';
 import { cardsData } from './data/cardsData';
 
 // Observe all fade-in elements on the landing page after it mounts
@@ -54,8 +55,20 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Detect subdomain (e.g. 'Test' from Test.localhost:5173)
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  const subdomain = (parts.length === 2 && parts[1] === 'localhost')
+    ? parts[0]
+    : null;
+
+  // If on a subdomain, render the card page directly (no Navbar, no routing)
+  if (subdomain) {
+    return <BirthdayCard subdomainSlug={subdomain} />;
+  }
+
   // Hide main UI components when viewing a full-screen interactive card
-  const isViewMode = location.pathname.startsWith('/view/') || location.pathname.startsWith('/birthday-card');
+  const isViewMode = location.pathname.startsWith('/view/') || location.pathname.startsWith('/birthday-card') || location.pathname === '/payment';
 
   const handleCardClick = (categoryId, card) => {
     if (card) {
@@ -81,6 +94,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile/saved" element={<SavedCards />} />
         <Route path="/profile/published" element={<PublishedCards />} />
+        <Route path="/payment" element={<PaymentPage />} />
         <Route path="/birthday-card" element={<BirthdayCard />} />
         <Route path="/birthday-card/:cardId" element={<BirthdayCard />} />
       </Routes>

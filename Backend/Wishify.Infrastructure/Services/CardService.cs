@@ -81,4 +81,27 @@ public class CardService : ICardService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<bool> PublishCardAsync(Guid cardId, string userId, string slug)
+    {
+        var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardId && c.CreatorId == userId);
+        if (card == null) return false;
+
+        // Check if slug is already taken (only for public cards)
+        var slugExists = await _context.Cards.AnyAsync(c => c.UrlSlug == slug && c.Id != cardId);
+        if (slugExists) throw new InvalidOperationException("Url slug is already taken.");
+
+        card.UrlSlug = slug;
+        card.IsPublic = true;
+        card.IsPaid = true;
+        
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<Card?> GetCardBySlugAsync(string slug)
+    {
+        return await _context.Cards
+            .FirstOrDefaultAsync(c => c.UrlSlug == slug && c.IsPublic);
+    }
 }

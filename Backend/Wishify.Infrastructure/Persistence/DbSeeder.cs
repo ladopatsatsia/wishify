@@ -7,6 +7,15 @@ public static class DbSeeder
 {
     public static void Seed(ApplicationDbContext context)
     {
+        // Clean up any extra birthday templates that should not exist
+        var extraIds = new[] { "b2", "b3", "b4" };
+        var extras = context.Templates.Where(t => extraIds.Contains(t.Id)).ToList();
+        if (extras.Any())
+        {
+            context.Templates.RemoveRange(extras);
+            context.SaveChanges();
+        }
+
         if (context.Categories.Any()) return;
 
         var categories = new List<Category>

@@ -43,6 +43,14 @@ public class CardsController : ControllerBase
         return Ok(card);
     }
 
+    [HttpGet("slug/{slug}")]
+    public async Task<IActionResult> GetCardBySlug(string slug)
+    {
+        var card = await _cardService.GetCardBySlugAsync(slug);
+        if (card == null) return NotFound();
+        return Ok(card);
+    }
+
     [Authorize]
     [HttpPatch("{id}/toggle-public")]
     public async Task<IActionResult> TogglePublic(Guid id)
@@ -54,6 +62,33 @@ public class CardsController : ControllerBase
         if (!success) return NotFound();
 
         return NoContent();
+    }
+
+    public class PublishRequest
+    {
+        public string UrlSlug { get; set; } = string.Empty;
+    }
+
+    [Authorize]
+    [HttpPost("{id}/publish")]
+    public async Task<IActionResult> Publish(Guid id, [FromBody] PublishRequest request)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        if (string.IsNullOrWhiteSpace(request.UrlSlug))
+            return BadRequest("UrlSlug is required.");
+
+        try
+        {
+            var success = await _cardService.PublishCardAsync(id, userId, request.UrlSlug);
+            if (!success) return NotFound();
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize]

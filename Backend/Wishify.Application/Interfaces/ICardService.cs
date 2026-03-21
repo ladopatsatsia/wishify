@@ -18,4 +18,6 @@ public interface ICardService
     Task<IEnumerable<Card>> GetUserCardsAsync(string userId);
     Task<bool> DeleteCardAsync(Guid cardId, string userId);
     Task<bool> ToggleCardPublicAsync(Guid cardId, string userId);
+    Task<bool> PublishCardAsync(Guid cardId, string userId, string slug);
+    Task<Card?> GetCardBySlugAsync(string slug);
 }

@@ -32,5 +32,7 @@ public class Card
     public string? ImagesJson { get; set; }
     
     public bool IsPublic { get; set; } = false;
+    public string? UrlSlug { get; set; }
+    public bool IsPaid { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
