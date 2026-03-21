@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 // Trigger HMR to resolve npm install
 
-export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack, onSave, saving, isSaved, onGoToSaved }) {
+export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack, onSave, saving, isSaved, onGoToSaved, isPublic }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -86,25 +86,27 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
   if (standalone) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur border-b border-white/10 shrink-0">
-          <button
-            onClick={handleClose}
-            className="flex items-center gap-2 text-white/70 hover:text-white font-semibold transition-colors cursor-pointer"
-          >
-            <span>←</span> <span className="hidden sm:inline">Back</span>
-          </button>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {onPersonalize && (
-              <button
-                onClick={onPersonalize}
-                className="bg-gradient-to-r from-violet-600 to-pink-600 text-white text-sm sm:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer ml-1 sm:ml-2"
-              >
-                ✏️ <span className="hidden sm:inline">Personalize</span>
-              </button>
-            )}
+        {/* Top bar - Hide if it's a live published gift */}
+        {!isPublic && (
+          <div className="flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur border-b border-white/10 shrink-0">
+            <button
+              onClick={handleClose}
+              className="flex items-center gap-2 text-white/70 hover:text-white font-semibold transition-colors cursor-pointer"
+            >
+              <span>←</span> <span className="hidden sm:inline">Back</span>
+            </button>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              {onPersonalize && (
+                <button
+                  onClick={onPersonalize}
+                  className="bg-gradient-to-r from-violet-600 to-pink-600 text-white text-sm sm:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer ml-1 sm:ml-2"
+                >
+                  ✏️ <span className="hidden sm:inline">Personalize</span>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {audioSrc && <audio ref={audioRef} src={audioSrc} loop />}
 

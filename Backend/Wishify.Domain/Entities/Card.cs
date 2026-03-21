@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace Wishify.Domain.Entities;
 
@@ -6,9 +7,11 @@ public class Card
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string? TemplateId { get; set; }
+    [JsonIgnore]
     public Template? Template { get; set; }
     
     public string? CreatorId { get; set; }
+    [JsonIgnore]
     public ApplicationUser? Creator { get; set; }
     
     public string RecipientName { get; set; } = string.Empty;
@@ -28,5 +31,6 @@ public class Card
     public string? GiftBoxUrl { get; set; }
     public string? ImagesJson { get; set; }
     
+    public bool IsPublic { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

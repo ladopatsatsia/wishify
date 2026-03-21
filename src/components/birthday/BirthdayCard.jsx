@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import BirthdayCardPreview from './BirthdayCardPreview';
 import BirthdayCardEditor from './BirthdayCardEditor';
+import { useAuth } from '../../context/AuthContext';
 import { cardsData } from '../../data/cardsData';
 
 // Default template data for the new birthday card
@@ -23,23 +24,48 @@ const DEFAULT_BIRTHDAY_CARD = {
 export default function BirthdayCard() {
   const navigate = useNavigate();
   const { cardId } = useParams();
+  const { user } = useAuth();
   const [mode, setMode] = useState('preview'); // 'preview' | 'edit'
   const [dbCard, setDbCard] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Treat cardId as a Database ID if it looks like a GUID (longer than 20 chars)
     if (cardId && cardId.length > 20) {
       setLoading(true);
-      fetch(`http://localhost:5153/api/cards/${cardId}`)
-        .then(res => res.json())
+      
+      const fetchHeaders = {};
+      if (user?.token) {
+        fetchHeaders['Authorization'] = `Bearer ${user.token}`;
+      }
+
+      fetch(`http://localhost:5153/api/cards/${cardId}`, {
+        headers: fetchHeaders
+      })
+        .then(res => {
+          if (res.status === 403 || res.status === 401) {
+             if (!user) {
+                navigate('/login');
+                return null;
+             }
+             throw new Error("You don't have permission to view this card.");
+          }
+          if (!res.ok) throw new Error("Failed to load card.");
+          return res.json();
+        })
         .then(data => {
           if (data && data.id) setDbCard(data);
         })
-        .catch(err => console.error('Failed to load card from DB', err))
+        .catch(err => {
+          if (err) {
+            console.error('Failed to load card from DB', err);
+            setError(err.message);
+          }
+        })
         .finally(() => setLoading(false));
     }
-  }, [cardId]);
+  }, [cardId, user, navigate]);
 
   // Find the card from cardsData if cardId is provided and NOT a GUID
   const templateCard = (cardId && cardId.length < 20)
@@ -85,6 +111,23 @@ export default function BirthdayCard() {
     );
   }
 
+  // Render an error state if access is denied or card not found
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+        <div className="text-6xl mb-6">🔒</div>
+        <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
+        <p className="text-slate-400 mb-8 max-w-sm">{error}</p>
+        <button
+          onClick={() => navigate('/')}
+          className="bg-white text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-100 transition shadow-lg"
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
+
   if (mode === 'edit') {
     return (
       <BirthdayCardEditor
@@ -99,6 +142,7 @@ export default function BirthdayCard() {
     <BirthdayCardPreview
       data={defaultData}
       standalone={true}
+      isPublic={dbCard?.isPublic || dbCard?.IsPublic}
       onPersonalize={() => setMode('edit')}
       onBack={() => navigate('/browse/birthday')}
     />

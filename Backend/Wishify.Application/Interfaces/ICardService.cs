@@ -17,4 +17,5 @@ public interface ICardService
     Task<Card?> GetCardByIdAsync(Guid cardId);
     Task<IEnumerable<Card>> GetUserCardsAsync(string userId);
     Task<bool> DeleteCardAsync(Guid cardId, string userId);
+    Task<bool> ToggleCardPublicAsync(Guid cardId, string userId);
 }

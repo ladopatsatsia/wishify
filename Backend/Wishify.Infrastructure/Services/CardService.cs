@@ -71,4 +71,14 @@ public class CardService : ICardService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<bool> ToggleCardPublicAsync(Guid cardId, string userId)
+    {
+        var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardId && c.CreatorId == userId);
+        if (card == null) return false;
+
+        card.IsPublic = !card.IsPublic;
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

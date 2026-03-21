@@ -1,9 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace Wishify.Domain.Entities;
 
 public class Template
 {
     public string Id { get; set; } = string.Empty;
     public string CategoryId { get; set; } = string.Empty;
+    
+    [JsonIgnore]
     public Category Category { get; set; } = null!;
     
     public string Title { get; set; } = string.Empty;
@@ -19,5 +23,6 @@ public class Template
     public string? DefaultAudioUrl { get; set; }
     public string? MusicLabel { get; set; }
 
+    [JsonIgnore]
     public ICollection<Card> SavedCards { get; set; } = new List<Card>();
 }

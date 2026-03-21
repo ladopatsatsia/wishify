@@ -34,7 +34,26 @@ public class CardsController : ControllerBase
     {
         var card = await _cardService.GetCardByIdAsync(id);
         if (card == null) return NotFound();
+
+        if (card.IsPublic) return Ok(card);
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (card.CreatorId != userId) return Forbid();
+
         return Ok(card);
+    }
+
+    [Authorize]
+    [HttpPatch("{id}/toggle-public")]
+    public async Task<IActionResult> TogglePublic(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var success = await _cardService.ToggleCardPublicAsync(id, userId);
+        if (!success) return NotFound();
+
+        return NoContent();
     }
 
     [Authorize]

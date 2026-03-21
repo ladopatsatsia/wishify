@@ -93,6 +93,15 @@ export default function Navbar() {
                     >
                       💾 My Saved Cards
                     </button>
+                    <button
+                      onClick={() => {
+                        setProfileDropdownOpen(false);
+                        navigate('/profile/published');
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2 cursor-pointer"
+                    >
+                      🌐 My Published Cards
+                    </button>
                     <div className="h-px bg-slate-100 my-1"></div>
                     <button
                       onClick={() => {
@@ -163,6 +172,12 @@ export default function Navbar() {
                     className="w-full text-center py-2 text-violet-600 font-bold"
                   >
                     My Saved Cards
+                  </button>
+                  <button
+                    onClick={() => { navigate('/profile/published'); setMenuOpen(false); }}
+                    className="w-full text-center py-2 text-emerald-600 font-bold"
+                  >
+                    My Published Cards
                   </button>
                   <button
                     onClick={() => { logout(); setMenuOpen(false); }}
