@@ -283,7 +283,10 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
           </div>
         ) : (
           <button 
-            onClick={onSave}
+            onClick={() => {
+              console.log("Save button clicked in Preview Modal");
+              onSave();
+            }}
             disabled={saving}
             className="bg-white/10 hover:bg-white/20 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur transition-all flex items-center gap-2 cursor-pointer shadow-lg disabled:opacity-50"
           >

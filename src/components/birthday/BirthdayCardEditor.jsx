@@ -69,11 +69,14 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
   });
 
   const handleSave = async () => {
+    console.log("handleSave called in Editor", { user, cardId, categoryId });
     if (!user) {
+      console.warn("handleSave: No user found, alerting...");
       alert(language === 'ka' ? "გთხოვთ გაიაროთ ავტორიზაცია თქვენი ბარათების შესანახად!" : language === 'ru' ? "Пожалуйста, войдите, чтобы сохранить ваши персонализированные открытки!" : "Please log in to save your personalize cards!");
       return;
     }
     setSaving(true);
+    console.log("handleSave: setSaving(true)");
     try {
       // Convert all images to base64
       const base64Images = await Promise.all(

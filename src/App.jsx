@@ -18,6 +18,7 @@ import BirthdayCard from './components/birthday/BirthdayCard';
 import SavedCards from './pages/SavedCards';
 import PublishedCards from './pages/PublishedCards';
 import PaymentPage from './pages/PaymentPage';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import { cardsData } from './data/cardsData';
 
 // Observe all fade-in elements on the landing page after it mounts
@@ -101,6 +102,7 @@ export default function App() {
       </Routes>
 
       {!isViewMode && <Footer />}
+      <LanguageSwitcher />
     </div>
   );
 }
