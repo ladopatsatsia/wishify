@@ -38,13 +38,13 @@ export default function HowItWorks() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={ref} className="fade-in-section text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            {language === 'ka' ? '3 მარტივი ნაბიჯი' : '3 Simple Steps'}
+            {language === 'ka' ? '3 მარტივი ნაბიჯი' : language === 'ru' ? '3 простых шага' : '3 Simple Steps'}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4">
-            {language === 'ka' ? 'როგორ ' : 'How it '}<span className="gradient-text">{language === 'ka' ? 'მუშაობს' : 'Works'}</span>
+            {language === 'ka' ? 'როგორ ' : language === 'ru' ? 'Как это ' : 'How it '}<span className="gradient-text">{language === 'ka' ? 'მუშაობს' : language === 'ru' ? 'работает' : 'Works'}</span>
           </h2>
           <p className="text-xl text-slate-500 max-w-xl mx-auto">
-            {language === 'ka' ? 'ციფრული ბარათის გაგზავნა ჯერ ასეთი სახალისო არ ყოფილა. დიზაინიდან მიწოდებამდე წუთებში.' : 'Sending a digital greeting card has never been this fun. From design to delivery in minutes.'}
+            {language === 'ka' ? 'ციფრული ბარათის გაგზავნა ჯერ ასეთი სახალისო არ ყოფილა. დიზაინიდან მიწოდებამდე წუთებში.' : language === 'ru' ? 'Отправка цифровой открытки еще никогда не была такой увлекательной. От дизайна до доставки за считанные минуты.' : 'Sending a digital greeting card has never been this fun. From design to delivery in minutes.'}
           </p>
         </div>
 

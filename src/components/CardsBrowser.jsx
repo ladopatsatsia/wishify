@@ -85,7 +85,7 @@ export default function CardsBrowser() {
           onClick={() => navigate('/')}
           className="flex items-center gap-2 text-violet-600 font-semibold hover:gap-3 transition-all mb-8 group cursor-pointer"
         >
-          <span className="group-hover:-translate-x-1 transition-transform">←</span> {language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : 'Back to Home'}
+          <span className="group-hover:-translate-x-1 transition-transform">←</span> {language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : language === 'ru' ? 'Вернуться на главную' : 'Back to Home'}
         </button>
 
         <div ref={ref} className="fade-in-section mb-10">
@@ -97,9 +97,10 @@ export default function CardsBrowser() {
               <h2 className="text-4xl font-extrabold text-slate-900">
                 {language === 'ka' 
                   ? (activeCategory === 'birthday' ? 'დაბადების დღის' : activeCategory === 'graduation' ? 'დიპლომის' : activeCategory === 'invitation' ? 'მოწვევის' : activeCategory === 'memory' ? 'მოგონების' : activeCategory === 'love' ? 'სიყვარულის' : activeCategory === 'holiday' ? 'დღესასწაულის' : activeCategory) + ' ბარათები'
+                  : language === 'ru' ? (activeCategory === 'birthday' ? 'Дня рождения' : activeCategory === 'graduation' ? 'Дипломные' : activeCategory === 'invitation' ? 'Пригласительные' : activeCategory === 'memory' ? 'Памятные' : activeCategory === 'love' ? 'Любовные' : activeCategory === 'holiday' ? 'Праздничные' : activeCategory) + ' открытки'
                   : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1) + ' Cards'}
               </h2>
-              <p className="text-slate-500 text-lg">{language === 'ka' ? 'აირჩიეთ საბაზისო დიზაინი და გახადეთ უნიკალური.' : 'Choose a base design and make it unique.'}</p>
+              <p className="text-slate-500 text-lg">{language === 'ka' ? 'აირჩიეთ საბაზისო დიზაინი და გახადეთ უნიკალური.' : language === 'ru' ? 'Выберите базовый дизайн и сделайте его уникальным.' : 'Choose a base design and make it unique.'}</p>
             </div>
           </div>
 
@@ -114,7 +115,7 @@ export default function CardsBrowser() {
                     : 'bg-white text-slate-600 border border-slate-200 hover:border-violet-300 hover:text-violet-600 hover:shadow-md'
                   }`}
               >
-                {c.emoji} {language === 'ka' ? (c.id === 'birthday' ? 'დაბადების დღე' : c.id === 'graduation' ? 'დიპლომი' : c.id === 'invitation' ? 'მოწვევა' : c.id === 'memory' ? 'მოგონება' : c.id === 'love' ? 'სიყვარული' : c.id === 'holiday' ? 'დღესასწაული' : c.id) : c.id.charAt(0).toUpperCase() + c.id.slice(1)}
+                {c.emoji} {language === 'ka' ? (c.id === 'birthday' ? 'დაბადების დღე' : c.id === 'graduation' ? 'დიპლომი' : c.id === 'invitation' ? 'მოწვევა' : c.id === 'memory' ? 'მოგონება' : c.id === 'love' ? 'სიყვარული' : c.id === 'holiday' ? 'დღესასწაული' : c.id) : language === 'ru' ? (c.id === 'birthday' ? 'День рождения' : c.id === 'graduation' ? 'Диплом' : c.id === 'invitation' ? 'Приглашение' : c.id === 'memory' ? 'Воспоминание' : c.id === 'love' ? 'Любовь' : c.id === 'holiday' ? 'Праздник' : c.id) : c.id.charAt(0).toUpperCase() + c.id.slice(1)}
               </button>
             ))}
           </div>
@@ -125,7 +126,7 @@ export default function CardsBrowser() {
           {loading ? (
             <div className="col-span-full py-20 text-center">
               <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-slate-500 font-bold">{language === 'ka' ? 'ჯადოსნური შაბლონები იტვირთება...' : 'Loading magical templates...'}</p>
+              <p className="text-slate-500 font-bold">{language === 'ka' ? 'ჯადოსნური შაბლონები იტვირთება...' : language === 'ru' ? 'Загрузка магических шаблонов...' : 'Loading magical templates...'}</p>
             </div>
           ) : (
             <>
@@ -135,8 +136,8 @@ export default function CardsBrowser() {
               {templates.length === 0 && (
                 <div className="col-span-full py-20 text-center">
                   <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-xl font-bold text-slate-800">{language === 'ka' ? 'ამ კატეგორიაში ბარათები არ მოიძებნა' : 'No cards found in this category'}</h3>
-                  <p className="text-slate-500">{language === 'ka' ? 'მოგვიანებით შემოწმეთ ახალი დიზაინები!' : 'Check back later for new designs!'}</p>
+                  <h3 className="text-xl font-bold text-slate-800">{language === 'ka' ? 'ამ კატეგორიაში ბარათები არ მოიძებნა' : language === 'ru' ? 'В этой категории открыток не найдено' : 'No cards found in this category'}</h3>
+                  <p className="text-slate-500">{language === 'ka' ? 'მოგვიანებით შემოწმეთ ახალი დიზაინები!' : language === 'ru' ? 'Заходите позже, чтобы увидеть новые дизайны!' : 'Check back later for new designs!'}</p>
                 </div>
               )}
             </>

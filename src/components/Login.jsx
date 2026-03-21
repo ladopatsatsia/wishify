@@ -48,8 +48,8 @@ export default function Login() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 text-white text-3xl shadow-lg mb-4 animate-bounce-slow">
               ✨
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{language === 'ka' ? 'კეთილი იყოს თქვენი დაბრუნება' : 'Welcome Back'}</h1>
-            <p className="text-slate-500 mt-2 font-medium">{language === 'ka' ? 'შედით თქვენს ჯადოსნურ პანელში' : 'Log in to your magical dashboard'}</p>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{language === 'ka' ? 'კეთილი იყოს თქვენი დაბრუნება' : language === 'ru' ? 'С возвращением' : 'Welcome Back'}</h1>
+            <p className="text-slate-500 mt-2 font-medium">{language === 'ka' ? 'შედით თქვენს ჯადოსნურ პანელში' : language === 'ru' ? 'Войдите в свою магическую панель' : 'Log in to your magical dashboard'}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -60,7 +60,7 @@ export default function Login() {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">{language === 'ka' ? 'ელ-ფოსტა' : 'Email Address'}</label>
+              <label className="text-sm font-bold text-slate-700 ml-1">{language === 'ka' ? 'ელ-ფოსტა' : language === 'ru' ? 'Электронная почта' : 'Email Address'}</label>
               <input
                 type="email"
                 value={email}
@@ -73,8 +73,8 @@ export default function Login() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-sm font-bold text-slate-700">{language === 'ka' ? 'პაროლი' : 'Password'}</label>
-                <a href="#" className="text-xs font-bold text-violet-500 hover:text-pink-500 transition-colors">{language === 'ka' ? 'დაგავიწყდათ პაროლი?' : 'Forgot Password?'}</a>
+                <label className="text-sm font-bold text-slate-700">{language === 'ka' ? 'პაროლი' : language === 'ru' ? 'Пароль' : 'Password'}</label>
+                <a href="#" className="text-xs font-bold text-violet-500 hover:text-pink-500 transition-colors">{language === 'ka' ? 'დაგავიწყდათ პაროლი?' : language === 'ru' ? 'Забыли пароль?' : 'Forgot Password?'}</a>
               </div>
               <input
                 type="password"
@@ -94,7 +94,7 @@ export default function Login() {
                 <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  {language === 'ka' ? 'შესვლა' : 'Sign In'}
+                  {language === 'ka' ? 'შესვლა' : language === 'ru' ? 'Войти' : 'Sign In'}
                   <span className="group-hover:translate-x-1 transition-transform">→</span>
                 </>
               )}
@@ -102,9 +102,9 @@ export default function Login() {
           </form>
 
           <div className="mt-8 text-center text-slate-500 font-medium">
-            {language === 'ka' ? 'არ გაქვთ ანგარიში? ' : "Don't have an account? "}
+            {language === 'ka' ? 'არ გაქვთ ანგარიში? ' : language === 'ru' ? 'Нет аккаунта? ' : "Don't have an account? "}
             <Link to="/signup" className="text-violet-600 font-bold hover:text-pink-500 transition-colors underline-offset-4 hover:underline">
-              {language === 'ka' ? 'შექმენით ახლა' : 'Create One'}
+              {language === 'ka' ? 'შექმენით ახლა' : language === 'ru' ? 'Создать' : 'Create One'}
             </Link>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function Login() {
         {/* Social logins */}
         <div className="mt-8 flex items-center gap-4 text-slate-400">
           <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-xs font-bold uppercase tracking-widest">{language === 'ka' ? 'ან გააგრძელეთ' : 'Or continue with'}</span>
+          <span className="text-xs font-bold uppercase tracking-widest">{language === 'ka' ? 'ან გააგრძელეთ' : language === 'ru' ? 'Или продолжить через' : 'Or continue with'}</span>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
 

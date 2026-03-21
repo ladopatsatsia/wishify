@@ -74,7 +74,7 @@ export default function PublishedCards() {
   };
 
   const handleDelete = async (cardId) => {
-    if (!window.confirm(language === 'ka' ? 'დარწმუნებული ხართ, რომ გსურთ ამ გამოქვეყნებული ბარათის წაშლა? ის ყველასთვის წაიშლება.' : "Are you sure you want to delete this published card? It will disappear for everyone.")) return;
+    if (!window.confirm(language === 'ka' ? 'დარწმუნებული ხართ, რომ გსურთ ამ გამოქვეყნებული ბარათის წაშლა? ის ყველასთვის წაიშლება.' : language === 'ru' ? 'Вы уверены, что хотите удалить эту опубликованную открытку? Она исчезнет для всех.' : "Are you sure you want to delete this published card? It will disappear for everyone.")) return;
 
     try {
       const response = await fetch(`http://localhost:5153/api/cards/${cardId}`, {
@@ -112,25 +112,25 @@ export default function PublishedCards() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto">
           <h1 className="text-4xl font-black text-slate-800 tracking-tight mb-4">
-            {language === 'ka' ? 'ჩემი ' : 'My '}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">{language === 'ka' ? 'გამოქვეყნებული ბარათები' : 'Published Cards'}</span>
+            {language === 'ka' ? 'ჩემი ' : language === 'ru' ? 'Мои ' : 'My '}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">{language === 'ka' ? 'გამოქვეყნებული ბარათები' : language === 'ru' ? 'Опубликованные открытки' : 'Published Cards'}</span>
           </h1>
           <p className="text-lg text-slate-500 font-medium">
-            {language === 'ka' ? 'ლაივ ბარათები, რომლებიც ხილულია ყველასთვის ვისაც აქვს ლინკი.' : 'Live cards that are currently visible to anyone with the link.'}
+            {language === 'ka' ? 'ლაივ ბარათები, რომლებიც ხილულია ყველასთვის ვისაც აქვს ლინკი.' : language === 'ru' ? 'Живые открытки, которые в данный момент видны любому, у кого есть ссылка.' : 'Live cards that are currently visible to anyone with the link.'}
           </p>
         </div>
 
         {publishedCards.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">
             <div className="text-6xl mb-4">🌐</div>
-            <h3 className="text-xl font-bold text-slate-700 mb-2">{language === 'ka' ? 'გამოქვეყნებული ბარათები არ არის' : 'No published cards'}</h3>
+            <h3 className="text-xl font-bold text-slate-700 mb-2">{language === 'ka' ? 'გამოქვეყნებული ბარათები არ არის' : language === 'ru' ? 'Нет опубликованных открыток' : 'No published cards'}</h3>
             <p className="text-slate-500 mb-6 max-w-md mx-auto">
-              {language === 'ka' ? 'ჯერ არ გაქვთ გამოქვეყნებული ბარათები. გამოაქვეყნეთ შენახული ბარათებიდან!' : "You haven't made any cards public yet. Publish a card from your Saved section to see it here!"}
+              {language === 'ka' ? 'ჯერ არ გაქვთ გამოქვეყნებული ბარათები. გამოაქვეყნეთ შენახული ბარათებიდან!' : language === 'ru' ? 'Вы еще не сделали ни одной открытки публичной. Опубликуйте открытку из раздела «Сохраненные», чтобы увидеть её здесь!' : "You haven't made any cards public yet. Publish a card from your Saved section to see it here!"}
             </p>
             <button
               onClick={() => navigate('/profile/saved')}
               className="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-slate-800 transition shadow-lg cursor-pointer"
             >
-              {language === 'ka' ? 'გადასვლა შენახულ ბარათებზე' : 'Go to Saved Cards'}
+              {language === 'ka' ? 'გადასვლა შენახულ ბარათებზე' : language === 'ru' ? 'Перейти к сохраненным открыткам' : 'Go to Saved Cards'}
             </button>
           </div>
         ) : (
@@ -159,7 +159,7 @@ export default function PublishedCards() {
                     }`}
                   >
                     <span>{card.isPublic ? '🌐' : '🔒'}</span>
-                    {card.isPublic ? (language === 'ka' ? 'გამოქვეყნებული' : 'Published') : (language === 'ka' ? 'პირადი' : 'Private')}
+                    {card.isPublic ? (language === 'ka' ? 'გამოქვეყნებული' : language === 'ru' ? 'Опубликовано' : 'Published') : (language === 'ka' ? 'პირადი' : language === 'ru' ? 'Личная' : 'Private')}
                   </button>
 
                   <div className="flex flex-col h-full p-8 text-center relative z-10">
@@ -172,13 +172,13 @@ export default function PublishedCards() {
                         onClick={() => navigate(`/birthday-card/${card.id}`)}
                         className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer"
                        >
-                         🔗 {language === 'ka' ? 'ლაივ ლინკი' : 'Live Link'}
+                         🔗 {language === 'ka' ? 'ლაივ ლინკი' : language === 'ru' ? 'Живая ссылка' : 'Live Link'}
                        </button>
                        <button
                         onClick={() => handleDelete(card.id)}
                         className="w-full bg-red-100 backdrop-blur text-red-600 hover:bg-red-200 hover:shadow-md text-sm font-bold py-2.5 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer"
                        >
-                         🗑️ {language === 'ka' ? 'წაშლა' : 'Delete'}
+                         🗑️ {language === 'ka' ? 'წაშლა' : language === 'ru' ? 'Удалить' : 'Delete'}
                        </button>
                     </div>
                   </div>

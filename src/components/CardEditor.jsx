@@ -97,7 +97,7 @@ export default function CardEditor({ card, category, onBack, onClose }) {
           <div className="flex items-center gap-3">
             <div className="text-3xl">{emoji}</div>
             <div>
-              <h2 className="text-xl font-extrabold text-slate-800">{language === 'ka' ? 'ბარათის რედაქტორი' : 'Card Editor'}</h2>
+              <h2 className="text-xl font-extrabold text-slate-800">{language === 'ka' ? 'ბარათის რედაქტორი' : language === 'ru' ? 'Редактор открытки' : 'Card Editor'}</h2>
               <p className="text-sm text-slate-400">{card.title}</p>
             </div>
           </div>
@@ -111,10 +111,10 @@ export default function CardEditor({ card, category, onBack, onClose }) {
 
         <div className="p-6 space-y-6">
           {/* Live mini preview */}
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{language === 'ka' ? 'ლაივ პრევიუ' : 'Live Preview'}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{language === 'ka' ? 'ლაივ პრევიუ' : language === 'ru' ? 'Предпросмотр' : 'Live Preview'}</div>
           <div className={`rounded-2xl bg-gradient-to-br ${bgGradient} p-5 text-center space-y-2`}>
             <div className="text-4xl">{emoji}</div>
-            <div className="font-bold text-slate-800 text-base">{heading || (language === 'ka' ? 'სათაური' : 'Your Heading Here')}</div>
+            <div className="font-bold text-slate-800 text-base">{heading || (language === 'ka' ? 'სათაური' : language === 'ru' ? 'Ваш заголовок здесь' : 'Your Heading Here')}</div>
             <div className="text-slate-500 text-[10px] leading-tight line-clamp-2">
               {subheading} {message2}
             </div>
@@ -124,41 +124,41 @@ export default function CardEditor({ card, category, onBack, onClose }) {
           {/* Text fields */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">✏️ {language === 'ka' ? 'მთავარი სათაური' : 'Main Heading'}</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">✏️ {language === 'ka' ? 'მთავარი სათაური' : language === 'ru' ? 'Главный заголовок' : 'Main Heading'}</label>
               <input
                 value={heading}
                 onChange={e => setHeading(e.target.value)}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:border-violet-400 transition"
-                placeholder={language === 'ka' ? 'შეიყვანეთ სათაური...' : 'Enter a celebratory heading...'}
+                placeholder={language === 'ka' ? 'შეიყვანეთ სათაური...' : language === 'ru' ? 'Введите праздничный заголовок...' : 'Enter a celebratory heading...'}
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">💬 {language === 'ka' ? 'საწყისი მესიჯი' : 'Opening Message'}</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">💬 {language === 'ka' ? 'საწყისი მესიჯი' : language === 'ru' ? 'Начальное сообщение' : 'Opening Message'}</label>
               <textarea
                 value={subheading}
                 onChange={e => setSubheading(e.target.value)}
                 rows={2}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition resize-none text-sm"
-                placeholder={language === 'ka' ? 'თბილი საწყისი წინადადება...' : 'A warm opening sentence...'}
+                placeholder={language === 'ka' ? 'თბილი საწყისი წინადადება...' : language === 'ru' ? 'Теплое вступительное предложение...' : 'A warm opening sentence...'}
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">💬 {language === 'ka' ? 'პირადი დეტალი' : 'Personal Detail'}</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">💬 {language === 'ka' ? 'პირადი დეტალი' : language === 'ru' ? 'Личная деталь' : 'Personal Detail'}</label>
               <textarea
                 value={message2}
                 onChange={e => setMessage2(e.target.value)}
                 rows={2}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition resize-none text-sm"
-                placeholder={language === 'ka' ? 'დაამატეთ პირადი შტრიხი...' : 'Add another personalized touch...'}
+                placeholder={language === 'ka' ? 'დაამატეთ პირადი შტრიხი...' : language === 'ru' ? 'Добавьте еще один личный штрих...' : 'Add another personalized touch...'}
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">💌 {language === 'ka' ? 'ქვედა ტექსტი' : 'Footer Text'}</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">💌 {language === 'ka' ? 'ქვედა ტექსტი' : language === 'ru' ? 'Текст внизу' : 'Footer Text'}</label>
               <input
                 value={footer}
                 onChange={e => setFooter(e.target.value)}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition"
-                placeholder={language === 'ka' ? 'გამოგზავნილია სიყვარულით Wishify-სგან' : 'Sent with Love from Wishify'}
+                placeholder={language === 'ka' ? 'გამოგზავნილია სიყვარულით Wishify-სგან' : language === 'ru' ? 'Отправлено с любовью от Wishify' : 'Sent with Love from Wishify'}
               />
             </div>
           </div>
@@ -169,8 +169,8 @@ export default function CardEditor({ card, category, onBack, onClose }) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎵</span>
                 <div>
-                  <div className="font-bold text-slate-800">{language === 'ka' ? 'ჯადოსნური მუსიკა' : 'Magic Music'}</div>
-                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ მუსიკა' : 'Add an interactive soundtrack'}</div>
+                  <div className="font-bold text-slate-800">{language === 'ka' ? 'ჯადოსნური მუსიკა' : language === 'ru' ? 'Магическая музыка' : 'Magic Music'}</div>
+                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ მუსიკა' : language === 'ru' ? 'Добавьте интерактивный саундтрек' : 'Add an interactive soundtrack'}</div>
                 </div>
               </div>
               <button
@@ -186,14 +186,14 @@ export default function CardEditor({ card, category, onBack, onClose }) {
                 <div className="bg-white rounded-xl p-3 flex items-center gap-3 border border-violet-100">
                   <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xs">♪</div>
                   <div className="flex-1">
-                    <div className="text-sm font-semibold text-slate-700">{card.musicLabel || (language === 'ka' ? 'მისალოცი მელოდია' : 'Greeting Melody')}</div>
-                    <div className="text-xs text-violet-400">{language === 'ka' ? 'ბარათის მუსიკა' : 'Default Card Track'}</div>
+                    <div className="text-sm font-semibold text-slate-700">{card.musicLabel || (language === 'ka' ? 'მისალოცი მელოდია' : language === 'ru' ? 'Поздравительная мелодия' : 'Greeting Melody')}</div>
+                    <div className="text-xs text-violet-400">{language === 'ka' ? 'ბარათის მუსიკა' : language === 'ru' ? 'Стандартный трек открытки' : 'Default Card Track'}</div>
                   </div>
-                  <div className="text-green-500 text-xs font-bold">✓ {language === 'ka' ? 'აქტიურია' : 'Active'}</div>
+                  <div className="text-green-500 text-xs font-bold">✓ {language === 'ka' ? 'აქტიურია' : language === 'ru' ? 'Активно' : 'Active'}</div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-600">{language === 'ka' ? 'გსურთ სხვა მუსიკა? ჩასვით .mp3 ლინკი:' : 'Want custom music? Paste a direct .mp3 link:'}</label>
+                  <label className="block text-xs font-bold text-slate-600">{language === 'ka' ? 'გსურთ სხვა მუსიკა? ჩასვით .mp3 ლინკი:' : language === 'ru' ? 'Хотите свою музыку? Вставьте прямую ссылку на .mp3:' : 'Want custom music? Paste a direct .mp3 link:'}</label>
                   <div className="flex gap-2">
                     <input
                       value={customMusicUrl}
@@ -205,7 +205,7 @@ export default function CardEditor({ card, category, onBack, onClose }) {
                       onClick={applyCustomMusic}
                       className="bg-violet-500 text-white rounded-xl px-3 py-2 text-sm font-semibold hover:bg-violet-600 transition cursor-pointer"
                     >
-                      {language === 'ka' ? 'დამატება' : 'Apply'}
+                      {language === 'ka' ? 'დამატება' : language === 'ru' ? 'Применить' : 'Apply'}
                     </button>
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default function CardEditor({ card, category, onBack, onClose }) {
           {saved && (
             <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex flex-col gap-2 animate-fade-in">
               <div className="flex items-center gap-2 text-green-700 font-bold">
-                <span>✅ {language === 'ka' ? 'წარმატებით შეინახა!' : 'Saved successfully!'}</span>
+                <span>✅ {language === 'ka' ? 'წარმატებით შეინახა!' : language === 'ru' ? 'Успешно сохранено!' : 'Saved successfully!'}</span>
               </div>
               <div className="flex gap-2">
                 <input 
@@ -234,7 +234,7 @@ export default function CardEditor({ card, category, onBack, onClose }) {
                   }}
                   className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-700 transition cursor-pointer"
                 >
-                  {language === 'ka' ? 'ლინკის კოპირება' : 'Copy Link'}
+                  {language === 'ka' ? 'ლინკის კოპირება' : language === 'ru' ? 'Копировать ссылку' : 'Copy Link'}
                 </button>
               </div>
             </div>
@@ -245,13 +245,13 @@ export default function CardEditor({ card, category, onBack, onClose }) {
               onClick={onBack}
               className="flex-1 border-2 border-slate-200 text-slate-700 font-semibold rounded-2xl py-3 hover:bg-slate-50 transition cursor-pointer"
             >
-              ← {language === 'ka' ? 'უკან' : 'Back'}
+              ← {language === 'ka' ? 'უკან' : language === 'ru' ? 'Назад' : 'Back'}
             </button>
             <button
               onClick={() => setPreview(true)}
               className="flex-1 border-2 border-violet-200 text-violet-700 font-bold rounded-2xl py-3 hover:bg-violet-50 transition cursor-pointer"
             >
-              {language === 'ka' ? 'სრული ნახვა' : 'Full Preview'}
+              {language === 'ka' ? 'სრული ნახვა' : language === 'ru' ? 'Полный просмотр' : 'Full Preview'}
             </button>
             <button
               onClick={handleSave}
@@ -261,10 +261,10 @@ export default function CardEditor({ card, category, onBack, onClose }) {
               {saving ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  {language === 'ka' ? 'ინახება...' : 'Saving...'}
+                  {language === 'ka' ? 'ინახება...' : language === 'ru' ? 'Сохранение...' : 'Saving...'}
                 </>
               ) : (
-                language === 'ka' ? 'შენახვა და გაზიარება ✨' : 'Save & Share ✨'
+                language === 'ka' ? 'შენახვა და გაზიარება ✨' : language === 'ru' ? 'Сохранить и поделиться ✨' : 'Save & Share ✨'
               )}
             </button>
           </div>

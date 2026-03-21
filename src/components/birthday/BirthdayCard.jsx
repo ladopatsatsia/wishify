@@ -50,9 +50,9 @@ export default function BirthdayCard({ subdomainSlug }) {
                 navigate('/login');
                 return null;
              }
-             throw new Error("You don't have permission to view this card.");
+             throw new Error(language === 'ka' ? "თქვენ არ გაქვთ ამ ბარათის ნახვის უფლება." : language === 'ru' ? "У вас нет прав для просмотра этой открытки." : "You don't have permission to view this card.");
           }
-          if (!res.ok) throw new Error("Failed to load card.");
+          if (!res.ok) throw new Error(language === 'ka' ? "ბარათის ჩატვირთვა ვერ მოხერხდა." : language === 'ru' ? "Не удалось загрузить открытку." : "Failed to load card.");
           return res.json();
         })
         .then(data => {
@@ -69,7 +69,7 @@ export default function BirthdayCard({ subdomainSlug }) {
       setLoading(true);
       fetch(`http://localhost:5153/api/cards/slug/${subdomainSlug}`)
         .then(res => {
-          if (!res.ok) throw new Error("Card not found or is private.");
+          if (!res.ok) throw new Error(language === 'ka' ? "ბარათი ვერ მოიძებნა ან პრივატულია." : language === 'ru' ? "Открытка не найдена или является приватной." : "Card not found or is private.");
           return res.json();
         })
         .then(data => {
@@ -106,9 +106,9 @@ export default function BirthdayCard({ subdomainSlug }) {
     }
     : templateCard
       ? {
-        title: templateCard.content?.heading || DEFAULT_BIRTHDAY_CARD.title,
+        title: templateCard.content?.heading || (language === 'ka' ? 'გილოცავ დაბადების დღეს!' : language === 'ru' ? 'С днем рождения!' : 'Happy Birthday!'),
         message: `${templateCard.content?.message1 || ''}\n\n${templateCard.content?.message2 || ''}`,
-        signature: 'With Love ❤️',
+        signature: language === 'ka' ? 'სიყვარულით ❤️' : language === 'ru' ? 'С любовью ❤️' : 'With Love ❤️',
         images: [],
         musicEnabled: !!templateCard.content?.audioUrl,
         musicUrl: templateCard.content?.audioUrl || null,
@@ -132,13 +132,13 @@ export default function BirthdayCard({ subdomainSlug }) {
     return (
       <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <div className="text-6xl mb-6">🔒</div>
-        <h2 className="text-2xl font-bold text-white mb-2">{language === 'ka' ? 'წვდომა შეზღუდულია' : 'Access Denied'}</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">{language === 'ka' ? 'წვდომა შეზღუდულია' : language === 'ru' ? 'Доступ ограничен' : 'Access Denied'}</h2>
         <p className="text-slate-400 mb-8 max-w-sm">{error}</p>
         <button
           onClick={() => navigate('/')}
           className="bg-white text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-100 transition shadow-lg cursor-pointer"
         >
-          {language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : 'Back to Home'}
+          {language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : language === 'ru' ? 'Вернуться на главную' : 'Back to Home'}
         </button>
       </div>
     );

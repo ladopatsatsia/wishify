@@ -118,8 +118,12 @@ function CardEditorWrapper() {
 
   if (!card) return (
     <div className="p-20 text-center">
-      <h2 className="text-2xl font-bold">{language === 'ka' ? 'ბარათი არ მოიძებნა:' : 'Card not found:'} {cardId}</h2>
-      <button onClick={() => navigate('/')} className="mt-4 text-violet-600 cursor-pointer">{language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : 'Go Home'}</button>
+      <h2 className="text-2xl font-bold">
+        {language === 'ka' ? 'ბარათი არ მოიძებნა:' : language === 'ru' ? 'Открытка не найдена:' : 'Card not found:'} {cardId}
+      </h2>
+      <button onClick={() => navigate('/')} className="mt-4 text-violet-600 cursor-pointer">
+        {language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : language === 'ru' ? 'Вернуться на главную' : 'Go Home'}
+      </button>
     </div>
   );
 

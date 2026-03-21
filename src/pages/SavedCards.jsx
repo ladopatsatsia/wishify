@@ -111,33 +111,33 @@ export default function SavedCards() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto">
           <h1 className="text-4xl font-black text-slate-800 tracking-tight mb-4">
-            {language === 'ka' ? 'ჩემი ' : 'My '}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">{language === 'ka' ? 'შენახული ბარათები' : 'Saved Cards'}</span>
+            {language === 'ka' ? 'ჩემი ' : language === 'ru' ? 'Мои ' : 'My '}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">{language === 'ka' ? 'შენახული ბარათები' : language === 'ru' ? 'Сохраненные открытки' : 'Saved Cards'}</span>
           </h1>
           <p className="text-lg text-slate-500 font-medium">
-            {language === 'ka' ? 'თქვენი ყველა პერსონალიზებული მისალოცი ბარათი.' : 'All your customized and beautifully personalized greeting cards.'}
+            {language === 'ka' ? 'თქვენი ყველა პერსონალიზებული მისალოცი ბარათი.' : language === 'ru' ? 'Все ваши настроенные и красиво персонализированные поздравительные открытки.' : 'All your customized and beautifully personalized greeting cards.'}
           </p>
         </div>
 
         {cards.length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">
             <div className="text-6xl mb-4">📭</div>
-            <h3 className="text-xl font-bold text-slate-700 mb-2">{language === 'ka' ? 'შენახული ბარათები არ არის' : 'No saved cards yet'}</h3>
+            <h3 className="text-xl font-bold text-slate-700 mb-2">{language === 'ka' ? 'შენახული ბარათები არ არის' : language === 'ru' ? 'Пока нет сохраненных открыток' : 'No saved cards yet'}</h3>
             <p className="text-slate-500 mb-6 max-w-md mx-auto">
-              {language === 'ka' ? 'ჯერ არ გაქვთ შენახული ბარათები. გადადით შაბლონებში და შექმენით!' : "You haven't customized any cards yet. Head over to our templates and create something magical!"}
+              {language === 'ka' ? 'ჯერ არ გაქვთ შენახული ბარათები. გადადით შაბლონებში და შექმენით!' : language === 'ru' ? 'Вы еще не настроили ни одной открытки. Перейдите к нашим шаблонам и создайте что-то волшебное!' : "You haven't customized any cards yet. Head over to our templates and create something magical!"}
             </p>
             <button
               onClick={() => navigate('/')}
               className="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-slate-800 transition shadow-lg cursor-pointer"
             >
-              {language === 'ka' ? 'დაიწყე შექმნა' : 'Start Customizing'}
+              {language === 'ka' ? 'დაიწყე შექმნა' : language === 'ru' ? 'Начать создание' : 'Start Customizing'}
             </button>
           </div>
         ) : cards.filter(c => !c.isPublic).length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">
             <div className="text-6xl mb-4">💮</div>
-            <h3 className="text-xl font-bold text-slate-700 mb-2">{language === 'ka' ? 'პირადი ბარათები არ არის' : 'No private cards'}</h3>
+            <h3 className="text-xl font-bold text-slate-700 mb-2">{language === 'ka' ? 'პირადი ბარათები არ არის' : language === 'ru' ? 'Нет личных открыток' : 'No private cards'}</h3>
             <p className="text-slate-500 mb-6 max-w-md mx-auto">
-              {language === 'ka' ? 'თქვენ გამოაქვეყნეთ ყველა ბარათი!' : "You've published all your cards! Check them out in the Published section."}
+              {language === 'ka' ? 'თქვენ გამოაქვეყნეთ ყველა ბარათი!' : language === 'ru' ? 'Вы опубликовали все свои открытки! Посмотрите их в разделе «Опубликованные».' : "You've published all your cards! Check them out in the Published section."}
             </p>
           </div>
         ) : (
@@ -166,7 +166,7 @@ export default function SavedCards() {
                     }`}
                   >
                     <span>{card.isPublic ? '🌐' : '🔒'}</span>
-                    {card.isPublic ? (language === 'ka' ? 'გამოქვეყნებული' : 'Published') : (language === 'ka' ? 'პირადი' : 'Private')}
+                    {card.isPublic ? (language === 'ka' ? 'გამოქვეყნებული' : language === 'ru' ? 'Опубликовано' : 'Published') : (language === 'ka' ? 'პირადი' : language === 'ru' ? 'Личная' : 'Private')}
                   </button>
 
                   <div className="flex flex-col h-full p-8 text-center relative z-10">
@@ -179,7 +179,7 @@ export default function SavedCards() {
                         onClick={() => navigate(`/birthday-card/${card.id}`)}
                         className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer"
                        >
-                         👀 {language === 'ka' ? 'ნახვა' : 'View'}
+                         👀 {language === 'ka' ? 'ნახვა' : language === 'ru' ? 'Просмотр' : 'View'}
                        </button>
                        <button
                         onClick={() => handleDelete(card.id)}
@@ -189,7 +189,7 @@ export default function SavedCards() {
                             : 'bg-red-100 backdrop-blur text-red-600 hover:bg-red-200 hover:shadow-md'
                         }`}
                        >
-                         {confirmDeleteId === card.id ? (language === 'ka' ? '⚠️ დარწმუნებული ხართ?' : '⚠️ Confirm?') : (language === 'ka' ? '🗑️ წაშლა' : '🗑️ Remove')}
+                         {confirmDeleteId === card.id ? (language === 'ka' ? '⚠️ დარწმუნებული ხართ?' : language === 'ru' ? '⚠️ Вы уверены?' : '⚠️ Confirm?') : (language === 'ka' ? '🗑️ წაშლა' : language === 'ru' ? '🗑️ Удалить' : '🗑️ Remove')}
                        </button>
                     </div>
                   </div>

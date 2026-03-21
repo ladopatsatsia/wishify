@@ -6,17 +6,17 @@ export default function Footer() {
   const { language, t } = useLanguage();
   
   const categoriesList = [
-    { label: language === 'ka' ? 'დაბადების დღე 🎂' : 'Birthday 🎂', cat: 'birthday' },
-    { label: language === 'ka' ? 'დიპლომი 🎓' : 'Graduation 🎓', cat: 'graduation' },
-    { label: language === 'ka' ? 'მოწვევა 💌' : 'Invitation 💌', cat: 'invitation' },
-    { label: language === 'ka' ? 'მოგონება 📸' : 'Memory 📸', cat: 'memory' },
-    { label: language === 'ka' ? 'სიყვარული ❤️' : 'Love ❤️', cat: 'love' },
-    { label: language === 'ka' ? 'დღესასწაული 🎄' : 'Holiday 🎄', cat: 'holiday' },
+    { label: language === 'ka' ? 'დაბადების დღე 🎂' : language === 'ru' ? 'День рождения 🎂' : 'Birthday 🎂', cat: 'birthday' },
+    { label: language === 'ka' ? 'დიპლომი 🎓' : language === 'ru' ? 'Диплом 🎓' : 'Graduation 🎓', cat: 'graduation' },
+    { label: language === 'ka' ? 'მოწვევა 💌' : language === 'ru' ? 'Приглашение 💌' : 'Invitation 💌', cat: 'invitation' },
+    { label: language === 'ka' ? 'მოგონება 📸' : language === 'ru' ? 'Воспоминание 📸' : 'Memory 📸', cat: 'memory' },
+    { label: language === 'ka' ? 'სიყვარული ❤️' : language === 'ru' ? 'Любовь ❤️' : 'Love ❤️', cat: 'love' },
+    { label: language === 'ka' ? 'დღესასწაული 🎄' : language === 'ru' ? 'Праздник 🎄' : 'Holiday 🎄', cat: 'holiday' },
   ];
 
   const columns = [
-    { title: language === 'ka' ? 'პროდუქტი' : 'Product', links: ['browse', 'howItWorks', 'features', 'pricing'] },
-    { title: language === 'ka' ? 'მხარდაჭერა' : 'Support', links: ['help', 'contact', 'privacy', 'terms'] },
+    { title: language === 'ka' ? 'პროდუქტი' : language === 'ru' ? 'Продукт' : 'Product', links: ['browse', 'howItWorks', 'features', 'pricing'] },
+    { title: language === 'ka' ? 'მხარდაჭერა' : language === 'ru' ? 'Поддержка' : 'Support', links: ['help', 'contact', 'privacy', 'terms'] },
   ];
 
   const socials = [
@@ -73,7 +73,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-slate-400 leading-relaxed text-sm max-w-xs">
-              {language === 'ka' ? 'აქციეთ ყველა დღესასწაული გამორჩეული ჯადოსნური ციფრული ბარათებით.' : 'Making every celebration special with magical digital greeting cards that come to life.'}
+              {language === 'ka' ? 'აქციეთ ყველა დღესასწაული გამორჩეული ჯადოსნური ციფრული ბარათებით.' : language === 'ru' ? 'Делаем каждый праздник особенным с помощью волшебных цифровых открыток, которые оживают.' : 'Making every celebration special with magical digital greeting cards that come to life.'}
             </p>
             {/* Socials */}
             <div className="flex gap-3">
@@ -112,6 +112,15 @@ export default function Footer() {
                         linkKey === 'contact' ? 'კონტაქტი' :
                         linkKey === 'privacy' ? 'კონფიდენციალურობა' :
                         linkKey === 'terms' ? 'წესები' : linkKey
+                      ) : language === 'ru' ? (
+                        linkKey === 'browse' ? 'Посмотреть шаблоны' : 
+                        linkKey === 'howItWorks' ? 'Как это работает' :
+                        linkKey === 'features' ? 'Особенности' :
+                        linkKey === 'pricing' ? 'Цены' :
+                        linkKey === 'help' ? 'Помощь' :
+                        linkKey === 'contact' ? 'Контакты' :
+                        linkKey === 'privacy' ? 'Конфиденциальность' :
+                        linkKey === 'terms' ? 'Условия' : linkKey
                       ) : (
                         linkKey === 'browse' ? 'Browse Cards' : 
                         linkKey === 'howItWorks' ? 'How it Works' :
@@ -130,7 +139,7 @@ export default function Footer() {
         {/* Category quick links */}
         <div className="border-t border-slate-800 pt-8 pb-6">
           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
-            {language === 'ka' ? 'დაათვალიერეთ' : 'Browse Occasions'}
+            {language === 'ka' ? 'დაათვალიერეთ' : language === 'ru' ? 'Посмотреть поводы' : 'Browse Occasions'}
           </p>
           <div className="flex flex-wrap gap-2">
             {categoriesList.map(cat => (
@@ -151,8 +160,8 @@ export default function Footer() {
             {t('footer.rights')}
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">{language === 'ka' ? 'გვერდის წესები' : 'Privacy Policy'}</a>
-            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">{language === 'ka' ? 'მოხმარების პირობები' : 'Terms of Service'}</a>
+            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">{language === 'ka' ? 'გვერდის წესები' : language === 'ru' ? 'Политика конфиденциальности' : 'Privacy Policy'}</a>
+            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">{language === 'ka' ? 'მოხმარების პირობები' : language === 'ru' ? 'Условия обслуживания' : 'Terms of Service'}</a>
             <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">Cookies</a>
           </div>
         </div>

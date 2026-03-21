@@ -43,7 +43,7 @@ export default function PaymentPage() {
       // Auto-redirect after 2.5s
       setTimeout(() => navigate('/profile/published'), 2500);
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setError(language === 'ka' ? 'რაღაც შეფერხდა. გთხოვთ სცადოთ თავიდან.' : language === 'ru' ? 'Что-то пошло не так. Пожалуйста, попробуйте еще раз.' : 'Something went wrong. Please try again.');
       setStep('checkout');
     }
   };
@@ -57,12 +57,12 @@ export default function PaymentPage() {
         /* ─── Success ─── */
         <div className="bg-white rounded-[2rem] shadow-2xl p-10 max-w-sm w-full text-center animate-bounce-in">
           <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-3xl font-black text-slate-800 mb-3">{language === 'ka' ? 'ბარათი გამოქვეყნდა!' : 'Card is Live!'}</h2>
-          <p className="text-slate-500 font-medium mb-2">{language === 'ka' ? 'თქვენი საჩუქარი უკვე ხელმისაწვდომია აქ:' : 'Your gift is now live at:'}</p>
+          <h2 className="text-3xl font-black text-slate-800 mb-3">{language === 'ka' ? 'ბარათი გამოქვეყნდა!' : language === 'ru' ? 'Открытка опубликована!' : 'Card is Live!'}</h2>
+          <p className="text-slate-500 font-medium mb-2">{language === 'ka' ? 'თქვენი საჩუქარი უკვე ხელმისაწვდომია აქ:' : language === 'ru' ? 'Ваш подарок теперь доступен по адресу:' : 'Your gift is now live at:'}</p>
           <div className="bg-violet-50 rounded-xl px-4 py-3 font-mono text-violet-700 font-bold text-sm break-all mb-6">
             http://{slug}.{hostname}
           </div>
-          <p className="text-slate-400 text-sm animate-pulse">{language === 'ka' ? 'გადამისამართება გამოქვეყნებულ ბარათებზე…' : 'Redirecting to your published cards…'}</p>
+          <p className="text-slate-400 text-sm animate-pulse">{language === 'ka' ? 'გადამისამართება გამოქვეყნებულ ბარათებზე…' : language === 'ru' ? 'Перенаправление к вашим опубликованным открыткам…' : 'Redirecting to your published cards…'}</p>
         </div>
       ) : (
         /* ─── Checkout ─── */
@@ -71,35 +71,35 @@ export default function PaymentPage() {
           {/* Header */}
           <div className="text-center">
             <div className="text-4xl mb-2">💎</div>
-            <h1 className="text-2xl font-black text-white">{language === 'ka' ? 'გამოაქვეყნეთ თქვენი საჩუქრის ბარათი' : 'Publish Your Gift Card'}</h1>
-            <p className="text-white/50 text-sm mt-1">{language === 'ka' ? 'ერთჯერადი პრემიუმ გამოქვეყნების საფასური' : 'One-time premium publishing fee'}</p>
+            <h1 className="text-2xl font-black text-white">{language === 'ka' ? 'გამოაქვეყნეთ თქვენი საჩუქრის ბარათი' : language === 'ru' ? 'Опубликуйте вашу подарочную открытку' : 'Publish Your Gift Card'}</h1>
+            <p className="text-white/50 text-sm mt-1">{language === 'ka' ? 'ერთჯერადი პრემიუმ გამოქვეყნების საფასური' : language === 'ru' ? 'Единоразовый взнос за премиум-публикацию' : 'One-time premium publishing fee'}</p>
           </div>
 
           {/* Summary */}
           <div className="bg-white/5 rounded-2xl p-5 flex flex-col gap-3 border border-white/10">
             <div className="flex justify-between text-white/70 text-sm">
-              <span>{language === 'ka' ? 'ბარათის ID' : 'Card ID'}</span>
+              <span>{language === 'ka' ? 'ბარათის ID' : language === 'ru' ? 'ID открытки' : 'Card ID'}</span>
               <span className="font-mono text-xs text-white/40">{cardId?.slice(0,8)}…</span>
             </div>
             <div className="flex justify-between text-white/70 text-sm">
-              <span>{language === 'ka' ? 'თქვენი ლაივ ლინკი' : 'Your Live URL'}</span>
+              <span>{language === 'ka' ? 'თქვენი ლაივ ლინკი' : language === 'ru' ? 'Ваш живой URL' : 'Your Live URL'}</span>
               <span className="font-mono text-violet-300 text-xs break-all text-right max-w-[60%]">
                 {slug}.{hostname}
               </span>
             </div>
             <div className="border-t border-white/10 pt-3 flex justify-between font-black text-white text-lg">
-              <span>{language === 'ka' ? 'ჯამი' : 'Total'}</span>
+              <span>{language === 'ka' ? 'ჯამი' : language === 'ru' ? 'Итого' : 'Total'}</span>
               <span className="text-emerald-400">$4.99</span>
             </div>
           </div>
 
           {/* Card details (decorative) */}
           <div className="bg-gradient-to-br from-violet-600 to-pink-600 rounded-2xl p-5 shadow-xl shadow-violet-900/40">
-            <div className="text-white/60 text-xs font-bold uppercase tracking-widest mb-6">{language === 'ka' ? 'გადახდის ბარათი' : 'Payment Card'}</div>
+            <div className="text-white/60 text-sm font-bold uppercase tracking-widest mb-6">{language === 'ka' ? 'გადახდის ბარათი' : language === 'ru' ? 'Платежная карта' : 'Payment Card'}</div>
             <div className="text-white font-mono text-lg tracking-widest mb-6">•••• •••• •••• 4242</div>
             <div className="flex justify-between text-white/70 text-xs font-bold">
-              <span>{language === 'ka' ? 'მფლობელი' : 'CARDHOLDER'}</span>
-              <span>{language === 'ka' ? 'ვადა' : 'EXPIRES'}</span>
+              <span>{language === 'ka' ? 'მფლობელი' : language === 'ru' ? 'ВЛАДЕЛЕЦ' : 'CARDHOLDER'}</span>
+              <span>{language === 'ka' ? 'ვადა' : language === 'ru' ? 'СРОК' : 'EXPIRES'}</span>
             </div>
             <div className="flex justify-between text-white font-bold text-sm">
               <span>{user?.name || 'Your Name'}</span>
@@ -120,10 +120,10 @@ export default function PaymentPage() {
             {step === 'processing' ? (
               <>
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                {language === 'ka' ? 'ქვეყნდება…' : 'Publishing…'}
+                {language === 'ka' ? 'ქვეყნდება…' : language === 'ru' ? 'Публикация…' : 'Publishing…'}
               </>
             ) : (
-              language === 'ka' ? '🔒 გადახდა და გამოქვეყნება — $4.99' : '🔒 Pay & Publish — $4.99'
+              language === 'ka' ? '🔒 გადახდა და გამოქვეყნება — $4.99' : language === 'ru' ? '🔒 Оплатить и опубликовать — $4.99' : '🔒 Pay & Publish — $4.99'
             )}
           </button>
 
@@ -132,7 +132,7 @@ export default function PaymentPage() {
             disabled={step === 'processing'}
             className="text-white/30 text-sm font-bold hover:text-white/60 transition text-center cursor-pointer"
           >
-            {language === 'ka' ? '← უკან დაბრუნება' : '← Go back'}
+            {language === 'ka' ? '← უკან დაბრუნება' : language === 'ru' ? '← Вернуться назад' : '← Go back'}
           </button>
         </div>
       )}

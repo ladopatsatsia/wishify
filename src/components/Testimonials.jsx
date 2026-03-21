@@ -21,21 +21,21 @@ export default function Testimonials() {
 
   const reviews = [
     {
-      name: language === 'ka' ? 'სარა ჯენკინსი' : 'Sarah Jenkins',
-      title: language === 'ka' ? 'დაბადების დღის სიურპრიზი' : 'Birthday Surprise',
-      quote: language === 'ka' ? "ეს იყო ყველაზე განსაკუთრებული ციფრული საჩუქარი რაც კი ოდესმე მიმიღია. ძალიან მომეწონა." : "The magic reveal feature absolutely blew my best friend away! She said it was the most thoughtful digital gift she's ever received.",
+      name: language === 'ka' ? 'სარა ჯენკინსი' : language === 'ru' ? 'Сара Дженкинс' : 'Sarah Jenkins',
+      title: language === 'ka' ? 'დაბადების დღის სიურპრიზი' : language === 'ru' ? 'Сюрприз на день рождения' : 'Birthday Surprise',
+      quote: language === 'ka' ? "ეს იყო ყველაზე განსაკუთრებული ციფრული საჩუქარი რაც კი ოდესმე მიმიღია. ძალიან მომეწონა." : language === 'ru' ? "Это был самый особенный цифровой подарок, который я когда-либо получала. Мне очень понравилось." : "The magic reveal feature absolutely blew my best friend away! She said it was the most thoughtful digital gift she's ever received.",
       avatar: '👩‍💼',
     },
     {
-      name: language === 'ka' ? 'მაიკლ ჩენი' : 'Michael Chen',
-      title: language === 'ka' ? 'ოჯახის შეკრება' : 'Family Reunion',
-      quote: language === 'ka' ? "ძალიან მარტივი გამოსაყენებელი. გავუგზავნე ბარათი მშობლებს სხვა ქვეყანაში და პრობლემების გარეშე გახსნეს." : "Clean, elegant, and so easy to use. I sent a card to my parents across the world and they were able to open it with zero tech issues.",
+      name: language === 'ka' ? 'მაიკლ ჩენი' : language === 'ru' ? 'Майкл Чен' : 'Michael Chen',
+      title: language === 'ka' ? 'ოჯახის შეკრება' : language === 'ru' ? 'Семейная встреча' : 'Family Reunion',
+      quote: language === 'ka' ? "ძალიან მარტივი გამოსაყენებელი. გავუგზავნე ბარათი მშობლებს სხვა ქვეყანაში და პრობლემების გარეშე გახსნეს." : language === 'ru' ? "Очень легко использовать. Отправил открытку родителям в другую страну, и они открыли её без проблем." : "Clean, elegant, and so easy to use. I sent a card to my parents across the world and they were able to open it with zero tech issues.",
       avatar: '👨‍🎨',
     },
     {
-      name: language === 'ka' ? 'ემა როდრიგესი' : 'Emma Rodriguez',
-      title: language === 'ka' ? 'ახალი თავი' : 'New Chapter',
-      quote: language === 'ka' ? "ჩვენი საყვარელი სიმღერის დამატებამ ეს ბარათი ძალიან პერსონალური გახადა. Wishify ჩემი ფავორიტია." : "Adding our favorite song to the graduation card made it so personal. Wishify is my new go-to for every special occasion.",
+      name: language === 'ka' ? 'ემა როდრიგესი' : language === 'ru' ? 'Эмма Родригес' : 'Emma Rodriguez',
+      title: language === 'ka' ? 'ახალი თავი' : language === 'ru' ? 'Новая глава' : 'New Chapter',
+      quote: language === 'ka' ? "ჩვენი საყვარელი სიმღერის დამატებამ ეს ბარათი ძალიან პერსონალური გახადა. Wishify ჩემი ფავორიტია." : language === 'ru' ? "Добавление нашей любимой песни сделало эту открытку очень личной. Wishify — мой фаворит." : "Adding our favorite song to the graduation card made it so personal. Wishify is my new go-to for every special occasion.",
       avatar: '👩‍🔬',
     },
   ];
@@ -45,13 +45,13 @@ export default function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={ref} className="fade-in-section text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            {language === 'ka' ? 'მომხმარებელთა ისტორიები' : 'User Stories'}
+            {language === 'ka' ? 'მომხმარებელთა ისტორიები' : language === 'ru' ? 'Истории пользователей' : 'User Stories'}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4">
-            {language === 'ka' ? 'ენდობიან ადამიანები ' : 'Trusted by People '}<span className="gradient-text">{language === 'ka' ? 'მთელ მსოფლიოში' : 'Worldwide'}</span>
+            {language === 'ka' ? 'ენდობიან ადამიანები ' : language === 'ru' ? 'Нам доверяют люди ' : 'Trusted by People '}<span className="gradient-text">{language === 'ka' ? 'მთელ მსოფლიოში' : language === 'ru' ? 'по всему миру' : 'Worldwide'}</span>
           </h2>
           <p className="text-xl text-slate-500 max-w-xl mx-auto">
-            {language === 'ka' ? 'ნახეთ როგორ ეხმარება Wishify ადამიანებს სამუდამო მოგონებების შექმნაში.' : 'See how Wishify is helping people create lasting memories one digital card at a time.'}
+            {language === 'ka' ? 'ნახეთ როგორ ეხმარება Wishify ადამიანებს სამუდამო მოგონებების შექმნაში.' : language === 'ru' ? 'Посмотрите, как Wishify помогает людям создавать вечные воспоминания с каждой цифровой открыткой.' : 'See how Wishify is helping people create lasting memories one digital card at a time.'}
           </p>
         </div>
 

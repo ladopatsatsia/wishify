@@ -12,40 +12,40 @@ export default function Hero() {
       id: 1,
       categoryId: 'birthday',
       emoji: '🎂',
-      title: language === 'ka' ? 'დაბადების დღე' : 'Birthday Card',
-      subtitle: language === 'ka' ? 'გილოცავ ამ ჯადოსნურ დღეს ✨' : 'Wishing you the most magical day ✨',
+      title: language === 'ka' ? 'დაბადების დღე' : language === 'ru' ? 'День рождения' : 'Birthday Card',
+      subtitle: language === 'ka' ? 'გილოცავ ამ ჯადოსნურ დღეს ✨' : language === 'ru' ? 'Желаю самого волшебного дня ✨' : 'Wishing you the most magical day ✨',
       bg: 'from-violet-400 to-pink-400'
     },
     {
       id: 2,
       categoryId: 'love',
       emoji: '💕',
-      title: language === 'ka' ? 'სიყვარული' : 'Love Card',
-      subtitle: language === 'ka' ? 'გაუგზავნე შენი გული განსაკუთრებულს 💖' : 'Send your heart to someone special 💖',
+      title: language === 'ka' ? 'სიყვარული' : language === 'ru' ? 'Любовь' : 'Love Card',
+      subtitle: language === 'ka' ? 'გაუგზავნე შენი გული განსაკუთრებულს 💖' : language === 'ru' ? 'Отправьте свое сердце особенному человеку 💖' : 'Send your heart to someone special 💖',
       bg: 'from-pink-400 to-rose-500'
     },
     {
       id: 3,
       categoryId: 'graduation',
       emoji: '🎓',
-      title: language === 'ka' ? 'დიპლომი' : 'Graduation Card',
-      subtitle: language === 'ka' ? 'აღნიშნე მათი დიდი მიღწევა 🌟' : 'Celebrate their big achievement 🌟',
+      title: language === 'ka' ? 'დიპლომი' : language === 'ru' ? 'Диплом' : 'Graduation Card',
+      subtitle: language === 'ka' ? 'აღნიშნე მათი დიდი მიღწევა 🌟' : language === 'ru' ? 'Отпразднуйте их большое достижение 🌟' : 'Celebrate their big achievement 🌟',
       bg: 'from-amber-400 to-orange-500'
     },
     {
       id: 4,
       categoryId: 'holiday',
       emoji: '🎄',
-      title: language === 'ka' ? 'დღესასწაული' : 'Holiday Card',
-      subtitle: language === 'ka' ? 'გაავრცელე სადღესასწაულო განწყობა 🎁' : 'Spread the festive cheer 🎁',
+      title: language === 'ka' ? 'დღესასწაული' : language === 'ru' ? 'Праздник' : 'Holiday Card',
+      subtitle: language === 'ka' ? 'გაავრცელე სადღესასწაულო განწყობა 🎁' : language === 'ru' ? 'Подарите праздничное настроение 🎁' : 'Spread the festive cheer 🎁',
       bg: 'from-green-400 to-emerald-500'
     },
     {
       id: 5,
       categoryId: 'memory',
       emoji: '📸',
-      title: language === 'ka' ? 'მოგონება' : 'Memory Card',
-      subtitle: language === 'ka' ? 'გაიხსენეთ საუკეთესო მომენტები ერთად ✨' : 'Relive your best moments together ✨',
+      title: language === 'ka' ? 'მოგონება' : language === 'ru' ? 'Воспоминание' : 'Memory Card',
+      subtitle: language === 'ka' ? 'გაიხსენეთ საუკეთესო მომენტები ერთად ✨' : language === 'ru' ? 'Вспомните лучшие моменты вместе ✨' : 'Relive your best moments together ✨',
       bg: 'from-teal-400 to-cyan-500'
     }
   ]);
@@ -53,11 +53,11 @@ export default function Hero() {
   // Update cards when language changes
   useEffect(() => {
     setCards(prev => prev.map(c => {
-      if (c.categoryId === 'birthday') return { ...c, title: language === 'ka' ? 'დაბადების დღე' : 'Birthday Card', subtitle: language === 'ka' ? 'გილოცავ ამ ჯადოსნურ დღეს ✨' : 'Wishing you the most magical day ✨' };
-      if (c.categoryId === 'love') return { ...c, title: language === 'ka' ? 'სიყვარული' : 'Love Card', subtitle: language === 'ka' ? 'გაუგზავნე შენი გული განსაკუთრებულს 💖' : 'Send your heart to someone special 💖' };
-      if (c.categoryId === 'graduation') return { ...c, title: language === 'ka' ? 'დიპლომი' : 'Graduation Card', subtitle: language === 'ka' ? 'აღნიშნე მათი დიდი მიღწევა 🌟' : 'Celebrate their big achievement 🌟' };
-      if (c.categoryId === 'holiday') return { ...c, title: language === 'ka' ? 'დღესასწაული' : 'Holiday Card', subtitle: language === 'ka' ? 'გაავრცელე სადღესასწაულო განწყობა 🎁' : 'Spread the festive cheer 🎁' };
-      if (c.categoryId === 'memory') return { ...c, title: language === 'ka' ? 'მოგონება' : 'Memory Card', subtitle: language === 'ka' ? 'გაიხსენეთ საუკეთესო მომენტები ერთად ✨' : 'Relive your best moments together ✨' };
+      if (c.categoryId === 'birthday') return { ...c, title: language === 'ka' ? 'დაბადების დღე' : language === 'ru' ? 'День рождения' : 'Birthday Card', subtitle: language === 'ka' ? 'გილოცავ ამ ჯადოსნურ დღეს ✨' : language === 'ru' ? 'Желаю самого волшебного дня ✨' : 'Wishing you the most magical day ✨' };
+      if (c.categoryId === 'love') return { ...c, title: language === 'ka' ? 'სიყვარული' : language === 'ru' ? 'Любовь' : 'Love Card', subtitle: language === 'ka' ? 'გაუგზავნე შენი გული განსაკუთრებულს 💖' : language === 'ru' ? 'Отправьте свое сердце особенному человеку 💖' : 'Send your heart to someone special 💖' };
+      if (c.categoryId === 'graduation') return { ...c, title: language === 'ka' ? 'დიპლომი' : language === 'ru' ? 'Диплом' : 'Graduation Card', subtitle: language === 'ka' ? 'აღნიშნე მათი დიდი მიღწევა 🌟' : language === 'ru' ? 'Отпразднуйте их большое достижение 🌟' : 'Celebrate their big achievement 🌟' };
+      if (c.categoryId === 'holiday') return { ...c, title: language === 'ka' ? 'დღესასწაული' : language === 'ru' ? 'Праздник' : 'Holiday Card', subtitle: language === 'ka' ? 'გაავრცელე სადღესასწაულო განწყობა 🎁' : language === 'ru' ? 'Подарите праздничное настроение 🎁' : 'Spread the festive cheer 🎁' };
+      if (c.categoryId === 'memory') return { ...c, title: language === 'ka' ? 'მოგონება' : language === 'ru' ? 'Воспоминание' : 'Memory Card', subtitle: language === 'ka' ? 'გაიხსენეთ საუკეთესო მომენტები ერთად ✨' : language === 'ru' ? 'Вспомните лучшие моменты вместе ✨' : 'Relive your best moments together ✨' };
       return c;
     }));
   }, [language]);
@@ -95,35 +95,35 @@ export default function Hero() {
           {/* Left: Text */}
           <div ref={heroRef} className="fade-in-section space-y-6">
             <div className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-2 rounded-full text-sm font-semibold">
-              <span>🎉</span> {language === 'ka' ? 'გაახარე ყველა გაგზავნით' : 'Spark Joy with Every Send'}
+              <span>🎉</span> {language === 'ka' ? 'გაახარე ყველა გაგზავნით' : language === 'ru' ? 'Дарите радость с каждой отправкой' : 'Spark Joy with Every Send'}
             </div>
             <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight text-slate-900">
-              {language === 'ka' ? 'შექმენი ჯადოსნობა ' : 'Create Magic with '}<span className="gradient-text">{language === 'ka' ? 'ციფრული ' : 'Digital '}</span> {language === 'ka' ? 'მისალოცი ბარათებით' : 'Greeting Cards'}
+              {language === 'ka' ? 'შექმენი ჯადოსნობა ' : language === 'ru' ? 'Создавайте магию с ' : 'Create Magic with '}<span className="gradient-text">{language === 'ka' ? 'ციფრული ' : language === 'ru' ? 'цифровыми ' : 'Digital '}</span> {language === 'ka' ? 'მისალოცი ბარათებით' : language === 'ru' ? 'открытками' : 'Greeting Cards'}
             </h1>
             <p className="text-xl text-slate-500 leading-relaxed max-w-lg">
-              {language === 'ka' ? 'პერსონალიზაცია გაუკეთე ულამაზეს შაბლონებს შენი მესიჯებითა და საყვარელი მუსიკით წამებში. გააგზავნე მოგონება, რომელიც მუდამ დარჩება.' : 'Personalize beautiful templates with your own messages and favorite music in seconds. Send a lasting memory that stands out.'}
+              {language === 'ka' ? 'პერსონალიზაცია გაუკეთე ულამაზეს შაბლონებს შენი მესიჯებითა და საყვარელი მუსიკით წამებში. გააგზავნე მოგონება, რომელიც მუდამ დარჩება.' : language === 'ru' ? 'Персонализируйте красивые шаблоны с вашими сообщениями и любимой музыкой за считанные секунды. Подарите память, которая останется навсегда.' : 'Personalize beautiful templates with your own messages and favorite music in seconds. Send a lasting memory that stands out.'}
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
               <button
                 onClick={() => navigate('/browse/birthday')}
                 className="btn-primary text-base !px-8 !py-4"
               >
-                {language === 'ka' ? 'აირჩიე შაბლონი ✨' : 'Choose a Template ✨'}
+                {language === 'ka' ? 'აირჩიე შაბლონი ✨' : language === 'ru' ? 'Выбрать шаблон ✨' : 'Choose a Template ✨'}
               </button>
               <a
                 href="#how-it-works"
                 className="inline-flex items-center gap-2 text-slate-700 font-semibold py-4 px-6 rounded-full border-2 border-slate-200 hover:border-violet-300 hover:text-violet-700 transition-colors"
               >
-                {language === 'ka' ? 'ნახე როგორ მუშაობს →' : 'See How it Works →'}
+                {language === 'ka' ? 'ნახე როგორ მუშაობს →' : language === 'ru' ? 'Как это работает →' : 'See How it Works →'}
               </a>
             </div>
 
             {/* Stats */}
             <div className="flex gap-8 pt-4">
               {[
-                { val: '50K+', label: language === 'ka' ? 'გაგზავნილია' : 'Cards Sent' },
-                { val: '4.9★', label: language === 'ka' ? 'შეფასება' : 'User Rating' },
-                { val: '120+', label: language === 'ka' ? 'უნიკალური დიზაინი' : 'Unique Designs' },
+                { val: '50K+', label: language === 'ka' ? 'გაგზავნილია' : language === 'ru' ? 'Отправлено' : 'Cards Sent' },
+                { val: '4.9★', label: language === 'ka' ? 'შეფასება' : language === 'ru' ? 'Рейтинг' : 'User Rating' },
+                { val: '120+', label: language === 'ka' ? 'უნიკალური დიზაინი' : language === 'ru' ? 'Уникальных дизайнов' : 'Unique Designs' },
               ].map(s => (
                 <div key={s.val}>
                   <div className="text-2xl font-bold text-slate-900">{s.val}</div>
@@ -191,7 +191,7 @@ export default function Hero() {
                       }}
                       className="mt-4 bg-white text-slate-800 font-bold px-6 py-2.5 rounded-full shadow-lg hover:scale-105 hover:text-violet-600 transition-all text-sm flex items-center gap-2 group-hover:bg-slate-50 relative z-30 cursor-pointer border border-transparent hover:border-violet-200"
                     >
-                      <span>✨ {language === 'ka' ? 'შექმენი' : 'Create Your'}</span>
+                      <span>✨ {language === 'ka' ? 'შექმენი' : language === 'ru' ? 'Создать свою' : 'Create Your'}</span>
                     </button>
                   </div>
                 </div>

@@ -70,7 +70,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
 
   const handleSave = async () => {
     if (!user) {
-      alert(language === 'ka' ? "გთხოვთ გაიაროთ ავტორიზაცია თქვენი ბარათების შესანახად!" : "Please log in to save your personalize cards!");
+      alert(language === 'ka' ? "გთხოვთ გაიაროთ ავტორიზაცია თქვენი ბარათების შესანახად!" : language === 'ru' ? "Пожалуйста, войдите, чтобы сохранить ваши персонализированные открытки!" : "Please log in to save your personalize cards!");
       return;
     }
     setSaving(true);
@@ -144,8 +144,8 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
           <div className="flex items-center gap-3">
             <div className="text-3xl">{emoji}</div>
             <div>
-              <h2 className="text-xl font-extrabold text-slate-800">{language === 'ka' ? 'დაბადების დღის ბარათის რედაქტორი' : 'Birthday Card Editor'}</h2>
-              <p className="text-sm text-slate-400">{language === 'ka' ? 'პერსონალიზაცია ყველა დეტალში' : 'Personalize every detail'}</p>
+              <h2 className="text-xl font-extrabold text-slate-800">{language === 'ka' ? 'დაბადების დღის ბარათის რედაქტორი' : language === 'ru' ? 'Редактор поздравительной открытки' : 'Birthday Card Editor'}</h2>
+              <p className="text-sm text-slate-400">{language === 'ka' ? 'პერსონალიზაცია ყველა დეტალში' : language === 'ru' ? 'Персонализируйте каждую деталь' : 'Personalize every detail'}</p>
             </div>
           </div>
           <button
@@ -158,7 +158,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
 
         <div className="p-6 space-y-6">
           {/* Live Mini Preview */}
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{language === 'ka' ? 'ლაივ პრევიუ' : 'Live Preview'}</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{language === 'ka' ? 'ლაივ პრევიუ' : language === 'ru' ? 'Предпросмотр' : 'Live Preview'}</div>
           <div className={`rounded-2xl bg-gradient-to-br ${bgGradient} p-5 text-center space-y-2`}>
             <div className="text-4xl">{emoji}</div>
             <div className="font-bold text-white text-base drop-shadow">{title || 'Your Title Here'}</div>
@@ -182,31 +182,31 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
           {/* ===== TEXT FIELDS ===== */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">🎉 {language === 'ka' ? 'სათაური' : 'Title'}</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">🎉 {language === 'ka' ? 'სათაური' : language === 'ru' ? 'Заголовок' : 'Title'}</label>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:border-violet-400 transition"
-                placeholder={language === 'ka' ? 'გილოცავ დაბადების დღეს!' : 'Happy Birthday!'}
+                placeholder={language === 'ka' ? 'გილოცავ დაბადების დღეს!' : language === 'ru' ? 'С днем рождения!' : 'Happy Birthday!'}
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">💬 {language === 'ka' ? 'ტექსტი' : 'Message'}</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">💬 {language === 'ka' ? 'ტექსტი' : language === 'ru' ? 'Сообщение' : 'Message'}</label>
               <textarea
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 rows={4}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition resize-none text-sm"
-                placeholder={language === 'ka' ? 'დაწერეთ თქვენი გულწრფელი მესიჯი...' : 'Write your heartfelt message...'}
+                placeholder={language === 'ka' ? 'დაწერეთ თქვენი გულწრფელი მესიჯი...' : language === 'ru' ? 'Напишите ваше искреннее сообщение...' : 'Write your heartfelt message...'}
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">✍️ {language === 'ka' ? 'ხელმოწერა' : 'Signature'}</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">✍️ {language === 'ka' ? 'ხელმოწერა' : language === 'ru' ? 'Подпись' : 'Signature'}</label>
               <input
                 value={signature}
                 onChange={e => setSignature(e.target.value)}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition"
-                placeholder={language === 'ka' ? 'სიყვარულით ❤️' : 'With Love ❤️'}
+                placeholder={language === 'ka' ? 'სიყვარულით ❤️' : language === 'ru' ? 'С любовью ❤️' : 'With Love ❤️'}
               />
             </div>
           </div>
@@ -217,15 +217,15 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📸</span>
                 <div>
-                  <div className="font-bold text-slate-800">{language === 'ka' ? 'სურათები' : 'Photos'}</div>
-                  <div className="text-xs text-slate-400">{language === 'ka' ? 'ატვირთეთ მაქსიმუმ 4 სურათი' : 'Upload up to 4 images'}</div>
+                  <div className="font-bold text-slate-800">{language === 'ka' ? 'სურათები' : language === 'ru' ? 'Фотографии' : 'Photos'}</div>
+                  <div className="text-xs text-slate-400">{language === 'ka' ? 'ატვირთეთ მაქსიმუმ 4 სურათი' : language === 'ru' ? 'Загрузите до 4 изображений' : 'Upload up to 4 images'}</div>
                 </div>
               </div>
               <button
                 onClick={() => imageInputRef.current?.click()}
                 className="bg-sky-500 text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-sky-600 transition cursor-pointer"
               >
-                + {language === 'ka' ? 'დამატება' : 'Add'}
+                + {language === 'ka' ? 'დამატება' : language === 'ru' ? 'Добавить' : 'Add'}
               </button>
               <input
                 ref={imageInputRef}
@@ -265,7 +265,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
                 className="border-2 border-dashed border-sky-200 rounded-xl p-8 text-center cursor-pointer hover:bg-sky-100/50 transition"
               >
                 <div className="text-3xl mb-2">📷</div>
-                <p className="text-sm text-slate-500">{language === 'ka' ? 'დააკლიკეთ სურათების ასატვირთად' : 'Click to upload photos'}</p>
+                <p className="text-sm text-slate-500">{language === 'ka' ? 'დააკლიკეთ სურათების ასატვირთად' : language === 'ru' ? 'Нажмите, чтобы загрузить фотографии' : 'Click to upload photos'}</p>
               </div>
             )}
           </div>
@@ -276,8 +276,8 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎵</span>
                 <div>
-                  <div className="font-bold text-slate-800">{language === 'ka' ? 'მუსიკა' : 'Music'}</div>
-                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ მუსიკა თქვენს ბარათს' : 'Add a soundtrack to your card'}</div>
+                  <div className="font-bold text-slate-800">{language === 'ka' ? 'მუსიკა' : language === 'ru' ? 'Музыка' : 'Music'}</div>
+                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ მუსიკა თქვენს ბარათს' : language === 'ru' ? 'Добавьте звуковую дорожку к вашей открытке' : 'Add a soundtrack to your card'}</div>
                 </div>
               </div>
               <button
@@ -295,7 +295,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
                     <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xs">♪</div>
                     <div className="flex-1">
                       <div className="text-sm font-semibold text-slate-700 truncate">{musicFile.name}</div>
-                      <div className="text-xs text-violet-400">{language === 'ka' ? 'ატვირთული' : 'Custom Upload'}</div>
+                      <div className="text-xs text-violet-400">{language === 'ka' ? 'ატვირთული' : language === 'ru' ? 'Собственная загрузка' : 'Custom Upload'}</div>
                     </div>
                     <div className="text-green-500 text-xs font-bold">✓</div>
                   </div>
@@ -305,7 +305,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
                   className="w-full border-2 border-dashed border-violet-200 rounded-xl p-4 text-center hover:bg-violet-100/50 transition cursor-pointer"
                 >
                   <span className="text-sm text-violet-600 font-semibold">
-                    {musicFile ? (language === 'ka' ? 'შეცვალე მუსიკა' : 'Change Music File') : (language === 'ka' ? '🎧 ატვირთეთ MP3 ფაილი' : '🎧 Upload MP3 File')}
+                    {musicFile ? (language === 'ka' ? 'შეცვალე მუსიკა' : language === 'ru' ? 'Изменить музыкальный файл' : 'Change Music File') : (language === 'ka' ? '🎧 ატვირთეთ MP3 ფაილი' : language === 'ru' ? '🎧 Загрузить MP3 файл' : '🎧 Upload MP3 File')}
                   </span>
                 </button>
                 <input
@@ -325,8 +325,8 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎁</span>
                 <div>
-                  <div className="font-bold text-slate-800">{language === 'ka' ? 'საჩუქრის ყუთი' : 'Gift Box'}</div>
-                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ ლინკი საჩუქრისთვის' : 'Add a clickable gift link'}</div>
+                  <div className="font-bold text-slate-800">{language === 'ka' ? 'საჩუქრის ყუთი' : language === 'ru' ? 'Подарочная коробка' : 'Gift Box'}</div>
+                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ ლინკი საჩუქრისთვის' : language === 'ru' ? 'Добавьте кликабельную ссылку на подарок' : 'Add a clickable gift link'}</div>
                 </div>
               </div>
               <button
@@ -339,7 +339,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
 
             {giftBoxEnabled && (
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">{language === 'ka' ? 'საჩუქრის URL' : 'Gift URL'}</label>
+                <label className="block text-xs font-bold text-slate-600 mb-1">{language === 'ka' ? 'საჩუქრის URL' : language === 'ru' ? 'URL подарка' : 'Gift URL'}</label>
                 <input
                   value={giftBoxUrl}
                   onChange={e => setGiftBoxUrl(e.target.value)}
@@ -357,13 +357,13 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
             onClick={onBack}
             className="flex-1 border-2 border-slate-200 text-slate-700 font-semibold rounded-2xl py-3 hover:bg-slate-50 transition cursor-pointer"
           >
-            ← {language === 'ka' ? 'უკან' : 'Back'}
+            ← {language === 'ka' ? 'უკან' : language === 'ru' ? 'Назад' : 'Back'}
           </button>
           <button
             onClick={() => setShowPreview(true)}
             className="flex-[2] bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold rounded-2xl py-3 hover:opacity-90 transition shadow-lg cursor-pointer flex items-center justify-center gap-2"
           >
-            ✨ {language === 'ka' ? 'ბარათის ნახვა' : 'Preview Card'}
+            ✨ {language === 'ka' ? 'ბარათის ნახვა' : language === 'ru' ? 'Предпросмотр открытки' : 'Preview Card'}
           </button>
         </div>
       </div>
