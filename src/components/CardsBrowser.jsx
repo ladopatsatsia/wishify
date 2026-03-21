@@ -45,11 +45,22 @@ export default function CardsBrowser() {
         const tempRes = await fetch(`${API_BASE_URL}/category/${activeCategory}`);
         const temps = await tempRes.json();
 
-        // Merge local cardsData templates with API results
+        // Build a lookup of local cards by id
         const localCards = cardsData[activeCategory] || [];
+        const localById = Object.fromEntries(localCards.map(c => [c.id, c]));
+
+        // Merge local style/customRoute into API templates so birthday cards link correctly
+        const mergedApiTemplates = temps.map(t => ({
+          ...t,
+          customRoute: localById[t.id]?.customRoute || t.customRoute,
+          style: localById[t.id]?.style || t.style,
+          content: localById[t.id]?.content || t.content,
+        }));
+
+        // Add any local cards that the API doesn't have
         const apiIds = new Set(temps.map(t => t.id));
         const uniqueLocal = localCards.filter(c => !apiIds.has(c.id));
-        setTemplates([...temps, ...uniqueLocal]);
+        setTemplates([...mergedApiTemplates, ...uniqueLocal]);
       } catch (error) {
         console.error('Error fetching cards:', error);
         // Fallback to local data if API is down

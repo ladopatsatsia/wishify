@@ -3,15 +3,17 @@ import { useNavigate } from 'react-router-dom';
 export default function Card({ card, categoryId }) {
   const navigate = useNavigate();
 
-  // Extract style properties with defaults
+  // Extract style properties — handle both local shape (nested in style{}) and API shape (flat)
   const {
-    bgGradient = 'from-slate-100 to-slate-200',
-    emoji = '✨',
-    title = 'Untitled Card',
+    bgGradient: styleBgGradient = '',
+    emoji: styleEmoji = '',
     themeColor = 'violet',
     fontFamily = 'font-sans',
     layoutType = 'centered',
   } = card.style || {};
+
+  const bgGradient = styleBgGradient || card.bgGradient || 'from-slate-100 to-slate-200';
+  const emoji = styleEmoji || card.defaultEmoji || '✨';
 
   return (
     <div
