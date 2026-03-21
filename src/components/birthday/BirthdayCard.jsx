@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import BirthdayCardPreview from './BirthdayCardPreview';
+import ReelBirthdayCardPreview from './ReelBirthdayCardPreview';
 import BirthdayCardEditor from './BirthdayCardEditor';
 import { useAuth } from '../../context/AuthContext';
 import { cardsData } from '../../data/cardsData';
@@ -24,6 +25,7 @@ const DEFAULT_BIRTHDAY_CARD = {
 
 export default function BirthdayCard({ subdomainSlug }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { cardId } = useParams();
   const { user } = useAuth();
   const { language } = useLanguage();
@@ -144,23 +146,33 @@ export default function BirthdayCard({ subdomainSlug }) {
     );
   }
 
+  const isReelTemplate = dbCard?.templateId === 'b2' || cardId === 'b2';
+
   if (mode === 'edit') {
     return (
       <BirthdayCardEditor
         defaultData={defaultData}
         onBack={() => setMode('preview')}
+        isReelTemplate={isReelTemplate}
       />
     );
   }
 
   // STANDALONE PREVIEW MODE - Full page, not a popup
+  const PreviewComponent = isReelTemplate ? ReelBirthdayCardPreview : BirthdayCardPreview;
   return (
-    <BirthdayCardPreview
+    <PreviewComponent
       data={defaultData}
       standalone={true}
       isPublic={dbCard?.isPublic || dbCard?.IsPublic || !!subdomainSlug}
       onPersonalize={subdomainSlug ? undefined : () => setMode('edit')}
-      onBack={subdomainSlug ? undefined : () => navigate('/browse/birthday')}
+      onBack={subdomainSlug ? undefined : () => {
+        if (location.state?.from) {
+          navigate(location.state.from);
+        } else {
+          navigate('/browse/birthday');
+        }
+      }}
     />
   );
 }

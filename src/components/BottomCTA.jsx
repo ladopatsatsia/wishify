@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 
 function useFadeIn(ref) {
-// ... existing useFadeIn logic ...
+  // ... existing useFadeIn logic ...
 }
 
 export default function BottomCTA() {
   const ref = useRef(null);
   const navigate = useNavigate();
   const { language } = useLanguage();
-  
+
   // Custom hook usage
   useEffect(() => {
     const el = ref.current;
@@ -45,7 +45,7 @@ export default function BottomCTA() {
             {language === 'ka' ? 'შექმენი შენი პირველი ' : language === 'ru' ? 'Создайте свою первую ' : 'Create Your First '}<span className="text-yellow-300">{language === 'ka' ? 'ჯადოსნური ბარათი' : language === 'ru' ? 'магическую открытку' : 'Magic Card'}</span>
           </h2>
           <p className="text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-            {language === 'ka' ? 'შემოუერთდით ათასობით მომხმარებელს და დაიწყეთ მოგონებების გაგზავნა. საკრედიტო ბარათი არ არის საჭირო.' : language === 'ru' ? 'Присоединяйтесь к тысячам счастливых пользователей и начните отправлять воспоминания, которые останутся навсегда. Кредитная карта не требуется.' : 'Join thousands of happy users and start sending memories that last forever. No credit card required.'}
+            {language === 'ka' ? 'შემოუერთდით ათასობით მომხმარებელს და დაიწყეთ მოგონებების გაგზავნა.' : language === 'ru' ? 'Присоединяйтесь к тысячам счастливых пользователей и начните отправлять воспоминания, которые останутся навсегда.' : 'Join thousands of happy users and start sending memories that last forever.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button

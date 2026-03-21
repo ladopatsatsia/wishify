@@ -132,7 +132,7 @@ export default function SavedCards() {
               {language === 'ka' ? 'დაიწყე შექმნა' : language === 'ru' ? 'Начать создание' : 'Start Customizing'}
             </button>
           </div>
-        ) : cards.filter(c => !c.isPublic).length === 0 ? (
+        ) : cards.filter(c => !c.urlSlug).length === 0 ? (
           <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">
             <div className="text-6xl mb-4">💮</div>
             <h3 className="text-xl font-bold text-slate-700 mb-2">{language === 'ka' ? 'პირადი ბარათები არ არის' : language === 'ru' ? 'Нет личных открыток' : 'No private cards'}</h3>
@@ -142,7 +142,7 @@ export default function SavedCards() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {cards.filter(c => !c.isPublic).map(card => {
+            {cards.filter(c => !c.urlSlug).map(card => {
               const bgGradient = card.customBgGradient || 'from-slate-100 to-slate-200';
               const emoji = card.customEmoji || '✨';
               
@@ -176,7 +176,7 @@ export default function SavedCards() {
 
                     <div className="mt-auto grid grid-cols-2 gap-2">
                        <button
-                        onClick={() => navigate(`/birthday-card/${card.id}`)}
+                        onClick={() => navigate(`/birthday-card/${card.id}`, { state: { from: '/profile/saved' } })}
                         className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer"
                        >
                          👀 {language === 'ka' ? 'ნახვა' : language === 'ru' ? 'Просмотр' : 'View'}

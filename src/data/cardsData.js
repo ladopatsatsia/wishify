@@ -30,6 +30,27 @@ export const cardsData = {
         audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
         musicLabel: 'Birthday Melody',
       }
+    },
+    {
+      id: 'b2',
+      title: 'Birthday Reel',
+      recipient: 'TikTok Fan',
+      customRoute: '/birthday-card/b2',
+      style: {
+        bgGradient: 'from-slate-900 via-purple-900 to-slate-900',
+        emoji: '🎂',
+        themeColor: 'purple',
+        fontFamily: 'font-sans',
+        layoutType: 'reel',
+      },
+      content: {
+        heading: 'Happy Birthday Reel!',
+        message1: 'Swipe up for more birthdays ✨ Just kidding, have the best day ever!',
+        message2: 'You deserve all the happiness today.',
+        giftLink: '',
+        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+        musicLabel: 'Trending Lo-Fi',
+      }
     }
   ],
   graduation: [

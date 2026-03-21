@@ -7,29 +7,23 @@ public static class DbSeeder
 {
     public static void Seed(ApplicationDbContext context)
     {
-        // Clean up any extra birthday templates that should not exist
-        var extraIds = new[] { "b2", "b3", "b4" };
-        var extras = context.Templates.Where(t => extraIds.Contains(t.Id)).ToList();
-        if (extras.Any())
+        // 1. Seed Categories if missing
+        if (!context.Categories.Any())
         {
-            context.Templates.RemoveRange(extras);
+            var categories = new List<Category>
+            {
+                new Category { Id = "birthday", Label = "Birthday", Emoji = "🎂", Color = "from-pink-400 to-rose-500" },
+                new Category { Id = "graduation", Label = "Graduation", Emoji = "🎓", Color = "from-violet-400 to-purple-600" },
+                new Category { Id = "invitation", Label = "Invitation", Emoji = "💌", Color = "from-amber-400 to-orange-500" },
+                new Category { Id = "memory", Label = "Memory", Emoji = "📸", Color = "from-teal-400 to-cyan-500" },
+                new Category { Id = "love", Label = "Love", Emoji = "❤️", Color = "from-red-400 to-pink-500" },
+                new Category { Id = "holiday", Label = "Holiday", Emoji = "🎄", Color = "from-green-400 to-emerald-500" },
+            };
+            context.Categories.AddRange(categories);
             context.SaveChanges();
         }
 
-        if (context.Categories.Any()) return;
-
-        var categories = new List<Category>
-        {
-            new Category { Id = "birthday", Label = "Birthday", Emoji = "🎂", Color = "from-pink-400 to-rose-500" },
-            new Category { Id = "graduation", Label = "Graduation", Emoji = "🎓", Color = "from-violet-400 to-purple-600" },
-            new Category { Id = "invitation", Label = "Invitation", Emoji = "💌", Color = "from-amber-400 to-orange-500" },
-            new Category { Id = "memory", Label = "Memory", Emoji = "📸", Color = "from-teal-400 to-cyan-500" },
-            new Category { Id = "love", Label = "Love", Emoji = "❤️", Color = "from-red-400 to-pink-500" },
-            new Category { Id = "holiday", Label = "Holiday", Emoji = "🎄", Color = "from-green-400 to-emerald-500" },
-        };
-
-        context.Categories.AddRange(categories);
-
+        // 2. Seed Templates if missing
         var templates = new List<Template>
         {
             new Template 
@@ -47,6 +41,19 @@ public static class DbSeeder
             },
             new Template 
             { 
+                Id = "b2", 
+                CategoryId = "birthday", 
+                Title = "Birthday Reel", 
+                BgGradient = "from-slate-900 via-purple-900 to-slate-900", 
+                DefaultEmoji = "🎂", 
+                ThemeColor = "purple",
+                DefaultHeading = "Happy Birthday Reel!",
+                DefaultMessage1 = "Swipe up for more birthdays ✨",
+                DefaultMessage2 = "You deserve all the happiness today.",
+                MusicLabel = "Trending Lo-Fi"
+            },
+            new Template 
+            { 
                 Id = "g1", 
                 CategoryId = "graduation", 
                 Title = "Triumphant Cap", 
@@ -60,7 +67,13 @@ public static class DbSeeder
             }
         };
 
-        context.Templates.AddRange(templates);
+        foreach (var template in templates)
+        {
+            if (!context.Templates.Any(t => t.Id == template.Id))
+            {
+                context.Templates.Add(template);
+            }
+        }
         context.SaveChanges();
     }
 }

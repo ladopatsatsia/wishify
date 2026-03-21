@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react';
 import BirthdayCardPreview from './BirthdayCardPreview';
+import ReelBirthdayCardPreview from './ReelBirthdayCardPreview';
 import { useAuth } from '../../context/AuthContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 
-export default function BirthdayCardEditor({ defaultData, onBack }) {
+export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate }) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   // Editable state initialized from defaults
@@ -124,8 +125,9 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
   };
 
   if (showPreview) {
+    const PreviewComponent = isReelTemplate ? ReelBirthdayCardPreview : BirthdayCardPreview;
     return (
-      <BirthdayCardPreview 
+      <PreviewComponent 
         data={getPreviewData()} 
         onClose={() => {
           setShowPreview(false);

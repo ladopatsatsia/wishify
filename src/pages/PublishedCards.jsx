@@ -9,6 +9,7 @@ export default function PublishedCards() {
   const { language } = useLanguage();
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -103,7 +104,7 @@ export default function PublishedCards() {
     );
   }
 
-  const publishedCards = cards.filter(c => c.isPublic);
+  const publishedCards = cards.filter(c => c.urlSlug);
 
   return (
     <div className="min-h-screen bg-slate-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
@@ -148,19 +149,17 @@ export default function PublishedCards() {
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-12 -mb-12 blur-xl" />
 
-                  {/* Visibility Toggle Button */}
-                  <button
-                    onClick={() => handleTogglePublish(card.id)}
-                    title={card.isPublic ? "Click to make Private" : "Click to Publish"}
-                    className={`absolute top-6 right-6 z-20 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-1.5 border border-white/20 ${
+                  {/* Passive Status Badge */}
+                  <div
+                    className={`absolute top-6 right-6 z-20 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-lg border border-white/20 ${
                       card.isPublic 
-                        ? 'bg-emerald-500 text-white hover:bg-emerald-600 scale-105' 
-                        : 'bg-white/10 backdrop-blur text-white hover:bg-white/20'
+                        ? 'bg-emerald-500 text-white' 
+                        : 'bg-slate-500 text-white'
                     }`}
                   >
-                    <span>{card.isPublic ? '🌐' : '🔒'}</span>
-                    {card.isPublic ? (language === 'ka' ? 'გამოქვეყნებული' : language === 'ru' ? 'Опубликовано' : 'Published') : (language === 'ka' ? 'პირადი' : language === 'ru' ? 'Личная' : 'Private')}
-                  </button>
+                    <span className="mr-1.5">{card.isPublic ? '🌐' : '🔒'}</span>
+                    {card.isPublic ? (language === 'ka' ? 'აქტიური' : language === 'ru' ? 'Активный' : 'Active') : (language === 'ka' ? 'გამორთული' : language === 'ru' ? 'Отключено' : 'Disabled')}
+                  </div>
 
                   <div className="flex flex-col h-full p-8 text-center relative z-10">
                     <div className="text-6xl mb-4">{emoji}</div>
@@ -169,16 +168,27 @@ export default function PublishedCards() {
 
                     <div className="mt-auto grid grid-cols-2 gap-2">
                        <button
-                        onClick={() => navigate(`/birthday-card/${card.id}`)}
+                        onClick={() => {
+                          const url = `http://${card.urlSlug}.localhost:5173`;
+                          navigator.clipboard.writeText(url);
+                          setCopiedId(card.id);
+                          setTimeout(() => setCopiedId(null), 2000);
+                        }}
                         className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer"
                        >
-                         🔗 {language === 'ka' ? 'ლაივ ლინკი' : language === 'ru' ? 'Живая ссылка' : 'Live Link'}
+                         {copiedId === card.id 
+                           ? (language === 'ka' ? '✅ დაკოპირდა!' : language === 'ru' ? '✅ Скопировано!' : '✅ Copied!') 
+                           : (language === 'ka' ? '🔗 კოპირება' : language === 'ru' ? '🔗 Скопировать' : '🔗 Copy Link')}
                        </button>
                        <button
-                        onClick={() => handleDelete(card.id)}
-                        className="w-full bg-red-100 backdrop-blur text-red-600 hover:bg-red-200 hover:shadow-md text-sm font-bold py-2.5 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer"
+                        onClick={() => handleTogglePublish(card.id)}
+                        className={`w-full text-sm font-bold py-2.5 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer ${
+                          card.isPublic
+                            ? 'bg-amber-100 backdrop-blur text-amber-600 hover:bg-amber-200 hover:shadow-md'
+                            : 'bg-emerald-100 backdrop-blur text-emerald-600 hover:bg-emerald-200 hover:shadow-md'
+                        }`}
                        >
-                         🗑️ {language === 'ka' ? 'წაშლა' : language === 'ru' ? 'Удалить' : 'Delete'}
+                         {card.isPublic ? (language === 'ka' ? '⏸️ გათიშვა' : language === 'ru' ? '⏸️ Отключить' : '⏸️ Disable') : (language === 'ka' ? '▶️ ჩართვა' : language === 'ru' ? '▶️ Включить' : '▶️ Enable')}
                        </button>
                     </div>
                   </div>
