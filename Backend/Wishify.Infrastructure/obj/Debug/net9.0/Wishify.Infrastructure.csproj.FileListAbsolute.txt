@@ -1,5 +1,0 @@
-C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net9.0\Wishify.Infrastructure.csproj.AssemblyReference.cache
-C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net9.0\Wishify.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net9.0\Wishify.Infrastructure.AssemblyInfoInputs.cache
-C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net9.0\Wishify.Infrastructure.AssemblyInfo.cs
-C:\Users\ladop\OneDrive\Desktop\test\Backend\Wishify.Infrastructure\obj\Debug\net9.0\Wishify.Infrastructure.csproj.CoreCompileInputs.cache
