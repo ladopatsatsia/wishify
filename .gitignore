@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# .NET Core
+[Bb]in/
+[Oo]bj/
+*.userprefs
+*.db
+*.db-shm
+*.db-wal
+appsettings.Development.json
