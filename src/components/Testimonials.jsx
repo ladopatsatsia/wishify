@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 function useFadeIn(ref) {
   useEffect(() => {
@@ -15,25 +16,26 @@ function useFadeIn(ref) {
 
 export default function Testimonials() {
   const ref = useRef(null);
+  const { language } = useLanguage();
   useFadeIn(ref);
 
   const reviews = [
     {
-      name: 'Sarah Jenkins',
-      title: 'Birthday Surprise',
-      quote: "The magic reveal feature absolutely blew my best friend away! She said it was the most thoughtful digital gift she's ever received.",
+      name: language === 'ka' ? 'სარა ჯენკინსი' : 'Sarah Jenkins',
+      title: language === 'ka' ? 'დაბადების დღის სიურპრიზი' : 'Birthday Surprise',
+      quote: language === 'ka' ? "ეს იყო ყველაზე განსაკუთრებული ციფრული საჩუქარი რაც კი ოდესმე მიმიღია. ძალიან მომეწონა." : "The magic reveal feature absolutely blew my best friend away! She said it was the most thoughtful digital gift she's ever received.",
       avatar: '👩‍💼',
     },
     {
-      name: 'Michael Chen',
-      title: 'Family Reunion',
-      quote: "Clean, elegant, and so easy to use. I sent a card to my parents across the world and they were able to open it with zero tech issues.",
+      name: language === 'ka' ? 'მაიკლ ჩენი' : 'Michael Chen',
+      title: language === 'ka' ? 'ოჯახის შეკრება' : 'Family Reunion',
+      quote: language === 'ka' ? "ძალიან მარტივი გამოსაყენებელი. გავუგზავნე ბარათი მშობლებს სხვა ქვეყანაში და პრობლემების გარეშე გახსნეს." : "Clean, elegant, and so easy to use. I sent a card to my parents across the world and they were able to open it with zero tech issues.",
       avatar: '👨‍🎨',
     },
     {
-      name: 'Emma Rodriguez',
-      title: 'New Chapter',
-      quote: "Adding our favorite song to the graduation card made it so personal. Wishify is my new go-to for every special occasion.",
+      name: language === 'ka' ? 'ემა როდრიგესი' : 'Emma Rodriguez',
+      title: language === 'ka' ? 'ახალი თავი' : 'New Chapter',
+      quote: language === 'ka' ? "ჩვენი საყვარელი სიმღერის დამატებამ ეს ბარათი ძალიან პერსონალური გახადა. Wishify ჩემი ფავორიტია." : "Adding our favorite song to the graduation card made it so personal. Wishify is my new go-to for every special occasion.",
       avatar: '👩‍🔬',
     },
   ];
@@ -43,13 +45,13 @@ export default function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={ref} className="fade-in-section text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            User Stories
+            {language === 'ka' ? 'მომხმარებელთა ისტორიები' : 'User Stories'}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4">
-            Trusted by People <span className="gradient-text">Worldwide</span>
+            {language === 'ka' ? 'ენდობიან ადამიანები ' : 'Trusted by People '}<span className="gradient-text">{language === 'ka' ? 'მთელ მსოფლიოში' : 'Worldwide'}</span>
           </h2>
           <p className="text-xl text-slate-500 max-w-xl mx-auto">
-            See how Wishify is helping people create lasting memories one digital card at a time.
+            {language === 'ka' ? 'ნახეთ როგორ ეხმარება Wishify ადამიანებს სამუდამო მოგონებების შექმნაში.' : 'See how Wishify is helping people create lasting memories one digital card at a time.'}
           </p>
         </div>
 

@@ -1,7 +1,9 @@
 import { useRef, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function SocialProof() {
   const ref = useRef(null);
+  const { language } = useLanguage();
   
   useEffect(() => {
     const el = ref.current;
@@ -25,7 +27,7 @@ export default function SocialProof() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <div ref={ref} className="fade-in-section">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight leading-tight">
-            Share <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500">Unforgettable</span> Memories
+            {language === 'ka' ? 'გააზიარეთ ' : 'Share '}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500">{language === 'ka' ? 'დაუვიწყარი' : 'Unforgettable'}</span> {language === 'ka' ? 'მოგონებები' : 'Memories'}
           </h2>
         </div>
       </div>

@@ -1,20 +1,22 @@
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
   const navigate = useNavigate();
+  const { language, t } = useLanguage();
   
   const categoriesList = [
-    { label: 'Birthday 🎂', cat: 'birthday' },
-    { label: 'Graduation 🎓', cat: 'graduation' },
-    { label: 'Invitation 💌', cat: 'invitation' },
-    { label: 'Memory 📸', cat: 'memory' },
-    { label: 'Love ❤️', cat: 'love' },
-    { label: 'Holiday 🎄', cat: 'holiday' },
+    { label: language === 'ka' ? 'დაბადების დღე 🎂' : 'Birthday 🎂', cat: 'birthday' },
+    { label: language === 'ka' ? 'დიპლომი 🎓' : 'Graduation 🎓', cat: 'graduation' },
+    { label: language === 'ka' ? 'მოწვევა 💌' : 'Invitation 💌', cat: 'invitation' },
+    { label: language === 'ka' ? 'მოგონება 📸' : 'Memory 📸', cat: 'memory' },
+    { label: language === 'ka' ? 'სიყვარული ❤️' : 'Love ❤️', cat: 'love' },
+    { label: language === 'ka' ? 'დღესასწაული 🎄' : 'Holiday 🎄', cat: 'holiday' },
   ];
 
   const columns = [
-    { title: 'Product', links: ['browse', 'howItWorks', 'features', 'pricing'] },
-    { title: 'Support', links: ['help', 'contact', 'privacy', 'terms'] },
+    { title: language === 'ka' ? 'პროდუქტი' : 'Product', links: ['browse', 'howItWorks', 'features', 'pricing'] },
+    { title: language === 'ka' ? 'მხარდაჭერა' : 'Support', links: ['help', 'contact', 'privacy', 'terms'] },
   ];
 
   const socials = [
@@ -71,7 +73,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-slate-400 leading-relaxed text-sm max-w-xs">
-              Making every celebration special with magical digital greeting cards that come to life.
+              {language === 'ka' ? 'აქციეთ ყველა დღესასწაული გამორჩეული ჯადოსნური ციფრული ბარათებით.' : 'Making every celebration special with magical digital greeting cards that come to life.'}
             </p>
             {/* Socials */}
             <div className="flex gap-3">
@@ -99,13 +101,24 @@ export default function Footer() {
                         if (linkKey === 'browse') navigate('/browse/birthday');
                         else navigate('/');
                       }}
-                      className="text-slate-400 hover:text-violet-400 transition-colors text-sm text-left"
+                      className="text-slate-400 hover:text-violet-400 transition-colors text-sm text-left cursor-pointer"
                     >
-                      {linkKey === 'browse' ? 'Browse Cards' : 
-                       linkKey === 'howItWorks' ? 'How it Works' :
-                       linkKey === 'features' ? 'Features' :
-                       linkKey === 'pricing' ? 'Pricing' :
-                       linkKey.charAt(0).toUpperCase() + linkKey.slice(1)}
+                      {language === 'ka' ? (
+                        linkKey === 'browse' ? 'შაბლონების ნახვა' : 
+                        linkKey === 'howItWorks' ? 'როგორ მუშაობს' :
+                        linkKey === 'features' ? 'ფუნქციები' :
+                        linkKey === 'pricing' ? 'ფასები' :
+                        linkKey === 'help' ? 'დახმარება' :
+                        linkKey === 'contact' ? 'კონტაქტი' :
+                        linkKey === 'privacy' ? 'კონფიდენციალურობა' :
+                        linkKey === 'terms' ? 'წესები' : linkKey
+                      ) : (
+                        linkKey === 'browse' ? 'Browse Cards' : 
+                        linkKey === 'howItWorks' ? 'How it Works' :
+                        linkKey === 'features' ? 'Features' :
+                        linkKey === 'pricing' ? 'Pricing' :
+                        linkKey.charAt(0).toUpperCase() + linkKey.slice(1)
+                      )}
                     </button>
                   </li>
                 ))}
@@ -116,13 +129,15 @@ export default function Footer() {
 
         {/* Category quick links */}
         <div className="border-t border-slate-800 pt-8 pb-6">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Browse Occasions</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
+            {language === 'ka' ? 'დაათვალიერეთ' : 'Browse Occasions'}
+          </p>
           <div className="flex flex-wrap gap-2">
             {categoriesList.map(cat => (
               <button
                 key={cat.cat}
                 onClick={() => navigate(`/browse/${cat.cat}`)}
-                className="text-xs bg-slate-800 text-slate-400 hover:bg-violet-600 hover:text-white px-3 py-1.5 rounded-full transition-colors"
+                className="text-xs bg-slate-800 text-slate-400 hover:bg-violet-600 hover:text-white px-3 py-1.5 rounded-full transition-colors cursor-pointer"
               >
                 {cat.label}
               </button>
@@ -133,11 +148,11 @@ export default function Footer() {
         {/* Copyright */}
         <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-slate-500 text-sm">
-            © 2024 Wishify Inc. All rights reserved.
+            {t('footer.rights')}
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">Privacy Policy</a>
-            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">Terms of Service</a>
+            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">{language === 'ka' ? 'გვერდის წესები' : 'Privacy Policy'}</a>
+            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">{language === 'ka' ? 'მოხმარების პირობები' : 'Terms of Service'}</a>
             <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">Cookies</a>
           </div>
         </div>

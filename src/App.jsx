@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useLanguage } from './context/LanguageContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import HowItWorks from './components/HowItWorks';
@@ -107,6 +108,7 @@ export default function App() {
 // Helper to wrap CardEditor and handle its logic
 function CardEditorWrapper() {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const { categoryId, cardId } = useParams();
   const catId = categoryId?.toLowerCase();
   console.log("CardEditorWrapper Render:", { categoryId: catId, cardId });
@@ -116,8 +118,8 @@ function CardEditorWrapper() {
 
   if (!card) return (
     <div className="p-20 text-center">
-      <h2 className="text-2xl font-bold">Card not found: {cardId}</h2>
-      <button onClick={() => navigate('/')} className="mt-4 text-violet-600">Go Home</button>
+      <h2 className="text-2xl font-bold">{language === 'ka' ? 'ბარათი არ მოიძებნა:' : 'Card not found:'} {cardId}</h2>
+      <button onClick={() => navigate('/')} className="mt-4 text-violet-600 cursor-pointer">{language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : 'Go Home'}</button>
     </div>
   );
 

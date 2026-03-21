@@ -4,6 +4,7 @@ import BirthdayCardPreview from './BirthdayCardPreview';
 import BirthdayCardEditor from './BirthdayCardEditor';
 import { useAuth } from '../../context/AuthContext';
 import { cardsData } from '../../data/cardsData';
+import { useLanguage } from '../../context/LanguageContext';
 
 // Default template data for the new birthday card
 const DEFAULT_BIRTHDAY_CARD = {
@@ -25,6 +26,7 @@ export default function BirthdayCard({ subdomainSlug }) {
   const navigate = useNavigate();
   const { cardId } = useParams();
   const { user } = useAuth();
+  const { language } = useLanguage();
   const [mode, setMode] = useState('preview'); // 'preview' | 'edit'
   const [dbCard, setDbCard] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -130,13 +132,13 @@ export default function BirthdayCard({ subdomainSlug }) {
     return (
       <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
         <div className="text-6xl mb-6">🔒</div>
-        <h2 className="text-2xl font-bold text-white mb-2">Access Denied</h2>
+        <h2 className="text-2xl font-bold text-white mb-2">{language === 'ka' ? 'წვდომა შეზღუდულია' : 'Access Denied'}</h2>
         <p className="text-slate-400 mb-8 max-w-sm">{error}</p>
         <button
           onClick={() => navigate('/')}
-          className="bg-white text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-100 transition shadow-lg"
+          className="bg-white text-slate-900 font-bold py-3 px-8 rounded-xl hover:bg-slate-100 transition shadow-lg cursor-pointer"
         >
-          Back to Home
+          {language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : 'Back to Home'}
         </button>
       </div>
     );

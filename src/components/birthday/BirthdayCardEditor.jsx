@@ -2,9 +2,11 @@ import { useState, useRef } from 'react';
 import BirthdayCardPreview from './BirthdayCardPreview';
 import { useAuth } from '../../context/AuthContext';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function BirthdayCardEditor({ defaultData, onBack }) {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   // Editable state initialized from defaults
   const [title, setTitle] = useState(defaultData.title || 'Happy Birthday!');
   const [message, setMessage] = useState(defaultData.message || 'Wishing you a wonderful day!');
@@ -68,7 +70,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
 
   const handleSave = async () => {
     if (!user) {
-      alert("Please log in to save your personalize cards!");
+      alert(language === 'ka' ? "გთხოვთ გაიაროთ ავტორიზაცია თქვენი ბარათების შესანახად!" : "Please log in to save your personalize cards!");
       return;
     }
     setSaving(true);
@@ -142,8 +144,8 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
           <div className="flex items-center gap-3">
             <div className="text-3xl">{emoji}</div>
             <div>
-              <h2 className="text-xl font-extrabold text-slate-800">Birthday Card Editor</h2>
-              <p className="text-sm text-slate-400">Personalize every detail</p>
+              <h2 className="text-xl font-extrabold text-slate-800">{language === 'ka' ? 'დაბადების დღის ბარათის რედაქტორი' : 'Birthday Card Editor'}</h2>
+              <p className="text-sm text-slate-400">{language === 'ka' ? 'პერსონალიზაცია ყველა დეტალში' : 'Personalize every detail'}</p>
             </div>
           </div>
           <button
@@ -156,7 +158,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
 
         <div className="p-6 space-y-6">
           {/* Live Mini Preview */}
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Live Preview</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{language === 'ka' ? 'ლაივ პრევიუ' : 'Live Preview'}</div>
           <div className={`rounded-2xl bg-gradient-to-br ${bgGradient} p-5 text-center space-y-2`}>
             <div className="text-4xl">{emoji}</div>
             <div className="font-bold text-white text-base drop-shadow">{title || 'Your Title Here'}</div>
@@ -180,31 +182,31 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
           {/* ===== TEXT FIELDS ===== */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">🎉 Title</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">🎉 {language === 'ka' ? 'სათაური' : 'Title'}</label>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:border-violet-400 transition"
-                placeholder="Happy Birthday!"
+                placeholder={language === 'ka' ? 'გილოცავ დაბადების დღეს!' : 'Happy Birthday!'}
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">💬 Message</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">💬 {language === 'ka' ? 'ტექსტი' : 'Message'}</label>
               <textarea
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 rows={4}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition resize-none text-sm"
-                placeholder="Write your heartfelt message..."
+                placeholder={language === 'ka' ? 'დაწერეთ თქვენი გულწრფელი მესიჯი...' : 'Write your heartfelt message...'}
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">✍️ Signature</label>
+              <label className="block text-sm font-bold text-slate-700 mb-1">✍️ {language === 'ka' ? 'ხელმოწერა' : 'Signature'}</label>
               <input
                 value={signature}
                 onChange={e => setSignature(e.target.value)}
                 className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition"
-                placeholder="With Love ❤️"
+                placeholder={language === 'ka' ? 'სიყვარულით ❤️' : 'With Love ❤️'}
               />
             </div>
           </div>
@@ -215,15 +217,15 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">📸</span>
                 <div>
-                  <div className="font-bold text-slate-800">Photos</div>
-                  <div className="text-xs text-slate-400">Upload up to 4 images</div>
+                  <div className="font-bold text-slate-800">{language === 'ka' ? 'სურათები' : 'Photos'}</div>
+                  <div className="text-xs text-slate-400">{language === 'ka' ? 'ატვირთეთ მაქსიმუმ 4 სურათი' : 'Upload up to 4 images'}</div>
                 </div>
               </div>
               <button
                 onClick={() => imageInputRef.current?.click()}
                 className="bg-sky-500 text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-sky-600 transition cursor-pointer"
               >
-                + Add
+                + {language === 'ka' ? 'დამატება' : 'Add'}
               </button>
               <input
                 ref={imageInputRef}
@@ -263,7 +265,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
                 className="border-2 border-dashed border-sky-200 rounded-xl p-8 text-center cursor-pointer hover:bg-sky-100/50 transition"
               >
                 <div className="text-3xl mb-2">📷</div>
-                <p className="text-sm text-slate-500">Click to upload photos</p>
+                <p className="text-sm text-slate-500">{language === 'ka' ? 'დააკლიკეთ სურათების ასატვირთად' : 'Click to upload photos'}</p>
               </div>
             )}
           </div>
@@ -274,8 +276,8 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎵</span>
                 <div>
-                  <div className="font-bold text-slate-800">Music</div>
-                  <div className="text-xs text-slate-400">Add a soundtrack to your card</div>
+                  <div className="font-bold text-slate-800">{language === 'ka' ? 'მუსიკა' : 'Music'}</div>
+                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ მუსიკა თქვენს ბარათს' : 'Add a soundtrack to your card'}</div>
                 </div>
               </div>
               <button
@@ -288,12 +290,12 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
 
             {musicEnabled && (
               <div className="space-y-3">
-                {musicFile && (
+                 {musicFile && (
                   <div className="bg-white rounded-xl p-3 flex items-center gap-3 border border-violet-100">
                     <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xs">♪</div>
                     <div className="flex-1">
                       <div className="text-sm font-semibold text-slate-700 truncate">{musicFile.name}</div>
-                      <div className="text-xs text-violet-400">Custom Upload</div>
+                      <div className="text-xs text-violet-400">{language === 'ka' ? 'ატვირთული' : 'Custom Upload'}</div>
                     </div>
                     <div className="text-green-500 text-xs font-bold">✓</div>
                   </div>
@@ -303,7 +305,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
                   className="w-full border-2 border-dashed border-violet-200 rounded-xl p-4 text-center hover:bg-violet-100/50 transition cursor-pointer"
                 >
                   <span className="text-sm text-violet-600 font-semibold">
-                    {musicFile ? 'Change Music File' : '🎧 Upload MP3 File'}
+                    {musicFile ? (language === 'ka' ? 'შეცვალე მუსიკა' : 'Change Music File') : (language === 'ka' ? '🎧 ატვირთეთ MP3 ფაილი' : '🎧 Upload MP3 File')}
                   </span>
                 </button>
                 <input
@@ -323,8 +325,8 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎁</span>
                 <div>
-                  <div className="font-bold text-slate-800">Gift Box</div>
-                  <div className="text-xs text-slate-400">Add a clickable gift link</div>
+                  <div className="font-bold text-slate-800">{language === 'ka' ? 'საჩუქრის ყუთი' : 'Gift Box'}</div>
+                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ ლინკი საჩუქრისთვის' : 'Add a clickable gift link'}</div>
                 </div>
               </div>
               <button
@@ -337,7 +339,7 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
 
             {giftBoxEnabled && (
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">Gift URL</label>
+                <label className="block text-xs font-bold text-slate-600 mb-1">{language === 'ka' ? 'საჩუქრის URL' : 'Gift URL'}</label>
                 <input
                   value={giftBoxUrl}
                   onChange={e => setGiftBoxUrl(e.target.value)}
@@ -355,13 +357,13 @@ export default function BirthdayCardEditor({ defaultData, onBack }) {
             onClick={onBack}
             className="flex-1 border-2 border-slate-200 text-slate-700 font-semibold rounded-2xl py-3 hover:bg-slate-50 transition cursor-pointer"
           >
-            ← Back
+            ← {language === 'ka' ? 'უკან' : 'Back'}
           </button>
           <button
             onClick={() => setShowPreview(true)}
             className="flex-[2] bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold rounded-2xl py-3 hover:opacity-90 transition shadow-lg cursor-pointer flex items-center justify-center gap-2"
           >
-            ✨ Preview Card
+            ✨ {language === 'ka' ? 'ბარათის ნახვა' : 'Preview Card'}
           </button>
         </div>
       </div>

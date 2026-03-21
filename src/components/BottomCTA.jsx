@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 function useFadeIn(ref) {
 // ... existing useFadeIn logic ...
@@ -8,6 +9,7 @@ function useFadeIn(ref) {
 export default function BottomCTA() {
   const ref = useRef(null);
   const navigate = useNavigate();
+  const { language } = useLanguage();
   
   // Custom hook usage
   useEffect(() => {
@@ -37,29 +39,29 @@ export default function BottomCTA() {
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div ref={ref} className="fade-in-section space-y-8">
           <div className="inline-flex items-center gap-2 bg-white/20 text-white px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-sm border border-white/30">
-            Ready to Celebrate?
+            {language === 'ka' ? 'მზად ხართ აღსანიშნავად?' : 'Ready to Celebrate?'}
           </div>
           <h2 className="text-4xl sm:text-6xl font-extrabold text-white leading-tight">
-            Create Your First <span className="text-yellow-300">Magic Card</span>
+            {language === 'ka' ? 'შექმენი შენი პირველი ' : 'Create Your First '}<span className="text-yellow-300">{language === 'ka' ? 'ჯადოსნური ბარათი' : 'Magic Card'}</span>
           </h2>
           <p className="text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of happy users and start sending memories that last forever. No credit card required.
+            {language === 'ka' ? 'შემოუერთდით ათასობით მომხმარებელს და დაიწყეთ მოგონებების გაგზავნა. საკრედიტო ბარათი არ არის საჭირო.' : 'Join thousands of happy users and start sending memories that last forever. No credit card required.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => navigate('/browse/birthday')}
-              className="bg-white text-violet-700 font-bold text-lg px-10 py-4 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all"
+              className="bg-white text-violet-700 font-bold text-lg px-10 py-4 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all cursor-pointer"
             >
-              Get Started Now ✨
+              {language === 'ka' ? 'დაიწყე ახლავე ✨' : 'Get Started Now ✨'}
             </button>
             <a
               href="#features"
-              className="border-2 border-white/50 text-white font-semibold text-lg px-8 py-4 rounded-full hover:bg-white/10 transition-colors"
+              className="border-2 border-white/50 text-white font-semibold text-lg px-8 py-4 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
             >
-              Browse Features →
+              {language === 'ka' ? 'ფუნქციების ნახვა →' : 'Browse Features →'}
             </a>
           </div>
-          <p className="text-white/50 text-sm">Takes less than 2 minutes to create and send.</p>
+          <p className="text-white/50 text-sm">{language === 'ka' ? 'შექმნას 2 წუთზე ნაკლები სჭირდება.' : 'Takes less than 2 minutes to create and send.'}</p>
         </div>
       </div>
     </section>

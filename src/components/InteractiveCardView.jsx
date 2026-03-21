@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cardsData } from '../data/cardsData';
+import { useLanguage } from '../context/LanguageContext';
 
 const API_BASE_URL = 'http://localhost:5153/api/cards';
 
@@ -23,6 +24,7 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
   const [card, setCard] = useState(previewData || null);
   const [loading, setLoading] = useState(!previewData);
   const [error, setError] = useState(null);
+  const { language } = useLanguage();
   const [magicClicked, setMagicClicked] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const canvasRef = useRef(null);
@@ -171,13 +173,13 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
       <div className="h-screen flex items-center justify-center bg-slate-900 text-white">
         <div className="text-center px-6">
           <div className="text-6xl mb-6 font-bold">🏜️</div>
-          <h1 className="text-4xl font-black mb-4">Card Missing!</h1>
-          <p className="text-slate-400 mb-8 max-w-md">This card might have expired or the link is incorrect.</p>
+          <h1 className="text-4xl font-black mb-4">{language === 'ka' ? 'ბარათი არ მოიძებნა!' : 'Card Missing!'}</h1>
+          <p className="text-slate-400 mb-8 max-w-md">{language === 'ka' ? 'შესაძლოა ბარათს გაუვიდა ვადა ან ლინკი არასწორია.' : 'This card might have expired or the link is incorrect.'}</p>
           <button 
             onClick={() => navigate('/')} 
-            className="bg-white text-slate-900 px-8 py-3 rounded-full font-bold hover:bg-slate-200 transition-all"
+            className="bg-white text-slate-900 px-8 py-3 rounded-full font-bold hover:bg-slate-200 transition-all cursor-pointer"
           >
-            Create Your Own Card ✨
+            {language === 'ka' ? 'შექმენი შენი საკუთარი ბარათი ✨' : 'Create Your Own Card ✨'}
           </button>
         </div>
       </div>
@@ -199,7 +201,7 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
              className={`magic-card group cursor-pointer p-12 sm:p-20 rounded-[2.5rem] bg-gradient-to-br ${bgGradient} shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-white/20 transition-all hover:scale-105 active:scale-95 animate-float`}
            >
              <h2 className="text-3xl sm:text-5xl font-black text-white text-center drop-shadow-2xl">
-               Click for Magic {emoji}
+               {language === 'ka' ? 'დააწკაპუნეთ ჯადოსნობისთვის ' : 'Click for Magic '}{emoji}
              </h2>
            </div>
         </div>
@@ -213,9 +215,9 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
         {onBackToEdit && (
           <button 
             onClick={onBackToEdit}
-            className="fixed top-8 left-8 z-[110] bg-white/20 backdrop-blur-md border border-white/30 text-white px-6 py-2.5 rounded-full font-bold hover:bg-white/40 transition-all flex items-center gap-2"
+            className="fixed top-8 left-8 z-[110] bg-white/20 backdrop-blur-md border border-white/30 text-white px-6 py-2.5 rounded-full font-bold hover:bg-white/40 transition-all flex items-center gap-2 cursor-pointer"
           >
-            ← Back to Editor
+            {language === 'ka' ? '← უკან დაბრუნება' : '← Back to Editor'}
           </button>
         )}
 
@@ -231,13 +233,13 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
            {/* Cards Container */}
           <div className="grid sm:grid-cols-2 gap-8 w-full mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
             <div className="p-10 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl hover:translate-y-[-10px] transition-transform">
-              <h3 className="text-2xl font-bold text-white mb-4">A Special Day</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">{language === 'ka' ? 'განსაკუთრებული დღე' : 'A Special Day'}</h3>
               <p className="text-slate-200 text-lg leading-relaxed">
                 {message1}
               </p>
             </div>
             <div className="p-10 rounded-[2.5rem] bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl hover:translate-y-[-10px] transition-transform">
-              <h3 className="text-2xl font-bold text-white mb-4">Wishes for You</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">{language === 'ka' ? 'სურვილები შენთვის' : 'Wishes for You'}</h3>
               <p className="text-slate-200 text-lg leading-relaxed">
                 {message2}
               </p>
@@ -246,7 +248,7 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
 
           {/* Photos Grid */}
           <div className="w-full mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500 text-center">
-             <h2 className="text-3xl font-bold text-white mb-10">Special Memories</h2>
+             <h2 className="text-3xl font-bold text-white mb-10">{language === 'ka' ? 'განსაკუთრებული მოგონებები' : 'Special Memories'}</h2>
              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[1,2,3,4].map(id => (
                   <div key={id} className="aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 hover:scale-105 transition-transform">

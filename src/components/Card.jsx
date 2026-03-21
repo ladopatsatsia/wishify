@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Card({ card, categoryId }) {
   const navigate = useNavigate();
+  const { language } = useLanguage();
 
   // Extract style properties — handle both local shape (nested in style{}) and API shape (flat)
   const {
@@ -35,7 +37,7 @@ export default function Card({ card, categoryId }) {
         </h3>
         
         <p className="text-slate-600 text-sm font-medium leading-relaxed line-clamp-2 px-2">
-          {card.content?.message1 || 'Tap to customize this magical message and send it to someone special!'}
+          {card.content?.message1 || (language === 'ka' ? 'დააწკაპუნეთ ამ ჯადოსნური მესიჯის შესაცვლელად და გასაგზავნად!' : 'Tap to customize this magical message and send it to someone special!')}
         </p>
 
         {/* Action Buttons - Appear on Hover */}
@@ -47,16 +49,16 @@ export default function Card({ card, categoryId }) {
             }}
             className="w-full h-11 rounded-xl bg-white/90 backdrop-blur text-slate-800 font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-white transition-colors flex items-center justify-center gap-2 border border-slate-200"
           >
-            👀 Preview
+            👀 {language === 'ka' ? 'ნახვა' : 'Preview'}
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
               navigate(card.customRoute || `/edit/${categoryId}/${card.id}`);
             }}
-            className="w-full h-11 rounded-xl bg-slate-900 text-white font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+            className="w-full h-11 rounded-xl bg-slate-900 text-white font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            ✏️ Personalize
+            ✏️ {language === 'ka' ? 'შექმნა' : 'Personalize'}
           </button>
         </div>
       </div>
@@ -66,7 +68,7 @@ export default function Card({ card, categoryId }) {
           <div className="bg-white/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/40">
             <span className="text-[10px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-violet-600 rounded-full animate-pulse" />
-              Includes Music
+              {language === 'ka' ? 'აქვს მუსიკა' : 'Includes Music'}
             </span>
           </div>
         )}

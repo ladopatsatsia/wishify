@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 function useFadeIn(ref) {
 // ... existing useFadeIn logic ...
@@ -6,6 +7,7 @@ function useFadeIn(ref) {
 
 export default function HowItWorks() {
   const ref = useRef(null);
+  const { language, t } = useLanguage();
   
   // Custom hook usage (I'll keep the ref logic)
   useEffect(() => {
@@ -26,9 +28,9 @@ export default function HowItWorks() {
   ];
 
   const steps = [
-    { title: 'Choose a Template', desc: 'Pick from our curated collection of artistic templates for any occasion.' },
-    { title: 'Personalize It', desc: 'Add your own heartfelt message and select a soundtrack that fits the vibe.' },
-    { title: 'Send with Love', desc: 'Share your creation instantly via a magic link that comes to life.' },
+    { title: t('howItWorks.s1'), desc: t('howItWorks.s1_d') },
+    { title: t('howItWorks.s2'), desc: t('howItWorks.s2_d') },
+    { title: t('howItWorks.s3'), desc: t('howItWorks.s3_d') },
   ];
 
   return (
@@ -36,13 +38,13 @@ export default function HowItWorks() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={ref} className="fade-in-section text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            3 Simple Steps
+            {language === 'ka' ? '3 მარტივი ნაბიჯი' : '3 Simple Steps'}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4">
-            How it <span className="gradient-text">Works</span>
+            {language === 'ka' ? 'როგორ ' : 'How it '}<span className="gradient-text">{language === 'ka' ? 'მუშაობს' : 'Works'}</span>
           </h2>
           <p className="text-xl text-slate-500 max-w-xl mx-auto">
-            Sending a digital greeting card has never been this fun. From design to delivery in minutes.
+            {language === 'ka' ? 'ციფრული ბარათის გაგზავნა ჯერ ასეთი სახალისო არ ყოფილა. დიზაინიდან მიწოდებამდე წუთებში.' : 'Sending a digital greeting card has never been this fun. From design to delivery in minutes.'}
           </p>
         </div>
 

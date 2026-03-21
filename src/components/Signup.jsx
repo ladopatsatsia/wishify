@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Signup() {
   const [firstName, setFirstName] = useState('');
@@ -12,6 +13,7 @@ export default function Signup() {
   const [error, setError] = useState('');
   const { signup } = useAuth();
   const navigate = useNavigate();
+  const { language } = useLanguage();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,8 +55,8 @@ export default function Signup() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-pink-500 text-white text-3xl shadow-lg mb-4 animate-bounce-slow">
               ✨
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Join the Magic</h1>
-            <p className="text-slate-500 mt-2 font-medium">Create your free account today</p>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{language === 'ka' ? 'შემოუერთდი ჯადოსნობას' : 'Join the Magic'}</h1>
+            <p className="text-slate-500 mt-2 font-medium">{language === 'ka' ? 'შექმენი შენი უფასო ანგარიში დღესვე' : 'Create your free account today'}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -66,30 +68,30 @@ export default function Signup() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700 ml-1">First Name</label>
+                <label className="text-sm font-bold text-slate-700 ml-1">{language === 'ka' ? 'სახელი' : 'First Name'}</label>
                 <input
                   type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   autoFocus
                   className="w-full h-12 px-5 rounded-2xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-violet-400 focus:outline-none transition-all text-slate-800 font-medium placeholder:text-slate-400"
-                  placeholder="John"
+                  placeholder={language === 'ka' ? 'გიორგი' : 'John'}
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700 ml-1">Last Name</label>
+                <label className="text-sm font-bold text-slate-700 ml-1">{language === 'ka' ? 'გვარი' : 'Last Name'}</label>
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full h-12 px-5 rounded-2xl border-2 border-slate-100 bg-slate-50 focus:bg-white focus:border-violet-400 focus:outline-none transition-all text-slate-800 font-medium placeholder:text-slate-400"
-                  placeholder="Doe"
+                  placeholder={language === 'ka' ? 'მაისურაძე' : 'Doe'}
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+              <label className="text-sm font-bold text-slate-700 ml-1">{language === 'ka' ? 'ელ-ფოსტა' : 'Email Address'}</label>
               <input
                 type="email"
                 value={email}
@@ -100,7 +102,7 @@ export default function Signup() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-bold text-slate-700 ml-1">Password</label>
+              <label className="text-sm font-bold text-slate-700 ml-1">{language === 'ka' ? 'პაროლი' : 'Password'}</label>
               <input
                 type="password"
                 value={password}
@@ -111,7 +113,7 @@ export default function Signup() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-bold text-slate-700 ml-1">Confirm Password</label>
+              <label className="text-sm font-bold text-slate-700 ml-1">{language === 'ka' ? 'გაიმეორეთ პაროლი' : 'Confirm Password'}</label>
               <input
                 type="password"
                 value={confirmPassword}
@@ -124,20 +126,24 @@ export default function Signup() {
             <div className="flex items-start gap-2 px-1">
               <input type="checkbox" className="mt-1 accent-violet-500" id="terms" required />
               <label htmlFor="terms" className="text-xs text-slate-500 leading-tight">
-                I agree to the <a href="#" className="text-violet-500 font-bold">Terms of Service</a> and <a href="#" className="text-violet-500 font-bold">Privacy Policy</a>
+                {language === 'ka' ? (
+                  <>ვეთანხმები <a href="#" className="text-violet-500 font-bold">წესებსა</a> და <a href="#" className="text-violet-500 font-bold">პირობებს</a></>
+                ) : (
+                  <>I agree to the <a href="#" className="text-violet-500 font-bold">Terms of Service</a> and <a href="#" className="text-violet-500 font-bold">Privacy Policy</a></>
+                )}
               </label>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold text-lg shadow-xl shadow-purple-200 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group mt-2`}
+              className={`w-full h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold text-lg shadow-xl shadow-purple-200 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 group mt-2 cursor-pointer`}
             >
               {loading ? (
                 <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  Join Wishify Now
+                  {language === 'ka' ? 'შემოუერთდი Wishify-ს ახლა' : 'Join Wishify Now'}
                   <span className="group-hover:translate-x-1 transition-transform">→</span>
                 </>
               )}
@@ -145,9 +151,9 @@ export default function Signup() {
           </form>
 
           <div className="mt-6 text-center text-slate-500 font-medium">
-            Already have an account?{' '}
+            {language === 'ka' ? 'უკვე გაქვთ ანგარიში? ' : 'Already have an account? '}
             <Link to="/login" className="text-violet-600 font-bold hover:text-pink-500 transition-colors underline-offset-4 hover:underline">
-              Sign In
+              {language === 'ka' ? 'შესვლა' : 'Sign In'}
             </Link>
           </div>
         </div>

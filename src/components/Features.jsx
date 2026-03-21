@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 function useFadeIn(ref) {
 // ... existing useFadeIn logic ...
@@ -6,43 +7,44 @@ function useFadeIn(ref) {
 
 export default function Features() {
   const ref = useRef(null);
+  const { language, t } = useLanguage();
   useFadeIn(ref);
 
   const features = [
     {
       icon: '🎵',
-      title: 'Custom Soundtracks',
-      desc: 'Choose from a curated library of magic tunes or upload your own to set the perfect mood.',
+      title: t('features.f1_title') || 'Custom Soundtracks',
+      desc: t('features.f1_desc') || 'Choose from a curated library of magic tunes or upload your own to set the perfect mood.',
       color: 'bg-violet-100 text-violet-600',
     },
     {
       icon: '✏️',
-      title: 'Real-time Editing',
-      desc: 'See your changes instantly with our live preview. What you see is what they get.',
+      title: t('features.f2_title') || 'Real-time Editing',
+      desc: t('features.f2_desc') || 'See your changes instantly with our live preview. What you see is what they get.',
       color: 'bg-pink-100 text-pink-600',
     },
     {
       icon: '📱',
-      title: 'Mobile First',
-      desc: 'Every card is optimized for mobile phones, looking beautiful on any screen size.',
+      title: t('features.f3_title') || 'Mobile First',
+      desc: t('features.f3_desc') || 'Every card is optimized for mobile phones, looking beautiful on any screen size.',
       color: 'bg-amber-100 text-amber-600',
     },
     {
       icon: '⚡',
-      title: 'Instant Delivery',
-      desc: 'Send cards via link, email, or WhatsApp. No waiting, just instant joy.',
+      title: t('features.f4_title') || 'Instant Delivery',
+      desc: t('features.f4_desc') || 'Send cards via link, email, or WhatsApp. No waiting, just instant joy.',
       color: 'bg-green-100 text-green-600',
     },
     {
       icon: '🎨',
-      title: 'Curated Designs',
-      desc: 'Expertly crafted templates for every life milestone and celebration.',
+      title: t('features.f5_title') || 'Curated Designs',
+      desc: t('features.f5_desc') || 'Expertly crafted templates for every life milestone and celebration.',
       color: 'bg-blue-100 text-blue-600',
     },
     {
       icon: '💌',
-      title: 'Endless Sharing',
-      desc: 'One card, infinite memories. Share with everyone you love in seconds.',
+      title: t('features.f6_title') || 'Endless Sharing',
+      desc: t('features.f6_desc') || 'One card, infinite memories. Share with everyone you love in seconds.',
       color: 'bg-red-100 text-red-600',
     },
   ];
@@ -52,13 +54,13 @@ export default function Features() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={ref} className="fade-in-section text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-pink-100 text-pink-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            Why Wishify?
+            {language === 'ka' ? 'რატომ Wishify?' : 'Why Wishify?'}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4">
-            Everything You Need to <span className="gradient-text">Wow Them</span>
+            {language === 'ka' ? 'ყველაფერი რაც გჭირდებათ ' : 'Everything You Need to '}<span className="gradient-text">{language === 'ka' ? 'გასაოცრად' : 'Wow Them'}</span>
           </h2>
           <p className="text-xl text-slate-500 max-w-xl mx-auto">
-            Our powerful editor gives you full creative control. No design skills required.
+            {language === 'ka' ? 'ჩვენი მძლავრი რედაქტორი გაძლევთ სრულ კონტროლს. დიზაინის ცოდნა არ არის საჭირო.' : 'Our powerful editor gives you full creative control. No design skills required.'}
           </p>
         </div>
 

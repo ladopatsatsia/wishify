@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { useLanguage } from '../../context/LanguageContext';
 // Trigger HMR to resolve npm install
 
 export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack, onSave, saving, isSaved, onGoToSaved, isPublic }) {
+  const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -93,7 +95,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
               onClick={handleClose}
               className="flex items-center gap-2 text-white/70 hover:text-white font-semibold transition-colors cursor-pointer"
             >
-              <span>←</span> <span className="hidden sm:inline">Back</span>
+              <span>←</span> <span className="hidden sm:inline">{language === 'ka' ? 'უკან' : 'Back'}</span>
             </button>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {onPersonalize && (
@@ -101,7 +103,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
                   onClick={onPersonalize}
                   className="bg-gradient-to-r from-violet-600 to-pink-600 text-white text-sm sm:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer ml-1 sm:ml-2"
                 >
-                  ✏️ <span className="hidden sm:inline">Personalize</span>
+                  ✏️ <span className="hidden sm:inline">{language === 'ka' ? 'შექმნა' : 'Personalize'}</span>
                 </button>
               )}
             </div>
@@ -133,20 +135,20 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
                     {title}
                   </h2>
                   <p className="text-white/80 text-sm text-center mb-8 max-w-xs">
-                    Tap to reveal what's inside...
+                    {language === 'ka' ? 'დააწკაპუნეთ ბარათის გასახსნელად...' : "Tap to reveal what's inside..."}
                   </p>
 
                   <button
                     onClick={handleOpenCard}
                     className="bg-white text-slate-800 font-bold px-8 py-3.5 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all text-base flex items-center gap-2 animate-pulse-slow cursor-pointer"
                   >
-                    <span>✨</span> Open Card
+                    <span>✨</span> {language === 'ka' ? 'გახსენი ბარათი' : 'Open Card'}
                   </button>
 
                   {musicEnabled && (
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur border border-white/30 rounded-full px-4 py-1.5 flex items-center gap-2">
                       <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                      <span className="text-white text-xs font-semibold">Music Ready</span>
+                      <span className="text-white text-xs font-semibold">{language === 'ka' ? 'მუსიკა მზადაა' : 'Music Ready'}</span>
                     </div>
                   )}
                 </div>
@@ -175,7 +177,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
                   {images.length > 0 && (
                     <div className="space-y-4">
                       <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
-                        📸 Special Moments
+                        {language === 'ka' ? '📸 განსაკუთრებული წამები' : '📸 Special Moments'}
                       </h3>
                       <div className="flex flex-wrap justify-center gap-3">
                         {images.map((img, i) => {
@@ -206,14 +208,14 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
                   {/* Gift Box */}
                   {giftBoxEnabled && giftBoxUrl && (
                     <div className="text-center pt-6">
-                      <p className="text-sm text-slate-400 font-semibold mb-4">🎁 A special gift for you!</p>
+                      <p className="text-sm text-slate-400 font-semibold mb-4">{language === 'ka' ? '🎁 განსაკუთრებული საჩუქარი შენთვის!' : '🎁 A special gift for you!'}</p>
                       <a href={giftBoxUrl} target="_blank" rel="noopener noreferrer" className="inline-block animate-gift-float">
                         <div className="relative w-32 h-32 mx-auto bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-110 transition-all cursor-pointer border-t border-white/30">
                           <div className="absolute top-1/2 left-0 w-full h-4 bg-yellow-400 -translate-y-1/2" />
                           <div className="absolute top-0 left-1/2 w-4 h-full bg-yellow-400 -translate-x-1/2" />
                           <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-8 bg-yellow-400 rounded-full shadow-md" />
                         </div>
-                        <p className="text-violet-400 font-bold mt-3 text-sm">Click to open your gift! 🎁</p>
+                        <p className="text-violet-400 font-bold mt-3 text-sm">{language === 'ka' ? 'დააწკაპუნეთ საჩუქრის გასახსნელად! 🎁' : 'Click to open your gift! 🎁'}</p>
                       </a>
                     </div>
                   )}
@@ -224,7 +226,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
                 <div className="text-center mt-6">
                   <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white px-4 py-2 rounded-full">
                     <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-sm font-semibold">🎵 Music is playing...</span>
+                    <span className="text-sm font-semibold">{language === 'ka' ? '🎵 მუსიკა უკრავს...' : '🎵 Music is playing...'}</span>
                   </div>
                 </div>
               )}
@@ -270,13 +272,13 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
         {isSaved ? (
           <div className="flex items-center gap-2">
             <span className="bg-green-500/20 text-green-300 font-bold px-3 py-2 rounded-xl flex items-center border border-green-500/30 text-sm sm:text-base">
-              ✅ <span className="hidden sm:inline ml-1">Saved Successfully!</span>
+              ✅ <span className="hidden sm:inline ml-1">{language === 'ka' ? 'წარმატებით შეინახა!' : 'Saved Successfully!'}</span>
             </span>
             <button 
               onClick={onGoToSaved}
               className="bg-white hover:bg-slate-100 text-violet-600 text-sm sm:text-base font-bold px-4 py-2 rounded-xl border border-white/20 shadow-lg transition-all flex items-center gap-2 cursor-pointer"
             >
-              📂 <span className="hidden sm:inline">Go to Saved Cards</span>
+              📂 <span className="hidden sm:inline">{language === 'ka' ? 'გადასვლა შენახულ ბარათებზე' : 'Go to Saved Cards'}</span>
             </button>
           </div>
         ) : (
@@ -286,14 +288,14 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
             className="bg-white/10 hover:bg-white/20 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur transition-all flex items-center gap-2 cursor-pointer shadow-lg disabled:opacity-50"
           >
             {saving ? (
-              <>⏳ <span className="hidden sm:inline">Saving...</span></>
+              <>⏳ <span className="hidden sm:inline">{language === 'ka' ? 'ინახება...' : 'Saving...'}</span></>
             ) : (
-              <>💾 <span className="hidden sm:inline">Save</span></>
+              <>💾 <span className="hidden sm:inline">{language === 'ka' ? 'შენახვა' : 'Save'}</span></>
             )}
           </button>
         )}
         <button className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer">
-          🔗 <span className="hidden sm:inline">Get Link</span>
+          🔗 <span className="hidden sm:inline">{language === 'ka' ? 'ლინკის კოპირება' : 'Get Link'}</span>
         </button>
       </div>
       
@@ -327,20 +329,20 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
                 {title}
               </h2>
               <p className="text-white/80 text-sm text-center mb-8 max-w-xs">
-                Tap to reveal what's inside...
+                {language === 'ka' ? 'დააწკაპუნეთ ბარათის გასახსნელად...' : "Tap to reveal what's inside..."}
               </p>
 
               <button
                 onClick={handleOpenCard}
                 className="bg-white text-slate-800 font-bold px-8 py-3.5 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all text-base flex items-center gap-2 animate-pulse-slow cursor-pointer"
               >
-                <span>✨</span> Open Card
+                <span>✨</span> {language === 'ka' ? 'გახსენი ბარათი' : 'Open Card'}
               </button>
 
               {musicEnabled && (
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur border border-white/30 rounded-full px-4 py-1.5 flex items-center gap-2">
                   <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  <span className="text-white text-xs font-semibold">Music Ready</span>
+                  <span className="text-white text-xs font-semibold">{language === 'ka' ? 'მუსიკა მზადაა' : 'Music Ready'}</span>
                 </div>
               )}
             </div>
@@ -368,7 +370,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
               {images.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
-                    📸 Special Moments
+                    {language === 'ka' ? '📸 განსაკუთრებული წამები' : '📸 Special Moments'}
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     {images.map((img, i) => (
@@ -393,14 +395,14 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
 
               {giftBoxEnabled && giftBoxUrl && (
                 <div className="text-center pt-6">
-                  <p className="text-sm text-slate-400 font-semibold mb-4">🎁 A special gift for you!</p>
+                  <p className="text-sm text-slate-400 font-semibold mb-4">{language === 'ka' ? '🎁 განსაკუთრებული საჩუქარი შენთვის!' : '🎁 A special gift for you!'}</p>
                   <a href={giftBoxUrl} target="_blank" rel="noopener noreferrer" className="inline-block animate-gift-float">
                     <div className="relative w-32 h-32 mx-auto bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-110 transition-all cursor-pointer border-t border-white/30">
                       <div className="absolute top-1/2 left-0 w-full h-4 bg-yellow-400 -translate-y-1/2" />
                       <div className="absolute top-0 left-1/2 w-4 h-full bg-yellow-400 -translate-x-1/2" />
                       <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-8 bg-yellow-400 rounded-full shadow-md" />
                     </div>
-                    <p className="text-violet-600 font-bold mt-3 text-sm">Click to open your gift! 🎁</p>
+                    <p className="text-violet-600 font-bold mt-3 text-sm">{language === 'ka' ? 'დააწკაპუნეთ საჩუქრის გასახსნელად! 🎁' : 'Click to open your gift! 🎁'}</p>
                   </a>
                 </div>
               )}
@@ -411,7 +413,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
             <div className="text-center mt-6">
               <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white px-4 py-2 rounded-full">
                 <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-sm font-semibold">🎵 Music is playing...</span>
+                <span className="text-sm font-semibold">{language === 'ka' ? '🎵 მუსიკა უკრავს...' : '🎵 Music is playing...'}</span>
               </div>
             </div>
           )}

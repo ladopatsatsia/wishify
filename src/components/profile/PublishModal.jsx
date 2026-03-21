@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function PublishModal({ isOpen, card, onClose, onProceed }) {
+  const { language } = useLanguage();
   const [slug, setSlug] = useState('');
   const [error, setError] = useState('');
 
@@ -37,16 +39,16 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
         {/* Header */}
         <div className="text-center">
           <div className="text-5xl mb-3">🚀</div>
-          <h2 className="text-2xl font-black text-slate-800">Choose Your Live Link</h2>
+          <h2 className="text-2xl font-black text-slate-800">{language === 'ka' ? 'აირჩიეთ თქვენი ლაივ ლინკი' : 'Choose Your Live Link'}</h2>
           <p className="text-slate-500 text-sm mt-1 font-medium">
-            Your card will be published at a custom address.
+            {language === 'ka' ? 'თქვენი ბარათი გამოქვეყნდება მორგებულ მისამართზე.' : 'Your card will be published at a custom address.'}
           </p>
         </div>
 
         {/* URL Input */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-black uppercase tracking-widest text-slate-400">
-            Your Custom URL
+            {language === 'ka' ? 'თქვენი მორგებული URL' : 'Your Custom URL'}
           </label>
 
           {/* Input + suffix */}
@@ -85,13 +87,13 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
           <span className="text-xl shrink-0 mt-0.5">⚡</span>
           <div>
             <p className="text-sm font-black text-amber-800 mb-1">
-              Read This Before You Proceed — ყურადღებით!
+              {language === 'ka' ? 'ყურადღებით წაიკითხეთ გაგრძელებამდე' : 'Read This Before You Proceed — ყურადღებით!'}
             </p>
             <p className="text-xs text-amber-700 leading-relaxed">
-              Once this card goes live, it's <strong>permanent</strong>. Your link, your design, 
-              your message — <em>sealed forever</em>. No edits. No do-overs. 
-              The moment you hit Publish, your gift is cast in digital stone. 
-              Choose your URL wisely. 💎
+              {language === 'ka' 
+                ? <>ბარათის გამოქვეყნება <strong>სამუდამოა</strong>. თქვენი ლინკი, დიზაინი, შეტყობინება — <em>შეინახება სამუდამოდ</em>. ჩასწორება შეუძლებელია. გამოქვეყნების ღილაკზე დაჭერისას თქვენი საჩუქარი ფიქსირდება. გონივრულად აირჩიეთ თქვენი URL. 💎</>
+                : <>Once this card goes live, it's <strong>permanent</strong>. Your link, your design, your message — <em>sealed forever</em>. No edits. No do-overs. The moment you hit Publish, your gift is cast in digital stone. Choose your URL wisely. 💎</>
+              }
             </p>
           </div>
         </div>
@@ -102,14 +104,14 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
             onClick={onClose}
             className="flex-1 py-3 rounded-xl border-2 border-slate-100 text-slate-500 font-bold hover:bg-slate-50 transition cursor-pointer"
           >
-            Cancel
+            {language === 'ka' ? 'გაუქმება' : 'Cancel'}
           </button>
           <button
             onClick={handleProceed}
             disabled={!slug.trim()}
             className="flex-1 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-pink-600 text-white font-black hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-lg shadow-violet-500/25 cursor-pointer"
           >
-            Process →
+            {language === 'ka' ? 'გაგრძელება →' : 'Process →'}
           </button>
         </div>
       </div>
