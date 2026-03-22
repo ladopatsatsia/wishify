@@ -6,6 +6,7 @@ import BirthdayCardEditor from './BirthdayCardEditor';
 import { useAuth } from '../../context/AuthContext';
 import { cardsData } from '../../data/cardsData';
 import { useLanguage } from '../../context/LanguageContext';
+import AuthRequiredModal from '../AuthRequiredModal';
 
 // Default template data for the new birthday card
 const DEFAULT_BIRTHDAY_CARD = {
@@ -35,6 +36,7 @@ export default function BirthdayCard({ subdomainSlug }) {
     const params = new URLSearchParams(window.location.search);
     return params.get('mode') === 'edit' || params.get('edit') === 'true' ? 'edit' : 'preview';
   }); // 'preview' | 'edit'
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [dbCard, setDbCard] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -174,18 +176,32 @@ export default function BirthdayCard({ subdomainSlug }) {
   // STANDALONE PREVIEW MODE - Full page, not a popup
   const PreviewComponent = isReelTemplate ? ReelBirthdayCardPreview : BirthdayCardPreview;
   return (
-    <PreviewComponent
-      data={defaultData}
-      standalone={true}
-      isPublic={dbCard?.isPublic || dbCard?.IsPublic || !!subdomainSlug}
-      onPersonalize={subdomainSlug ? undefined : () => setMode('edit')}
-      onBack={subdomainSlug ? undefined : () => {
-        if (location.state?.from) {
-          navigate(location.state.from);
-        } else {
-          navigate('/browse/birthday');
-        }
-      }}
-    />
+    <div className="min-h-screen bg-slate-900">
+      <PreviewComponent
+        data={defaultData}
+        standalone={true}
+        isPublic={dbCard?.isPublic || dbCard?.IsPublic || !!subdomainSlug}
+        onPersonalize={subdomainSlug ? undefined : () => {
+          if (!user) {
+            setIsAuthModalOpen(true);
+          } else {
+            setMode('edit');
+          }
+        }}
+        onBack={subdomainSlug ? undefined : () => {
+          if (location.state?.from) {
+            navigate(location.state.from);
+          } else {
+            navigate('/browse/birthday');
+          }
+        }}
+        cardId={cardId}
+      />
+      
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
+    </div>
   );
 }

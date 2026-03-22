@@ -1,9 +1,16 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import AuthRequiredModal from './AuthRequiredModal';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Card({ card, categoryId }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { language } = useLanguage();
+
+  if (!card) return null;
 
   // Extract style properties — handle both local shape (nested in style{}) and API shape (flat)
   const {
@@ -20,8 +27,12 @@ export default function Card({ card, categoryId }) {
   return (
     <div
       onClick={() => {
+        if (!user) {
+          setIsAuthModalOpen(true);
+          return;
+        }
         const cat = (categoryId && categoryId !== 'all') ? categoryId : (card.categoryId || 'birthday');
-        const route = card.customRoute 
+        const route = card.customRoute
           ? `${card.customRoute}${card.customRoute.includes('?') ? '&' : '?'}mode=edit`
           : `/edit/${cat}/${card.id}`;
         console.log("Card Navigation:", { route, cardId: card.id, categoryId: cat });
@@ -61,8 +72,12 @@ export default function Card({ card, categoryId }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
+              if (!user) {
+                setIsAuthModalOpen(true);
+                return;
+              }
               const cat = (categoryId && categoryId !== 'all') ? categoryId : (card.categoryId || 'birthday');
-              const route = card.customRoute 
+              const route = card.customRoute
                 ? `${card.customRoute}${card.customRoute.includes('?') ? '&' : '?'}mode=edit`
                 : `/edit/${cat}/${card.id}`;
               console.log("Personalize Click:", { route, cardId: card.id, categoryId: cat });
@@ -85,6 +100,11 @@ export default function Card({ card, categoryId }) {
           </div>
         )}
       </div>
+
+      <AuthRequiredModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
 
       <style>{`
         @keyframes float {
