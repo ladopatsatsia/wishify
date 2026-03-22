@@ -91,9 +91,9 @@ export default function SavedCards() {
     setPublishModal({ open: true, card });
   };
 
-  const startPublishProcess = (cardId, slug) => {
+  const startPublishProcess = (cardId, slug, scheduleData) => {
     setPublishModal({ open: false, card: null });
-    navigate('/payment', { state: { cardId, slug } });
+    navigate('/payment', { state: { cardId, slug, ...scheduleData } });
   };
 
   if (loading) {

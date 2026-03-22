@@ -65,15 +65,9 @@ export default function Navbar() {
               <>
                 <button
                   onClick={() => navigate('/login')}
-                  className="text-slate-600 hover:text-violet-600 font-bold text-sm transition-colors cursor-pointer"
+                  className="text-slate-600 hover:text-violet-600 font-bold text-sm transition-colors cursor-pointer bg-slate-100/50 hover:bg-slate-200/50 px-6 py-2 rounded-full border border-slate-200/50 transition-all"
                 >
                   {t('auth.btn_login')}
-                </button>
-                <button
-                  onClick={() => navigate('/signup')}
-                  className="btn-primary !py-2 !px-6 !text-sm cursor-pointer"
-                >
-                  {t('nav.getStarted')}
                 </button>
               </>
             ) : (
@@ -157,15 +151,9 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => { navigate('/login'); setMenuOpen(false); }}
-                    className="w-full text-center py-2 text-slate-600 font-bold cursor-pointer"
+                    className="w-full text-center py-3 bg-violet-600 text-white font-bold rounded-xl cursor-pointer shadow-lg shadow-violet-200"
                   >
                     {t('auth.btn_login')}
-                  </button>
-                  <button
-                    onClick={() => { navigate('/signup'); setMenuOpen(false); }}
-                    className="btn-primary w-full !text-sm !py-2.5 cursor-pointer"
-                  >
-                    {t('nav.getStarted')}
                   </button>
                 </>
               ) : (
