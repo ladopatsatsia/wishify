@@ -19,7 +19,14 @@ export default function Card({ card, categoryId }) {
 
   return (
     <div
-      onClick={() => navigate(card.customRoute || `/edit/${categoryId}/${card.id}`)}
+      onClick={() => {
+        const cat = (categoryId && categoryId !== 'all') ? categoryId : (card.categoryId || 'birthday');
+        const route = card.customRoute 
+          ? `${card.customRoute}${card.customRoute.includes('?') ? '&' : '?'}mode=edit`
+          : `/edit/${cat}/${card.id}`;
+        console.log("Card Navigation:", { route, cardId: card.id, categoryId: cat });
+        navigate(route);
+      }}
       className={`group relative h-96 rounded-[2.5rem] overflow-hidden shadow-xl shadow-purple-100/30 border border-white cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2 bg-gradient-to-br ${bgGradient} ${fontFamily}`}
     >
       {/* Background Decor */}
@@ -31,11 +38,11 @@ export default function Card({ card, categoryId }) {
         <div className="text-7xl mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 drop-shadow-xl animate-float">
           {emoji}
         </div>
-        
+
         <h3 className="text-2xl font-black mb-3 leading-tight text-slate-800">
           {card.title || title}
         </h3>
-        
+
         <p className="text-slate-600 text-sm font-medium leading-relaxed line-clamp-2 px-2">
           {card.content?.message1 || (language === 'ka' ? 'დააწკაპუნეთ ამ ჯადოსნური მესიჯის შესაცვლელად და გასაგზავნად!' : 'Tap to customize this magical message and send it to someone special!')}
         </p>
@@ -54,7 +61,12 @@ export default function Card({ card, categoryId }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              navigate(card.customRoute || `/edit/${categoryId}/${card.id}`);
+              const cat = (categoryId && categoryId !== 'all') ? categoryId : (card.categoryId || 'birthday');
+              const route = card.customRoute 
+                ? `${card.customRoute}${card.customRoute.includes('?') ? '&' : '?'}mode=edit`
+                : `/edit/${cat}/${card.id}`;
+              console.log("Personalize Click:", { route, cardId: card.id, categoryId: cat });
+              navigate(route);
             }}
             className="w-full h-11 rounded-xl bg-slate-900 text-white font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >

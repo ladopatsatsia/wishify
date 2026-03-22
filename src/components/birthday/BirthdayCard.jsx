@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, useSearchParams } from 'react-router-dom';
 import BirthdayCardPreview from './BirthdayCardPreview';
 import ReelBirthdayCardPreview from './ReelBirthdayCardPreview';
 import BirthdayCardEditor from './BirthdayCardEditor';
@@ -29,17 +29,28 @@ export default function BirthdayCard({ subdomainSlug }) {
   const { cardId } = useParams();
   const { user, loading: authLoading } = useAuth();
   const { language } = useLanguage();
-  const [mode, setMode] = useState('preview'); // 'preview' | 'edit'
+  const [searchParams] = useSearchParams();
+  const [mode, setMode] = useState(() => {
+    // Robust check for both state and initial mount
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mode') === 'edit' || params.get('edit') === 'true' ? 'edit' : 'preview';
+  }); // 'preview' | 'edit'
   const [dbCard, setDbCard] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const editMode = searchParams.get('mode') === 'edit' || searchParams.get('edit') === 'true';
+    if (editMode) setMode('edit');
+    else setMode('preview');
+  }, [searchParams]);
 
   useEffect(() => {
     if (authLoading) return; // Wait for auth to initialize from localStorage
 
     if (cardId && cardId.length > 20) {
       setLoading(true);
-      
+
       const fetchHeaders = {};
       if (user?.token) {
         fetchHeaders['Authorization'] = `Bearer ${user.token}`;
@@ -50,11 +61,11 @@ export default function BirthdayCard({ subdomainSlug }) {
       })
         .then(res => {
           if (res.status === 403 || res.status === 401) {
-             if (!user) {
-                navigate('/login', { state: { from: location.pathname } });
-                return null;
-             }
-             throw new Error(language === 'ka' ? "თქვენ არ გაქვთ ამ ბარათის ნახვის უფლება." : language === 'ru' ? "У вас нет прав для просмотра этой открытки." : "You don't have permission to view this card.");
+            if (!user) {
+              navigate('/login', { state: { from: location.pathname } });
+              return null;
+            }
+            throw new Error(language === 'ka' ? "თქვენ არ გაქვთ ამ ბარათის ნახვის უფლება." : language === 'ru' ? "У вас нет прав для просмотра этой открытки." : "You don't have permission to view this card.");
           }
           if (!res.ok) throw new Error(language === 'ka' ? "ბარათის ჩატვირთვა ვერ მოხერხდა." : language === 'ru' ? "Не удалось загрузить открытку." : "Failed to load card.");
           return res.json();
@@ -93,7 +104,7 @@ export default function BirthdayCard({ subdomainSlug }) {
     : null;
 
   // Build default data from either DB Card, Template Card, or Hardcoded Default
-  const defaultData = dbCard 
+  const defaultData = dbCard
     ? {
       title: dbCard.heading,
       message: [dbCard.message1, dbCard.message2].filter(Boolean).join('\n\n'),
