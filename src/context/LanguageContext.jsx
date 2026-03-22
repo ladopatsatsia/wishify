@@ -13,7 +13,7 @@ export function LanguageProvider({ children }) {
     const keys = key.split('.');
     let value = translations[language];
     for (const k of keys) {
-      if (value[k] === undefined) return key; // fallback to key
+      if (!value || value[k] === undefined) return key; // fallback to key
       value = value[k];
     }
     return value;
@@ -64,11 +64,11 @@ const translations = {
       f5_title: "Mobile Optimized",
       f5_desc: "Every card looks flawless on any device, from phones to desktops.",
       f6_title: "Eco-Friendly",
-      f6_desc: "Zero paper waist. Zero shipping emissions. 100% digital joy."
+      f6_desc: "Zero paper waste. Zero shipping emissions. 100% digital joy."
     },
     howItWorks: {
       badge: "Simple Process",
-      title: "How Wishify Works",
+      title: "How Wishyfy Works",
       desc: "Creating the perfect digital card takes less than two minutes.",
       s1: "Choose a Template",
       s1_d: "Browse our collection of beautifully designed templates for any occasion.",
@@ -79,7 +79,7 @@ const translations = {
     },
     cta: {
       title: "Ready to start creating?",
-      desc: "Join thousands of others making every occasion special with Wishify.",
+      desc: "Join thousands of others making every occasion special with Wishyfy.",
       btn: "Create Your First Card ✨"
     },
     footer: {
@@ -87,7 +87,7 @@ const translations = {
       product: "Product",
       company: "Company",
       legal: "Legal",
-      rights: "© 2024 Wishify. All rights reserved."
+      rights: "© 2024 Wishyfy. All rights reserved."
     },
     browse: {
       title1: "Beautiful Templates for",
@@ -99,7 +99,7 @@ const translations = {
     auth: {
       login_title: "Welcome back!",
       login_desc: "Sign in to manage your cards",
-      signup_title: "Join Wishify",
+      signup_title: "Join Wishyfy",
       signup_desc: "Start creating magical cards today",
       email: "Email address",
       pass: "Password",
@@ -189,7 +189,7 @@ const translations = {
     },
     howItWorks: {
       badge: "მარტივი პროცესი",
-      title: "როგორ მუშაობს Wishify",
+      title: "როგორ მუშაობს Wishyfy",
       desc: "ციფრული ბარათის შექმნას 2 წუთზე ნაკლები სჭირდება.",
       s1: "აირჩიე შაბლონი",
       s1_d: "დაათვალიერე ულამაზესი დიზაინის მქონე შაბლონები ნებისმიერი შემთხვევისთვის.",
@@ -200,7 +200,7 @@ const translations = {
     },
     cta: {
       title: "მზად ხარ შესაქმნელად?",
-      desc: "შემოუერთდი ათასობით მომხმარებელს და გახადე ყველა დღესასწაული გამორჩეული Wishify-სთან ერთად.",
+      desc: "შემოუერთდი ათასობით მომხმარებელს და გახადე ყველა დღესასწაული გამორჩეული Wishyfy-სთან ერთად.",
       btn: "შექმენი შენი პირველი ბარათი ✨"
     },
     footer: {
@@ -208,7 +208,7 @@ const translations = {
       product: "პროდუქტი",
       company: "კომპანია",
       legal: "იურიდიული",
-      rights: "© 2024 Wishify. ყველა უფლება დაცულია."
+      rights: "© 2024 Wishyfy. ყველა უფლება დაცულია."
     },
     browse: {
       title1: "ულამაზესი შაბლონები",
@@ -220,7 +220,7 @@ const translations = {
     auth: {
       login_title: "მოგესალმებით!",
       login_desc: "შედით თქვენი ბარათების სამართავად",
-      signup_title: "შემოუერთდი Wishify-ს",
+      signup_title: "შემოუერთდი Wishyfy-ს",
       signup_desc: "დაიწყეთ ჯადოსნური ბარათების შექმნა დღესვე",
       email: "ელ-ფოსტა",
       pass: "პაროლი",
@@ -310,7 +310,7 @@ const translations = {
     },
     howItWorks: {
       badge: "Простой процесс",
-      title: "Как работает Wishify",
+      title: "Как работает Wishyfy",
       desc: "Создание идеальной цифровой открытки занимает менее двух минут.",
       s1: "Выберите шаблон",
       s1_d: "Просмотрите нашу коллекцию красиво оформленных шаблонов на любой случай.",
@@ -321,7 +321,7 @@ const translations = {
     },
     cta: {
       title: "Готовы начать создавать?",
-      desc: "Присоединяйтесь к тысячам тех, кто делает каждый праздник особенным с Wishify.",
+      desc: "Присоединяйтесь к тысячам тех, кто делает каждый праздник особенным с Wishyfy.",
       btn: "Создать свою первую открытку ✨"
     },
     footer: {
@@ -329,7 +329,7 @@ const translations = {
       product: "Продукт",
       company: "Компания",
       legal: "Юридическая информация",
-      rights: "© 2024 Wishify. Все права защищены."
+      rights: "© 2024 Wishyfy. Все права защищены."
     },
     browse: {
       title1: "Красивые шаблоны для",
@@ -341,7 +341,7 @@ const translations = {
     auth: {
       login_title: "С возвращением!",
       login_desc: "Войдите, чтобы управлять открытками",
-      signup_title: "Присоединяйтесь к Wishify",
+      signup_title: "Присоединяйтесь к Wishyfy",
       signup_desc: "Начните создавать магические открытки сегодня",
       email: "Электронная почта",
       pass: "Пароль",

@@ -34,7 +34,7 @@ export default function CardsBrowser() {
 
   useFadeIn(ref);
 
-  const activeCategory = categoryId || 'birthday';
+  const activeCategory = categoryId || 'all';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,30 +44,53 @@ export default function CardsBrowser() {
         const cats = await catRes.json();
         setCategoriesList(cats);
 
-        const tempRes = await fetch(`${API_BASE_URL}/category/${activeCategory}`);
-        const temps = await tempRes.json();
+        let mergedTemplates = [];
+        
+        if (activeCategory === 'all') {
+          // Fetch all templates from API
+          const allTempRes = await fetch(`${API_BASE_URL}`);
+          const allTemps = await allTempRes.json();
+          
+          // Merge with ALL local cards
+          const allLocalCards = Object.values(cardsData).flat();
+          const localById = Object.fromEntries(allLocalCards.map(c => [c.id, c]));
+          
+          mergedTemplates = allTemps.map(t => ({
+            ...t,
+            customRoute: localById[t.id]?.customRoute || t.customRoute,
+            style: localById[t.id]?.style || t.style,
+            content: localById[t.id]?.content || t.content,
+          }));
 
-        // Build a lookup of local cards by id
-        const localCards = cardsData[activeCategory] || [];
-        const localById = Object.fromEntries(localCards.map(c => [c.id, c]));
+          // Add any local cards the API doesn't have
+          const apiIds = new Set(allTemps.map(t => t.id));
+          const uniqueLocal = allLocalCards.filter(c => !apiIds.has(c.id));
+          setTemplates([...mergedTemplates, ...uniqueLocal]);
+        } else {
+          // Original per-category logic
+          const tempRes = await fetch(`${API_BASE_URL}/category/${activeCategory}`);
+          const temps = await tempRes.json();
 
-        // Merge local style/customRoute into API templates so birthday cards link correctly
-        const mergedApiTemplates = temps.map(t => ({
-          ...t,
-          customRoute: localById[t.id]?.customRoute || t.customRoute,
-          style: localById[t.id]?.style || t.style,
-          content: localById[t.id]?.content || t.content,
-        }));
+          const localCards = cardsData[activeCategory] || [];
+          const localById = Object.fromEntries(localCards.map(c => [c.id, c]));
 
-        // Add any local cards that the API doesn't have
-        const apiIds = new Set(temps.map(t => t.id));
-        const uniqueLocal = localCards.filter(c => !apiIds.has(c.id));
-        setTemplates([...mergedApiTemplates, ...uniqueLocal]);
+          mergedTemplates = temps.map(t => ({
+            ...t,
+            customRoute: localById[t.id]?.customRoute || t.customRoute,
+            style: localById[t.id]?.style || t.style,
+            content: localById[t.id]?.content || t.content,
+          }));
+
+          const apiIds = new Set(temps.map(t => t.id));
+          const uniqueLocal = localCards.filter(c => !apiIds.has(c.id));
+          setTemplates([...mergedTemplates, ...uniqueLocal]);
+        }
       } catch (error) {
         console.error('Error fetching cards:', error);
-        // Fallback to local data if API is down
         setCategoriesList(categories);
-        setTemplates(cardsData[activeCategory] || []);
+        setTemplates(activeCategory === 'all' 
+          ? Object.values(cardsData).flat() 
+          : (cardsData[activeCategory] || []));
       } finally {
         setLoading(false);
       }
@@ -106,6 +129,15 @@ export default function CardsBrowser() {
 
           {/* Category nav tabs */}
           <div className="flex flex-wrap gap-2 mt-6">
+            <button
+              onClick={() => navigate('/browse/all')}
+              className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all cursor-pointer ${activeCategory === 'all'
+                ? 'bg-gradient-to-r from-violet-600 to-pink-600 text-white shadow-xl scale-105'
+                : 'bg-white text-slate-600 border border-slate-200 hover:border-violet-300 hover:text-violet-600 hover:shadow-md'
+              }`}
+            >
+              🌈 {language === 'ka' ? 'ყველა' : language === 'ru' ? 'Все' : 'All'}
+            </button>
             {categoriesList.map(c => (
               <button
                 key={c.id}

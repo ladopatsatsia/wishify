@@ -14,6 +14,13 @@ public class TemplatesController : ControllerBase
         _templateService = templateService;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAllTemplates()
+    {
+        var templates = await _templateService.GetAllTemplatesAsync();
+        return Ok(templates);
+    }
+
     [HttpGet("categories")]
     public async Task<IActionResult> GetCategories()
     {

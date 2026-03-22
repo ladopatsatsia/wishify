@@ -9,6 +9,7 @@ public interface ITemplateService
     Task<IEnumerable<Category>> GetCategoriesAsync();
     Task<IEnumerable<Template>> GetTemplatesByCategoryAsync(string categoryId);
     Task<Template?> GetTemplateByIdAsync(string templateId);
+    Task<IEnumerable<Template>> GetAllTemplatesAsync();
 }
 
 public interface ICardService

@@ -54,7 +54,7 @@ export default function Features() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={ref} className="fade-in-section text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-pink-100 text-pink-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            {language === 'ka' ? 'რატომ Wishify?' : language === 'ru' ? 'Почему Wishify?' : 'Why Wishify?'}
+            {language === 'ka' ? 'რატომ Wishyfy?' : language === 'ru' ? 'Почему Wishyfy?' : 'Why Wishyfy?'}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4">
             {language === 'ka' ? 'ყველაფერი რაც გჭირდებათ ' : language === 'ru' ? 'Все, что вам нужно, чтобы ' : 'Everything You Need to '}<span className="gradient-text">{language === 'ka' ? 'გასაოცრად' : language === 'ru' ? 'удивить их' : 'Wow Them'}</span>

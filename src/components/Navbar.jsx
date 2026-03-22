@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
+import logo from '../assets/logo.jpg';
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,8 +12,6 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
-
-
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -37,11 +37,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <button onClick={() => navigate('/')} className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-              <span className="text-white text-lg">🎉</span>
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg group-hover:scale-110 transition-transform">
+              <img src={logo} alt="Wishyfy" className="w-full h-full object-cover" />
             </div>
             <span className="font-extrabold text-xl text-slate-800">
-              Wish<span className="gradient-text">ify</span>
+              Wish<span className="gradient-text">yfy</span>
             </span>
           </button>
 

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import logo from '../assets/logo.jpg';
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -64,12 +65,10 @@ export default function Footer() {
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Brand */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center text-white text-lg">
-                🎉
-              </div>
-              <span className="font-extrabold text-2xl text-white">
-                Wish<span className="text-violet-400">ify</span>
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="Wishyfy Logo" className="w-10 h-10 object-contain rounded-lg shadow-sm" />
+              <span className="font-extrabold text-2xl text-white tracking-tight">
+                Wishyfy
               </span>
             </div>
             <p className="text-slate-400 leading-relaxed text-sm max-w-xs">

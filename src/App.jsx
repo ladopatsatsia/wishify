@@ -57,7 +57,7 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Detect subdomain (e.g. 'Test' from Test.localhost:5173)
+  // Detect subdomain (e.g. 'wishyfy' from wishyfy.localhost:5173)
   const hostname = window.location.hostname;
   const parts = hostname.split('.');
   const subdomain = (parts.length === 2 && parts[1] === 'localhost')

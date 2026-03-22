@@ -30,6 +30,11 @@ public class TemplateService : ITemplateService
     {
         return await _context.Templates.FindAsync(templateId);
     }
+
+    public async Task<IEnumerable<Template>> GetAllTemplatesAsync()
+    {
+        return await _context.Templates.ToListAsync();
+    }
 }
 
 public class CardService : ICardService

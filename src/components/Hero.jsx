@@ -105,7 +105,7 @@ export default function Hero() {
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
               <button
-                onClick={() => navigate('/browse/birthday')}
+                onClick={() => navigate('/browse/all')}
                 className="btn-primary text-base !px-8 !py-4"
               >
                 {language === 'ka' ? 'აირჩიე შაბლონი ✨' : language === 'ru' ? 'Выбрать шаблон ✨' : 'Choose a Template ✨'}

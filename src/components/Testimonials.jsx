@@ -51,7 +51,7 @@ export default function Testimonials() {
             {language === 'ka' ? 'ენდობიან ადამიანები ' : language === 'ru' ? 'Нам доверяют люди ' : 'Trusted by People '}<span className="gradient-text">{language === 'ka' ? 'მთელ მსოფლიოში' : language === 'ru' ? 'по всему миру' : 'Worldwide'}</span>
           </h2>
           <p className="text-xl text-slate-500 max-w-xl mx-auto">
-            {language === 'ka' ? 'ნახეთ როგორ ეხმარება Wishify ადამიანებს სამუდამო მოგონებების შექმნაში.' : language === 'ru' ? 'Посмотрите, как Wishify помогает людям создавать вечные воспоминания с каждой цифровой открыткой.' : 'See how Wishify is helping people create lasting memories one digital card at a time.'}
+            {language === 'ka' ? 'ნახეთ როგორ ეხმარება Wishyfy ადამიანებს სამუდამო მოგონებების შექმნაში.' : language === 'ru' ? 'Посмотрите, как Wishyfy помогает людям создавать вечные воспоминания с каждой цифровой открыткой.' : 'See how Wishyfy is helping people create lasting memories one digital card at a time.'}
           </p>
         </div>
 

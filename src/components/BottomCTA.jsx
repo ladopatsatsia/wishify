@@ -49,7 +49,7 @@ export default function BottomCTA() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => navigate('/browse/birthday')}
+              onClick={() => navigate('/browse/all')}
               className="bg-white text-violet-700 font-bold text-lg px-10 py-4 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all cursor-pointer"
             >
               {language === 'ka' ? 'დაიწყე ახლავე ✨' : language === 'ru' ? 'Начать прямо сейчас ✨' : 'Get Started Now ✨'}

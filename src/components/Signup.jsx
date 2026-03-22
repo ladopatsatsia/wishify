@@ -145,7 +145,7 @@ export default function Signup() {
                 <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  {language === 'ka' ? 'შემოუერთდი Wishify-ს ახლა' : language === 'ru' ? 'Присоединиться к Wishify' : 'Join Wishify Now'}
+                  {language === 'ka' ? 'შემოუერთდი Wishyfy-ს ახლა' : language === 'ru' ? 'Присоединиться к Wishyfy' : 'Join Wishyfy Now'}
                   <span className="group-hover:translate-x-1 transition-transform">→</span>
                 </>
               )}
