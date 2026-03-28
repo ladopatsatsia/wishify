@@ -109,4 +109,17 @@ public class CardService : ICardService
         return await _context.Cards
             .FirstOrDefaultAsync(c => c.UrlSlug == slug && c.IsPublic);
     }
+
+    public async Task<bool> UrlSlugExistsAsync(string slug, Guid? excludeCardId = null)
+    {
+        return await _context.Cards.AnyAsync(c =>
+            c.UrlSlug == slug && (!excludeCardId.HasValue || c.Id != excludeCardId.Value));
+    }
+
+    public async Task<bool> UpdateCardAsync(Card card)
+    {
+        _context.Cards.Update(card);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

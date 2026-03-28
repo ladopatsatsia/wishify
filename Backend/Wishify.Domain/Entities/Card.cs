@@ -34,5 +34,14 @@ public class Card
     public bool IsPublic { get; set; } = false;
     public string? UrlSlug { get; set; }
     public bool IsPaid { get; set; } = false;
+    
+    // Scheduling features
+    public bool IsAutoSend { get; set; } = false;
+    public string? AutoSendRecipient { get; set; }
+    public string? ScheduledDate { get; set; }
+    public string? ScheduledTime { get; set; }
+    public string? SendMethod { get; set; }
+    public bool IsSent { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

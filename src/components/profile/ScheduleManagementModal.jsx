@@ -1,23 +1,26 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   createEmptySchedule,
+  getScheduleFromCard,
   normalizeRecipientInput,
-  normalizeScheduleDraft,
   validateScheduleDraft,
 } from './scheduleUtils';
 
-export default function PublishModal({ isOpen, card, onClose, onProceed }) {
+export default function ScheduleManagementModal({ isOpen, card, onClose, onUpdate }) {
   const { language } = useLanguage();
-  const [slug, setSlug] = useState('');
+  const { user } = useAuth();
+
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [schedule, setSchedule] = useState(createEmptySchedule());
 
   useEffect(() => {
-    if (isOpen) {
-      setSlug('');
+    if (isOpen && card) {
+      setSchedule(getScheduleFromCard(card));
       setError('');
-      setSchedule(normalizeScheduleDraft(card));
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -30,17 +33,8 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
 
   if (!isOpen || !card) return null;
 
-  const handleSlugChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z0-9-_]/g, '');
-    setSlug(value);
+  const handleSave = async () => {
     setError('');
-  };
-
-  const handleProceed = () => {
-    if (!slug.trim()) {
-      setError(language === 'ka' ? 'გთხოვთ შეიყვანოთ მორგებული URL გაგრძელებამდე.' : language === 'ru' ? 'Пожалуйста, введите собственный URL перед продолжением.' : 'Please enter a custom URL before proceeding.');
-      return;
-    }
 
     const validationError = validateScheduleDraft(schedule, language);
     if (validationError) {
@@ -48,68 +42,63 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
       return;
     }
 
-    onProceed(card.id, slug.trim(), schedule);
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:5153/api/cards/${card.id}/schedule`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        },
+        body: JSON.stringify({ schedule })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to update schedule');
+      }
+
+      const updatedCard = await response.json();
+      onUpdate(updatedCard);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const hostname = window.location.host;
-
-  return (
+  const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <div className="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col animate-scale-in overflow-hidden">
+      <div
+        className="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col animate-scale-in overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-6 scrollbar-hide">
           <div className="text-center">
-            <div className="text-5xl mb-3">🚀</div>
-            <h2 className="text-2xl font-black text-slate-800">{language === 'ka' ? 'აირჩიეთ თქვენი ლაივ ლინკი' : language === 'ru' ? 'Выберите вашу живую ссылку' : 'Choose Your Live Link'}</h2>
+            <div className="text-5xl mb-3">🤖</div>
+            <h2 className="text-2xl font-black text-slate-800">{language === 'ka' ? 'ავტომატური გაგზავნის მართვა' : language === 'ru' ? 'Управление авто-отправкой' : 'Manage Automatic Send'}</h2>
             <p className="text-slate-500 text-sm mt-1 font-medium">
-              {language === 'ka' ? 'თქვენი ბარათი გამოქვეყნდება მორგებულ მისამართზე.' : language === 'ru' ? 'Ваша открытка будет опубликована по специальному адресу.' : 'Your card will be published at a custom address.'}
+              {language === 'ka' ? 'დაგეგმეთ ან შეცვალეთ თქვენი ბარათის ავტომატური გაგზავნის პარამეტრები.' : language === 'ru' ? 'Запланируйте или измените настройки автоматической отправки вашей открытки.' : 'Schedule or change the delivery settings for your card.'}
             </p>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-black uppercase tracking-widest text-slate-400">
-              {language === 'ka' ? 'თქვენი მორგებული URL' : language === 'ru' ? 'Ваш собственный URL' : 'Your Custom URL'}
-            </label>
-
-            <div className="flex items-center border-2 border-slate-100 rounded-2xl bg-slate-50 focus-within:border-violet-400 focus-within:ring-4 focus-within:ring-violet-400/10 transition-all overflow-hidden">
-              <input
-                type="text"
-                value={slug}
-                onChange={handleSlugChange}
-                placeholder="HBDLado"
-                className="flex-1 bg-transparent px-4 py-3.5 text-slate-800 font-bold outline-none placeholder:text-slate-300 min-w-0"
-                maxLength={40}
-                autoFocus
-              />
-              <span className="pr-4 text-slate-400 text-sm font-bold whitespace-nowrap shrink-0">
-                .{hostname}
-              </span>
-            </div>
-
-            {slug && (
-              <div className="flex items-center gap-2 px-1">
-                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shrink-0" />
-                <span className="text-xs text-slate-500 font-mono break-all">
-                  http://{slug}.{hostname}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-4 p-4 border-2 border-slate-100 rounded-3xl bg-slate-50/50">
+          <div className="flex flex-col gap-4 p-5 border-2 border-slate-100 rounded-3xl bg-slate-50/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-xl">🤖</span>
+                <span className="text-xl">📅</span>
                 <div>
                   <p className="text-sm font-black text-slate-800">
-                    {language === 'ka' ? 'ავტომატური გაგზავნა' : language === 'ru' ? 'Автоматическая отправка' : 'Automatic Send'}
-                  </p>
-                  <p className="text-xs text-slate-500 font-medium">
-                    {language === 'ka' ? 'დაგეგმეთ ბარათის გაგზავნა' : language === 'ru' ? 'Запланируйте отправку открытки' : 'Schedule your card delivery'}
+                    {language === 'ka' ? 'სტატუსი: ' : language === 'ru' ? 'Статус: ' : 'Status: '}
+                    {schedule.isAutoSend
+                      ? (language === 'ka' ? 'ჩართულია' : language === 'ru' ? 'Включено' : 'Enabled')
+                      : (language === 'ka' ? 'გამორთულია' : language === 'ru' ? 'Выключено' : 'Disabled')}
                   </p>
                 </div>
               </div>
@@ -126,7 +115,7 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
             </div>
 
             {schedule.isAutoSend && (
-              <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-300 pt-2 border-t border-slate-200/50">
+              <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-300 pt-4 border-t border-slate-200/50">
                 <div className="flex bg-white/50 p-1 rounded-xl border border-slate-100 shadow-inner">
                   <button
                     onClick={() => {
@@ -204,23 +193,16 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
           </div>
 
           {error && (
-            <p className="text-red-500 text-xs font-bold text-center -mt-2">{error}</p>
+            <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-[10px] font-bold text-center animate-shake leading-tight">
+              {error}
+            </div>
           )}
 
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
-            <span className="text-xl shrink-0 mt-0.5">⚡</span>
-            <div>
-              <p className="text-sm font-black text-amber-800 mb-1">
-                {language === 'ka' ? 'ყურადღებით წაიკითხეთ გაგრძელებამდე' : language === 'ru' ? 'Прочитайте это перед продолжением — Внимание!' : 'Read This Before You Proceed — Attention!'}
-              </p>
-              <p className="text-xs text-amber-700 leading-relaxed text-pretty">
-                {language === 'ka'
-                  ? <>ბარათის გამოქვეყნება <strong>სამუდამოა</strong>. თქვენი ლინკი, თქვენი დიზაინი, თქვენი შეტყობინება - <em>შეინახება სამუდამოდ</em>. ცვლილება შეუძლებელია. გამოქვეყნების ღილაკზე დაჭერისას თქვენი საჩუქარი ფიქსირდება. გონივრულად აირჩიეთ თქვენი URL. 💎</>
-                  : language === 'ru'
-                    ? <>Публикация открытки является <strong>окончательной</strong>. Ваша ссылка, ваш дизайн, ваше сообщение - <em>запечатаны навсегда</em>. Никаких правок. Никаких переделок. В тот момент, когда вы нажимаете «Опубликовать», ваш подарок застывает в цифровом камне. Выбирайте свой URL с умом. 💎</>
-                    : <>Once this card goes live, it&apos;s <strong>permanent</strong>. Your link, your design, your message - <em>sealed forever</em>. No edits. No do-overs. The moment you hit Publish, your gift is cast in digital stone. Choose your URL wisely. 💎</>}
-              </p>
-            </div>
+          <div className="bg-violet-50/50 border border-violet-100 rounded-2xl p-4 flex gap-3">
+            <span className="text-xl shrink-0">💡</span>
+            <p className="text-xs text-violet-700 font-medium leading-relaxed">
+              {language === 'ka' ? 'ავტომატური გაგზავნა მოხდება ზუსტად შერჩეულ დროს. დარწმუნდით, რომ საკონტაქტო ინფორმაცია სწორია.' : language === 'ru' ? 'Автоматическая отправка произойдет точно в выбранное время. Убедитесь, что контактные данные верны.' : 'Automatic delivery happens exactly at the scheduled time. Ensure the contact details are correct.'}
+            </p>
           </div>
         </div>
 
@@ -229,14 +211,15 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
             onClick={onClose}
             className="flex-1 py-3 rounded-xl border-2 border-slate-100 text-slate-500 font-bold hover:bg-slate-50 transition cursor-pointer"
           >
-            {language === 'ka' ? 'გაუქმება' : language === 'ru' ? 'Отмена' : 'Cancel'}
+            {language === 'ka' ? 'დახურვა' : language === 'ru' ? 'Закрыть' : 'Close'}
           </button>
           <button
-            onClick={handleProceed}
-            disabled={!slug.trim()}
-            className="flex-1 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-pink-600 text-white font-black hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-lg shadow-violet-500/25 cursor-pointer"
+            onClick={handleSave}
+            disabled={loading}
+            className="flex-1 py-3 rounded-xl bg-slate-900 text-white font-black hover:bg-slate-800 disabled:opacity-50 transition shadow-lg cursor-pointer flex items-center justify-center gap-2"
           >
-            {language === 'ka' ? 'გაგრძელება →' : language === 'ru' ? 'Продолжить →' : 'Process →'}
+            {loading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+            {language === 'ka' ? 'შენახვა' : language === 'ru' ? 'Сохранить' : 'Save Changes'}
           </button>
         </div>
       </div>
@@ -246,10 +229,18 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
           from { transform: scale(0.92); opacity: 0; }
           to   { transform: scale(1); opacity: 1; }
         }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
+        }
         .animate-scale-in { animation: scale-in 0.2s ease-out; }
+        .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
+
+  return createPortal(modalContent, document.getElementById('modal-root'));
 }

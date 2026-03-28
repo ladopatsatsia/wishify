@@ -21,4 +21,6 @@ public interface ICardService
     Task<bool> ToggleCardPublicAsync(Guid cardId, string userId);
     Task<bool> PublishCardAsync(Guid cardId, string userId, string slug);
     Task<Card?> GetCardBySlugAsync(string slug);
+    Task<bool> UrlSlugExistsAsync(string slug, Guid? excludeCardId = null);
+    Task<bool> UpdateCardAsync(Card card);
 }
