@@ -58,7 +58,7 @@ export default function BirthdayCard({ subdomainSlug }) {
         fetchHeaders['Authorization'] = `Bearer ${user.token}`;
       }
 
-      fetch(`http://localhost:5153/api/cards/${cardId}`, {
+      fetch(`https://localhost:44328/api/cards/${cardId}`, {
         headers: fetchHeaders
       })
         .then(res => {
@@ -84,7 +84,7 @@ export default function BirthdayCard({ subdomainSlug }) {
         .finally(() => setLoading(false));
     } else if (subdomainSlug) {
       setLoading(true);
-      fetch(`http://localhost:5153/api/cards/slug/${subdomainSlug}`)
+      fetch(`https://localhost:44328/api/cards/slug/${subdomainSlug}`)
         .then(res => {
           if (!res.ok) throw new Error(language === 'ka' ? "ბარათი ვერ მოიძებნა ან პრივატულია." : language === 'ru' ? "Открытка не найдена или является приватной." : "Card not found or is private.");
           return res.json();

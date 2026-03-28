@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { cardsData } from '../data/cardsData';
 import { useLanguage } from '../context/LanguageContext';
 
-const API_BASE_URL = 'http://localhost:5153/api/cards';
+const API_BASE_URL = 'https://localhost:44328/api/cards';
 
 // Look up a card from local cardsData by ID (searches all categories)
 function findLocalCard(cardId, categoryId) {

@@ -45,7 +45,7 @@ export default function PaymentPage() {
     await new Promise(r => setTimeout(r, 1800));
 
     try {
-      const response = await fetch(`http://localhost:5153/api/cards/${cardId}/publish`, {
+      const response = await fetch(`https://localhost:44328/api/cards/${cardId}/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

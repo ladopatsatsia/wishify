@@ -67,7 +67,7 @@ export default function PublishedCards() {
 
   const handleTogglePublish = async (cardId) => {
     try {
-      const response = await fetch(`http://localhost:5153/api/cards/${cardId}/toggle-public`, {
+      const response = await fetch(`https://localhost:44328/api/cards/${cardId}/toggle-public`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${user.token}`
@@ -93,7 +93,7 @@ export default function PublishedCards() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5153/api/cards/${cardId}`, {
+      const response = await fetch(`https://localhost:44328/api/cards/${cardId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${user.token}`

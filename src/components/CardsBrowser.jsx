@@ -21,7 +21,7 @@ function useFadeIn(ref) {
   }, [ref]);
 }
 
-const API_BASE_URL = 'http://localhost:5153/api/templates';
+const API_BASE_URL = 'https://localhost:44328/api/templates';
 
 export default function CardsBrowser() {
   const { categoryId } = useParams();
@@ -119,8 +119,8 @@ export default function CardsBrowser() {
             <div>
               <h2 className="text-4xl font-extrabold text-slate-900">
                 {language === 'ka' 
-                  ? (activeCategory === 'birthday' ? 'დაბადების დღის' : activeCategory === 'graduation' ? 'დიპლომის' : activeCategory === 'invitation' ? 'მოწვევის' : activeCategory === 'memory' ? 'მოგონების' : activeCategory === 'love' ? 'სიყვარულის' : activeCategory === 'holiday' ? 'დღესასწაულის' : activeCategory) + ' ბარათები'
-                  : language === 'ru' ? (activeCategory === 'birthday' ? 'Дня рождения' : activeCategory === 'graduation' ? 'Дипломные' : activeCategory === 'invitation' ? 'Пригласительные' : activeCategory === 'memory' ? 'Памятные' : activeCategory === 'love' ? 'Любовные' : activeCategory === 'holiday' ? 'Праздничные' : activeCategory) + ' открытки'
+                  ? (activeCategory === 'birthday' ? 'დაბადების დღის' : activeCategory === 'invitation' ? 'მოწვევის' : activeCategory === 'memory' ? 'მოგონების' : activeCategory === 'love' ? 'სიყვარულის' : activeCategory === 'holiday' ? 'დღესასწაულის' : activeCategory) + ' ბარათები'
+                  : language === 'ru' ? (activeCategory === 'birthday' ? 'Дня рождения' : activeCategory === 'invitation' ? 'Пригласительные' : activeCategory === 'memory' ? 'Памятные' : activeCategory === 'love' ? 'Любовные' : activeCategory === 'holiday' ? 'Праздничные' : activeCategory) + ' открытки'
                   : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1) + ' Cards'}
               </h2>
               <p className="text-slate-500 text-lg">{language === 'ka' ? 'აირჩიეთ საბაზისო დიზაინი და გახადეთ უნიკალური.' : language === 'ru' ? 'Выберите базовый дизайн и сделайте его уникальным.' : 'Choose a base design and make it unique.'}</p>
@@ -147,7 +147,7 @@ export default function CardsBrowser() {
                     : 'bg-white text-slate-600 border border-slate-200 hover:border-violet-300 hover:text-violet-600 hover:shadow-md'
                   }`}
               >
-                {c.emoji} {language === 'ka' ? (c.id === 'birthday' ? 'დაბადების დღე' : c.id === 'graduation' ? 'დიპლომი' : c.id === 'invitation' ? 'მოწვევა' : c.id === 'memory' ? 'მოგონება' : c.id === 'love' ? 'სიყვარული' : c.id === 'holiday' ? 'დღესასწაული' : c.id) : language === 'ru' ? (c.id === 'birthday' ? 'День рождения' : c.id === 'graduation' ? 'Диплом' : c.id === 'invitation' ? 'Приглашение' : c.id === 'memory' ? 'Воспоминание' : c.id === 'love' ? 'Любовь' : c.id === 'holiday' ? 'Праздник' : c.id) : c.id.charAt(0).toUpperCase() + c.id.slice(1)}
+                {c.emoji} {language === 'ka' ? (c.id === 'birthday' ? 'დაბადების დღე' : c.id === 'invitation' ? 'მოწვევა' : c.id === 'memory' ? 'მოგონება' : c.id === 'love' ? 'სიყვარული' : c.id === 'holiday' ? 'დღესასწაული' : c.id) : language === 'ru' ? (c.id === 'birthday' ? 'День рождения' : c.id === 'invitation' ? 'Приглашение' : c.id === 'memory' ? 'Воспоминание' : c.id === 'love' ? 'Любовь' : c.id === 'holiday' ? 'Праздник' : c.id) : c.id.charAt(0).toUpperCase() + c.id.slice(1)}
               </button>
             ))}
           </div>

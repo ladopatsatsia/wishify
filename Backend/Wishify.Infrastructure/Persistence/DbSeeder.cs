@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Wishify.Domain.Entities;
 using Wishify.Infrastructure.Persistence;
 
@@ -5,25 +6,55 @@ namespace Wishify.Infrastructure.Persistence;
 
 public static class DbSeeder
 {
-    public static void Seed(ApplicationDbContext context)
+    public static async Task Seed(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
     {
-        // 1. Seed Categories if missing
+        // 1. Seed Roles
+        string[] roleNames = { "Admin", "User" };
+        foreach (var roleName in roleNames)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
+
+        // 2. Seed Admin User
+        var adminEmail = "admin@wishify.ge";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            var admin = new ApplicationUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                FirstName = "Admin",
+                LastName = "Wishify",
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(admin, "adminadmin");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+        }
+
+        // 3. Seed Categories if missing
         if (!context.Categories.Any())
         {
             var categories = new List<Category>
             {
                 new Category { Id = "birthday", Label = "Birthday", Emoji = "🎂", Color = "from-pink-400 to-rose-500" },
-                new Category { Id = "graduation", Label = "Graduation", Emoji = "🎓", Color = "from-violet-400 to-purple-600" },
                 new Category { Id = "invitation", Label = "Invitation", Emoji = "💌", Color = "from-amber-400 to-orange-500" },
                 new Category { Id = "memory", Label = "Memory", Emoji = "📸", Color = "from-teal-400 to-cyan-500" },
                 new Category { Id = "love", Label = "Love", Emoji = "❤️", Color = "from-red-400 to-pink-500" },
                 new Category { Id = "holiday", Label = "Holiday", Emoji = "🎄", Color = "from-green-400 to-emerald-500" },
             };
             context.Categories.AddRange(categories);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        // 2. Seed Templates if missing
+        // 4. Seed Templates if missing
         var templates = new List<Template>
         {
             new Template 
@@ -51,19 +82,6 @@ public static class DbSeeder
                 DefaultMessage1 = "Swipe up for more birthdays ✨",
                 DefaultMessage2 = "You deserve all the happiness today.",
                 MusicLabel = "Trending Lo-Fi"
-            },
-            new Template 
-            { 
-                Id = "g1", 
-                CategoryId = "graduation", 
-                Title = "Triumphant Cap", 
-                BgGradient = "from-violet-300 via-purple-200 to-indigo-100", 
-                DefaultEmoji = "🎓", 
-                ThemeColor = "violet",
-                DefaultHeading = "Congrats! 🎓",
-                DefaultMessage1 = "You did it!",
-                DefaultMessage2 = "The future looks bright.",
-                MusicLabel = "Success March"
             }
         };
 
@@ -74,6 +92,6 @@ public static class DbSeeder
                 context.Templates.Add(template);
             }
         }
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

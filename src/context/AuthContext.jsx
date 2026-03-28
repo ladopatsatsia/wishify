@@ -12,7 +12,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const savedUser = localStorage.getItem('wishify_user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsedUser = JSON.parse(savedUser);
+      setUser(parsedUser);
     }
     setLoading(false);
   }, []);
@@ -68,8 +69,36 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('wishify_user');
   };
 
+  const changePassword = async (currentPassword, newPassword) => {
+    if (!user) return { success: false, error: 'Not authenticated' };
+    try {
+      const response = await fetch(`${API_BASE_URL}/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      if (!response.ok) {
+        let errorMsg = 'Password change failed';
+        try {
+          const data = await response.json();
+          errorMsg = data.message || errorMsg;
+        } catch (_) {}
+        return { success: false, error: errorMsg };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Change password error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout, changePassword }}>
       {children}
     </AuthContext.Provider>
   );

@@ -18,6 +18,10 @@ import BirthdayCard from './components/birthday/BirthdayCard';
 import SavedCards from './pages/SavedCards';
 import PublishedCards from './pages/PublishedCards';
 import PaymentPage from './pages/PaymentPage';
+import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { cardsData } from './data/cardsData';
 
@@ -57,6 +61,11 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   // Detect subdomain (e.g. 'wishyfy' from wishyfy.localhost:5173)
   const hostname = window.location.hostname;
   const parts = hostname.split('.');
@@ -69,8 +78,12 @@ export default function App() {
     return <BirthdayCard subdomainSlug={subdomain} />;
   }
 
-  // Hide main UI components when viewing a full-screen interactive card
-  const isViewMode = location.pathname.startsWith('/view/') || location.pathname.startsWith('/birthday-card') || location.pathname === '/payment';
+  // Hide main UI components when viewing a full-screen interactive card or Admin Dashboard
+  const isViewMode = 
+    location.pathname.startsWith('/view/') || 
+    location.pathname.startsWith('/birthday-card') || 
+    location.pathname === '/payment' ||
+    location.pathname.startsWith('/admin');
 
   const handleCardClick = (categoryId, card) => {
     if (card) {
@@ -97,8 +110,12 @@ export default function App() {
         <Route path="/profile/saved" element={<SavedCards />} />
         <Route path="/profile/published" element={<PublishedCards />} />
         <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/birthday-card" element={<BirthdayCard />} />
         <Route path="/birthday-card/:cardId" element={<BirthdayCard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
 
       {!isViewMode && <Footer />}

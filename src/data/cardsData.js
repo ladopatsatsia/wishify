@@ -1,7 +1,6 @@
 // All card data organized by category
 export const categories = [
   { id: 'birthday', label: 'Birthday', emoji: '🎂', color: 'from-pink-400 to-rose-500' },
-  { id: 'graduation', label: 'Graduation', emoji: '🎓', color: 'from-violet-400 to-purple-600' },
   { id: 'invitation', label: 'Invitation', emoji: '💌', color: 'from-amber-400 to-orange-500' },
   { id: 'memory', label: 'Memory', emoji: '📸', color: 'from-teal-400 to-cyan-500' },
   { id: 'love', label: 'Love', emoji: '❤️', color: 'from-red-400 to-pink-500' },

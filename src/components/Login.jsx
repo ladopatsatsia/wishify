@@ -74,7 +74,7 @@ export default function Login() {
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
                 <label className="text-sm font-bold text-slate-700">{language === 'ka' ? 'პაროლი' : language === 'ru' ? 'Пароль' : 'Password'}</label>
-                <a href="#" className="text-xs font-bold text-violet-500 hover:text-pink-500 transition-colors">{language === 'ka' ? 'დაგავიწყდათ პაროლი?' : language === 'ru' ? 'Забыли пароль?' : 'Forgot Password?'}</a>
+                <Link to="/forgot-password" name="forgotPasswordLink" className="text-xs font-bold text-violet-500 hover:text-pink-500 transition-colors uppercase tracking-wider">{language === 'ka' ? 'დაგავიწყდათ პაროლი?' : language === 'ru' ? 'Забыли пароль?' : 'Forgot Password?'}</Link>
               </div>
               <input
                 type="password"

@@ -23,4 +23,5 @@ public interface ICardService
     Task<Card?> GetCardBySlugAsync(string slug);
     Task<bool> UrlSlugExistsAsync(string slug, Guid? excludeCardId = null);
     Task<bool> UpdateCardAsync(Card card);
+    Task<IEnumerable<Card>> GetCardsToAutoSendAsync();
 }

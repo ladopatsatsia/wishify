@@ -22,7 +22,7 @@ export default function SavedCards() {
 
     const fetchSavedCards = async () => {
       try {
-        const response = await fetch('http://localhost:5153/api/cards/user', {
+        const response = await fetch('https://localhost:44328/api/cards/user', {
           headers: {
             'Authorization': `Bearer ${user.token}`
           }
@@ -67,7 +67,7 @@ export default function SavedCards() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5153/api/cards/${cardId}`, {
+      const response = await fetch(`https://localhost:44328/api/cards/${cardId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token}`

@@ -120,7 +120,16 @@ const translations = {
       btn_remove: "🗑️ Remove",
       btn_create: "Start Customizing",
       btn_copy: "Copy Link",
-      btn_unpublish: "Make Private"
+      btn_unpublish: "Make Private",
+      change_password_title: "Change Password",
+      change_password_desc: "Update your account password to keep it secure.",
+      current_password: "Current Password",
+      new_password: "New Password",
+      confirm_password: "Confirm New Password",
+      btn_change_password: "Update Password",
+      password_success: "Password changed successfully!",
+      password_mismatch: "New passwords do not match.",
+      password_short: "New password must be at least 6 characters."
     },
     publish: {
       modal_title: "Choose Your Live Link",
@@ -241,7 +250,16 @@ const translations = {
       btn_remove: "🗑️ წაშლა",
       btn_create: "დაიწყე შექმნა",
       btn_copy: "ლინკის კოპირება",
-      btn_unpublish: "პირადად გადაქცევა"
+      btn_unpublish: "პირადად გადაქცევა",
+      change_password_title: "პაროლის შეცვლა",
+      change_password_desc: "განაახლეთ თქვენი ანგარიშის პაროლი უსაფრთხოებისთვის.",
+      current_password: "მიმდინარე პაროლი",
+      new_password: "ახალი პაროლი",
+      confirm_password: "დაადასტურეთ ახალი პაროლი",
+      btn_change_password: "პაროლის განახლება",
+      password_success: "პაროლი წარმატებით შეიცვალა!",
+      password_mismatch: "ახალი პაროლები არ ემთხვევა.",
+      password_short: "ახალი პაროლი მინიმუმ 6 სიმბოლო უნდა იყოს."
     },
     publish: {
       modal_title: "აირჩიეთ ლაივ ლინკი",
@@ -362,7 +380,16 @@ const translations = {
       btn_remove: "🗑️ Удалить",
       btn_create: "Начать создание",
       btn_copy: "Копировать ссылку",
-      btn_unpublish: "Сделать приватной"
+      btn_unpublish: "Сделать приватной",
+      change_password_title: "Изменить пароль",
+      change_password_desc: "Обновите пароль вашего аккаунта для большей безопасности.",
+      current_password: "Текущий пароль",
+      new_password: "Новый пароль",
+      confirm_password: "Подтвердите новый пароль",
+      btn_change_password: "Обновить пароль",
+      password_success: "Пароль успешно изменён!",
+      password_mismatch: "Новые пароли не совпадают.",
+      password_short: "Новый пароль должен содержать не менее 6 символов."
     },
     publish: {
       modal_title: "Выберите ссылку для открытки",

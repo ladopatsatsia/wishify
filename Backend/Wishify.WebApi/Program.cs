@@ -1,5 +1,9 @@
-using Wishify.Infrastructure;
+using Microsoft.AspNetCore.Identity;
+using Wishify.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Wishify.Application.Interfaces;
+using Wishify.Infrastructure.Services;
+using Wishify.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,14 +30,21 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddHttpClient<IEmailService, ResendEmailService>();
+builder.Services.AddHostedService<Wishify.WebApi.BackgroundServices.CardSchedulerWorker>();
+
 var app = builder.Build();
 
 // Seed data
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<Wishify.Infrastructure.Persistence.ApplicationDbContext>();
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<Wishify.Infrastructure.Persistence.ApplicationDbContext>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    
     context.Database.Migrate();
-    Wishify.Infrastructure.Persistence.DbSeeder.Seed(context);
+    await Wishify.Infrastructure.Persistence.DbSeeder.Seed(context, userManager, roleManager);
 }
 
 // Configure the HTTP request pipeline.
@@ -43,7 +54,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

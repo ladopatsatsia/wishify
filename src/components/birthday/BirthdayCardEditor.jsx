@@ -101,7 +101,7 @@ export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate
         imagesJson: JSON.stringify(base64Images)
       };
 
-      const response = await fetch('http://localhost:5153/api/cards', {
+      const response = await fetch('https://localhost:44328/api/cards', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

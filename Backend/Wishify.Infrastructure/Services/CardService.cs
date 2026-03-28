@@ -122,4 +122,23 @@ public class CardService : ICardService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<IEnumerable<Card>> GetCardsToAutoSendAsync()
+    {
+        var now = DateTime.UtcNow;
+        var cards = await _context.Cards
+            .Where(c => c.IsAutoSend && !c.IsSent)
+            .ToListAsync();
+
+        return cards.Where(c => {
+            if (string.IsNullOrEmpty(c.ScheduledDate) || string.IsNullOrEmpty(c.ScheduledTime)) 
+                return false;
+            
+            if (DateTime.TryParse($"{c.ScheduledDate}T{c.ScheduledTime}", out var scheduledAt))
+            {
+                return scheduledAt <= now;
+            }
+            return false;
+        }).ToList();
+    }
 }

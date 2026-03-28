@@ -1,7 +1,32 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.infrastructure\\services\\resendemailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|solutionrelative:wishify.infrastructure\\services\\resendemailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.infrastructure\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|solutionrelative:wishify.infrastructure\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{08BC01CF-5C36-495B-B909-BBA46B336EB6}|Wishify.WebApi\\Wishify.WebApi.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.webapi\\backgroundservices\\cardschedulerworker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{08BC01CF-5C36-495B-B909-BBA46B336EB6}|Wishify.WebApi\\Wishify.WebApi.csproj|solutionrelative:wishify.webapi\\backgroundservices\\cardschedulerworker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{08BC01CF-5C36-495B-B909-BBA46B336EB6}|Wishify.WebApi\\Wishify.WebApi.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{08BC01CF-5C36-495B-B909-BBA46B336EB6}|Wishify.WebApi\\Wishify.WebApi.csproj|solutionrelative:wishify.webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.infrastructure\\identity\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|solutionrelative:wishify.infrastructure\\identity\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0852AB65-CA18-407F-A042-C869989EC211}|Wishify.Application\\Wishify.Application.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.application\\interfaces\\iemailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0852AB65-CA18-407F-A042-C869989EC211}|Wishify.Application\\Wishify.Application.csproj|solutionrelative:wishify.application\\interfaces\\iemailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
@@ -22,9 +47,74 @@
           ]
         },
         {
-          "DockedHeight": 76,
-          "SelectedChildIndex": -1,
+          "DockedHeight": 140,
+          "SelectedChildIndex": 3,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CardSchedulerWorker.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\BackgroundServices\\CardSchedulerWorker.cs",
+              "RelativeDocumentMoniker": "Wishify.WebApi\\BackgroundServices\\CardSchedulerWorker.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\BackgroundServices\\CardSchedulerWorker.cs",
+              "RelativeToolTip": "Wishify.WebApi\\BackgroundServices\\CardSchedulerWorker.cs",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAQwEgAAABqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T15:01:02.222Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\Program.cs",
+              "RelativeDocumentMoniker": "Wishify.WebApi\\Program.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\Program.cs*",
+              "RelativeToolTip": "Wishify.WebApi\\Program.cs*",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAQwA8AAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T15:00:54.271Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Identity\\AuthService.cs",
+              "RelativeDocumentMoniker": "Wishify.Infrastructure\\Identity\\AuthService.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Identity\\AuthService.cs",
+              "RelativeToolTip": "Wishify.Infrastructure\\Identity\\AuthService.cs",
+              "ViewState": "AgIAAFgAAAAAAAAAAAAgwF0AAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T15:00:16.909Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ResendEmailService.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Services\\ResendEmailService.cs",
+              "RelativeDocumentMoniker": "Wishify.Infrastructure\\Services\\ResendEmailService.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Services\\ResendEmailService.cs",
+              "RelativeToolTip": "Wishify.Infrastructure\\Services\\ResendEmailService.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAkwBIAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T14:59:38.376Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IEmailService.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Application\\Interfaces\\IEmailService.cs",
+              "RelativeDocumentMoniker": "Wishify.Application\\Interfaces\\IEmailService.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Application\\Interfaces\\IEmailService.cs",
+              "RelativeToolTip": "Wishify.Application\\Interfaces\\IEmailService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAABQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T14:59:11.158Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:134:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
@@ -150,18 +240,35 @@
               "Name": "ST:131:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EmailService.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Services\\EmailService.cs",
+              "RelativeDocumentMoniker": "Wishify.Infrastructure\\Services\\EmailService.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Services\\EmailService.cs",
+              "RelativeToolTip": "Wishify.Infrastructure\\Services\\EmailService.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAowBYAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T14:58:19.436Z",
+              "EditorCaption": ""
+            },
+            {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         },
         {
-          "DockedHeight": 180,
+          "DockedHeight": 116,
           "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:133:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{a80febb4-e7e0-4147-b476-21aaf2453969}"
             }
           ]
         }

@@ -42,15 +42,27 @@ export default function ScheduleManagementModal({ isOpen, card, onClose, onUpdat
       return;
     }
 
+    if (!user?.token) {
+      setError('Session expired. Please login again.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5153/api/cards/${card.id}/schedule`, {
+      const response = await fetch(`https://localhost:44328/api/cards/${card.id}/schedule`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`
+          'Authorization': `Bearer ${user.token}`
         },
-        body: JSON.stringify({ schedule })
+        body: JSON.stringify({
+          schedule: {
+            ...schedule,
+            // Ensure recipient is synced with either field the backend might check
+            autoSendRecipient: schedule.recipient,
+            recipient: schedule.recipient
+          }
+        })
       });
 
       if (!response.ok) {

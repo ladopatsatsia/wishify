@@ -10,6 +10,7 @@ using Wishify.Domain.Entities;
 using Wishify.Infrastructure.Identity;
 using Wishify.Infrastructure.Persistence;
 using Wishify.Infrastructure.Services;
+using Wishify.Infrastructure.Background;
 
 namespace Wishify.Infrastructure;
 
@@ -34,6 +35,9 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITemplateService, TemplateService>();
         services.AddScoped<ICardService, CardService>();
+        services.AddHttpClient<ISmsService, SmsService>();
+        services.AddHttpClient<IEmailService, EmailService>();
+        services.AddHostedService<CardSendWorker>();
 
         var jwtKey = configuration["Jwt:Key"] ?? "SecretKeyThatMustBeAtLeast32CharactersLong";
         var key = Encoding.ASCII.GetBytes(jwtKey);

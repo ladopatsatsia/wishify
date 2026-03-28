@@ -26,10 +26,10 @@ export default function Hero() {
     },
     {
       id: 3,
-      categoryId: 'graduation',
-      emoji: '🎓',
-      title: language === 'ka' ? 'დიპლომი' : language === 'ru' ? 'Диплом' : 'Graduation Card',
-      subtitle: language === 'ka' ? 'აღნიშნე მათი დიდი მიღწევა 🌟' : language === 'ru' ? 'Отпразднуйте их большое достижение 🌟' : 'Celebrate their big achievement 🌟',
+      categoryId: 'invitation',
+      emoji: '💌',
+      title: language === 'ka' ? 'მოწვევა' : language === 'ru' ? 'Приглашение' : 'Invitation Card',
+      subtitle: language === 'ka' ? 'შექმენი დაუვიწყარი მოსაწვევი 🌟' : language === 'ru' ? 'Создайте незабываемое приглашение 🌟' : 'Create an unforgettable invitation 🌟',
       bg: 'from-amber-400 to-orange-500'
     },
     {
@@ -55,7 +55,7 @@ export default function Hero() {
     setCards(prev => prev.map(c => {
       if (c.categoryId === 'birthday') return { ...c, title: language === 'ka' ? 'დაბადების დღე' : language === 'ru' ? 'День рождения' : 'Birthday Card', subtitle: language === 'ka' ? 'გილოცავ ამ ჯადოსნურ დღეს ✨' : language === 'ru' ? 'Желаю самого волшебного дня ✨' : 'Wishing you the most magical day ✨' };
       if (c.categoryId === 'love') return { ...c, title: language === 'ka' ? 'სიყვარული' : language === 'ru' ? 'Любовь' : 'Love Card', subtitle: language === 'ka' ? 'გაუგზავნე შენი გული განსაკუთრებულს 💖' : language === 'ru' ? 'Отправьте свое сердце особенному человеку 💖' : 'Send your heart to someone special 💖' };
-      if (c.categoryId === 'graduation') return { ...c, title: language === 'ka' ? 'დიპლომი' : language === 'ru' ? 'Диплом' : 'Graduation Card', subtitle: language === 'ka' ? 'აღნიშნე მათი დიდი მიღწევა 🌟' : language === 'ru' ? 'Отпразднуйте их большое достижение 🌟' : 'Celebrate their big achievement 🌟' };
+      if (c.categoryId === 'invitation') return { ...c, title: language === 'ka' ? 'მოწვევა' : language === 'ru' ? 'Приглашение' : 'Invitation Card', subtitle: language === 'ka' ? 'შექმენი დაუვიწყარი მოსაწვევი 🌟' : language === 'ru' ? 'Создайте незабываемое приглашение 🌟' : 'Create an unforgettable invitation 🌟' };
       if (c.categoryId === 'holiday') return { ...c, title: language === 'ka' ? 'დღესასწაული' : language === 'ru' ? 'Праздник' : 'Holiday Card', subtitle: language === 'ka' ? 'გაავრცელე სადღესასწაულო განწყობა 🎁' : language === 'ru' ? 'Подарите праздничное настроение 🎁' : 'Spread the festive cheer 🎁' };
       if (c.categoryId === 'memory') return { ...c, title: language === 'ka' ? 'მოგონება' : language === 'ru' ? 'Воспоминание' : 'Memory Card', subtitle: language === 'ka' ? 'გაიხსენეთ საუკეთესო მომენტები ერთად ✨' : language === 'ru' ? 'Вспомните лучшие моменты вместе ✨' : 'Relive your best moments together ✨' };
       return c;

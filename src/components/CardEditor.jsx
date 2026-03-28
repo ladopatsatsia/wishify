@@ -3,7 +3,7 @@ import InteractiveCardView from './InteractiveCardView';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
-const API_BASE_URL = 'http://localhost:5153/api/cards';
+const API_BASE_URL = 'https://localhost:44328/api/cards';
 
 export default function CardEditor({ card, category, onBack, onClose }) {
   const { user } = useAuth();
