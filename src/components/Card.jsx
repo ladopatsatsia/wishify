@@ -4,13 +4,17 @@ import { useAuth } from '../context/AuthContext';
 import AuthRequiredModal from './AuthRequiredModal';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function Card({ card, categoryId }) {
+export default function Card({ card, categoryId, hasPublishedCards }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { language } = useLanguage();
 
   if (!card) return null;
+
+  // Pricing Logic: 10 GEL for first card, 20 GEL standard
+  const isFirstCard = !user || !hasPublishedCards;
+  const price = isFirstCard ? 10 : 20;
 
   // Extract style properties — handle both local shape (nested in style{}) and API shape (flat)
   const {
@@ -40,6 +44,28 @@ export default function Card({ card, categoryId }) {
       }}
       className={`group relative h-96 rounded-[2.5rem] overflow-hidden shadow-xl shadow-purple-100/30 border border-white cursor-pointer transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2 bg-gradient-to-br ${bgGradient} ${fontFamily}`}
     >
+      {/* Hanging Price Tag */}
+      <div className="absolute top-0 right-10 z-20 pointer-events-none">
+        <div className="relative group-hover:scale-110 transition-transform duration-500">
+          {/* Tag String/Hanger */}
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-slate-300 drop-shadow-sm" />
+          
+          {/* Tag Body */}
+          <div className="mt-2 bg-white/80 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white shadow-lg flex flex-col items-center min-w-[70px]">
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl font-black text-slate-900 tracking-tighter">{price}</span>
+              <span className="text-sm font-bold text-violet-600">₾</span>
+            </div>
+            
+            {isFirstCard && (
+              <div className="absolute -bottom-2 whitespace-nowrap bg-gradient-to-r from-pink-500 to-violet-500 text-[8px] font-black text-white px-2 py-0.5 rounded-full shadow-sm">
+                {language === 'ka' ? 'პირველი ბარათი' : 'FIRST CARD'}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700" />
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-12 -mb-12 blur-xl" />

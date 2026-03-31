@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { normalizeScheduleDraft } from '../components/profile/scheduleUtils';
+import { CARDS_URL } from '../api/config';
 
 export default function PaymentPage() {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function PaymentPage() {
     await new Promise(r => setTimeout(r, 1800));
 
     try {
-      const response = await fetch(`https://localhost:44328/api/cards/${cardId}/publish`, {
+      const response = await fetch(`${CARDS_URL}/${cardId}/publish`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +128,7 @@ export default function PaymentPage() {
             <div className="text-white font-mono text-lg tracking-widest mb-6">•••• •••• •••• 4242</div>
             <div className="flex justify-between text-white/70 text-xs font-bold">
               <span>{language === 'ka' ? 'მფლობელი' : language === 'ru' ? 'ВЛАДЕЛЕЦ' : 'CARDHOLDER'}</span>
-              <span>{language === 'ka' ? 'ვადა' : language === 'ru' ? 'СРОК' : 'EXPIRES'}</span>
+              <span>{language === 'ka' ? 'ვადა' : language === 'ru' ? 'СРოკ' : 'EXPIRES'}</span>
             </div>
             <div className="flex justify-between text-white font-bold text-sm">
               <span>{user?.name || 'Your Name'}</span>

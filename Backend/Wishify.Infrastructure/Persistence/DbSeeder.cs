@@ -82,6 +82,19 @@ public static class DbSeeder
                 DefaultMessage1 = "Swipe up for more birthdays ✨",
                 DefaultMessage2 = "You deserve all the happiness today.",
                 MusicLabel = "Trending Lo-Fi"
+            },
+            new Template 
+            { 
+                Id = "m1", 
+                CategoryId = "memory", 
+                Title = "Memory Studio", 
+                BgGradient = "from-teal-100 via-cyan-50 to-white", 
+                DefaultEmoji = "📸", 
+                ThemeColor = "teal",
+                DefaultHeading = "Our Beautiful Journey",
+                DefaultMessage1 = "Capturing every moment together.",
+                DefaultMessage2 = "A collection of our favorite memories.",
+                MusicLabel = "Acoustic Softness"
             }
         };
 

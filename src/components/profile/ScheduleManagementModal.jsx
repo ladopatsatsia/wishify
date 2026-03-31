@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
+import { CARDS_URL } from '../../api/config';
 import {
   createEmptySchedule,
   getScheduleFromCard,
@@ -49,7 +50,7 @@ export default function ScheduleManagementModal({ isOpen, card, onClose, onUpdat
 
     setLoading(true);
     try {
-      const response = await fetch(`https://localhost:44328/api/cards/${card.id}/schedule`, {
+      const response = await fetch(`${CARDS_URL}/${card.id}/schedule`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

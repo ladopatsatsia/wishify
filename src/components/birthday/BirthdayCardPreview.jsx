@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 import { useLanguage } from '../../context/LanguageContext';
 // Trigger HMR to resolve npm install
 
-export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack, onSave, saving, isSaved, onGoToSaved, isPublic }) {
+export default function BirthdayCardPreview({ data, onClose, standalone, onPersonalize, onBack, onSave, saving, isSaved, onGoToSaved, isPublic, isReadOnly }) {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
@@ -70,7 +70,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
     if (onBack) onBack();
   };
 
-  const audioSrc = musicFile
+  const audioSrc = (musicFile instanceof Blob || musicFile instanceof File)
     ? URL.createObjectURL(musicFile)
     : musicUrl || null;
 
@@ -281,6 +281,10 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
               📂 <span className="hidden sm:inline">{language === 'ka' ? 'გადასვლა შენახულ ბარათებზე' : language === 'ru' ? 'Перейти к сохраненным открыткам' : 'Go to Saved Cards'}</span>
             </button>
           </div>
+        ) : isReadOnly ? (
+          <div className="bg-amber-500/20 text-amber-300 font-bold px-4 py-2 rounded-xl flex items-center border border-amber-500/30 text-sm sm:text-base backdrop-blur">
+            🔒 <span className="hidden sm:inline ml-1">{language === 'ka' ? 'გამოქვეყნებულია' : 'Published'}</span>
+          </div>
         ) : (
           <button 
             onClick={() => {
@@ -297,9 +301,6 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
             )}
           </button>
         )}
-        <button className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer">
-          🔗 <span className="hidden sm:inline">{language === 'ka' ? 'ლინკის კოპირება' : language === 'ru' ? 'Копировать ссылку' : 'Get Link'}</span>
-        </button>
       </div>
       
       <button

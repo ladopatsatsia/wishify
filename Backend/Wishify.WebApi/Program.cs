@@ -11,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
 
 // Clean Architecture - Add Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -31,7 +35,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddHttpClient<IEmailService, ResendEmailService>();
-builder.Services.AddHostedService<Wishify.WebApi.BackgroundServices.CardSchedulerWorker>();
+
 
 var app = builder.Build();
 
@@ -59,6 +63,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 app.UseCors();
+app.UseResponseCompression();
+app.UseStaticFiles(); // Default serves from wwwroot
 app.UseAuthentication();
 app.UseAuthorization();
 

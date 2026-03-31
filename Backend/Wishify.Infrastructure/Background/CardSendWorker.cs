@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Wishify.Application.Interfaces;
 using Wishify.Infrastructure.Persistence;
 
@@ -25,7 +26,10 @@ public class CardSendWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("[CardSendWorker] Started and polling for scheduled cards...");
+        _logger.LogInformation("[CardSendWorker] Started and polling for scheduled cards every 60 seconds.");
+
+        var config = _serviceProvider.GetRequiredService<IConfiguration>();
+        var utcOffset = config.GetValue<int>("AppSettings:UtcOffset", 0);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -44,9 +48,14 @@ public class CardSendWorker : BackgroundService
                         .Where(c => c.IsAutoSend && !c.IsSent)
                         .ToListAsync(stoppingToken);
 
+                    if (pendingCards.Any())
+                    {
+                        _logger.LogInformation("[CardSendWorker] Found {Count} pending cards to check for scheduling.", pendingCards.Count);
+                    }
+
                     foreach (var card in pendingCards)
                     {
-                        if (IsTimeToSend(card))
+                        if (IsTimeToSend(card, utcOffset))
                         {
                             if (card.SendMethod == "phone")
                             {
@@ -62,31 +71,48 @@ public class CardSendWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[CardSendWorker] An error occurred while processing scheduled cards.");
+                _logger.LogError(ex, "[CardSendWorker] Critical error during polling cycle.");
             }
 
-            // Poll every 60 seconds
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
 
-    private bool IsTimeToSend(Wishify.Domain.Entities.Card card)
+    private bool IsTimeToSend(Wishify.Domain.Entities.Card card, int utcOffset)
     {
         if (string.IsNullOrEmpty(card.ScheduledDate) || string.IsNullOrEmpty(card.ScheduledTime))
+        {
+            _logger.LogDebug("[CardSendWorker] Card {Id} is scheduled for auto-send but missing date/time.", card.Id);
             return false;
+        }
 
         try
         {
-            var combinedStr = $"{card.ScheduledDate} {card.ScheduledTime}";
-            if (DateTime.TryParseExact(combinedStr, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var scheduledAt))
+            // Parse front-end format (ISO Date + Time)
+            if (DateTime.TryParse($"{card.ScheduledDate}T{card.ScheduledTime}", out var scheduledLocalAt))
             {
-                // Compare with current local time
-                return scheduledAt <= DateTime.Now;
+                // Current time adjusted for the configured UTC offset (e.g. +4 for Georgia)
+                var currentAdjustedTime = DateTime.UtcNow.AddHours(utcOffset);
+                
+                var isDue = scheduledLocalAt <= currentAdjustedTime;
+
+                if (!isDue)
+                {
+                    _logger.LogDebug("[CardSendWorker] Card {Id} scheduled for {Scheduled} (Adjusted Now: {Now}). Not due yet.", 
+                        card.Id, scheduledLocalAt, currentAdjustedTime);
+                }
+
+                return isDue;
+            }
+            else
+            {
+                _logger.LogWarning("[CardSendWorker] Card {Id} has invalid schedule format: {Date} {Time}", 
+                    card.Id, card.ScheduledDate, card.ScheduledTime);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[CardSendWorker] Failed to parse schedule for Card {CardId}.", card.Id);
+            _logger.LogError(ex, "[CardSendWorker] Unexpected parsing error for Card {Id}.", card.Id);
         }
 
         return false;

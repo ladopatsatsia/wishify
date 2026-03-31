@@ -28,12 +28,12 @@ public class TemplateService : ITemplateService
 
     public async Task<Template?> GetTemplateByIdAsync(string templateId)
     {
-        return await _context.Templates.FindAsync(templateId);
+        return await _context.Templates.AsNoTracking().FirstOrDefaultAsync(t => t.Id == templateId);
     }
 
     public async Task<IEnumerable<Template>> GetAllTemplatesAsync()
     {
-        return await _context.Templates.ToListAsync();
+        return await _context.Templates.AsNoTracking().ToListAsync();
     }
 }
 
@@ -56,13 +56,43 @@ public class CardService : ICardService
     public async Task<Card?> GetCardByIdAsync(Guid cardId)
     {
         return await _context.Cards
+            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == cardId);
     }
 
     public async Task<IEnumerable<Card>> GetUserCardsAsync(string userId)
     {
+        // Optimization: For the dashboard list view, we EXCLUDE the massive ImagesJson column
+        // which can be ~12MB per card. We project to a new Card object but keep the heavy field null.
         return await _context.Cards
+            .AsNoTracking()
             .Where(c => c.CreatorId == userId)
+            .Select(c => new Card
+            {
+                Id = c.Id,
+                TemplateId = c.TemplateId,
+                CreatorId = c.CreatorId,
+                RecipientName = c.RecipientName,
+                Heading = c.Heading,
+                Message1 = c.Message1,
+                Message2 = c.Message2,
+                Footer = c.Footer,
+                AudioUrl = c.AudioUrl,
+                CustomEmoji = c.CustomEmoji,
+                CustomBgGradient = c.CustomBgGradient,
+                GiftBoxUrl = c.GiftBoxUrl,
+                ImagesJson = null, // Skip the heavy data!
+                IsPublic = c.IsPublic,
+                UrlSlug = c.UrlSlug,
+                IsPaid = c.IsPaid,
+                IsAutoSend = c.IsAutoSend,
+                AutoSendRecipient = c.AutoSendRecipient,
+                ScheduledDate = c.ScheduledDate,
+                ScheduledTime = c.ScheduledTime,
+                SendMethod = c.SendMethod,
+                IsSent = c.IsSent,
+                CreatedAt = c.CreatedAt
+            })
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
@@ -107,6 +137,7 @@ public class CardService : ICardService
     public async Task<Card?> GetCardBySlugAsync(string slug)
     {
         return await _context.Cards
+            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.UrlSlug == slug && c.IsPublic);
     }
 
@@ -125,8 +156,9 @@ public class CardService : ICardService
 
     public async Task<IEnumerable<Card>> GetCardsToAutoSendAsync()
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.UtcNow.AddHours(4); // Default to Georgia time for general queries
         var cards = await _context.Cards
+            .AsNoTracking()
             .Where(c => c.IsAutoSend && !c.IsSent)
             .ToListAsync();
 

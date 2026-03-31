@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Layout, Plus, Edit, Trash, BarChart, ChevronRight } from 'lucide-react';
+import { ADMIN_URL } from '../../api/config';
 
 export default function AdminTemplates() {
   const { user } = useAuth();
@@ -12,7 +13,7 @@ export default function AdminTemplates() {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await fetch('https://localhost:44328/api/admin/templates', {
+        const response = await fetch(`${ADMIN_URL}/templates`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         if (!response.ok) throw new Error('Failed to fetch templates');

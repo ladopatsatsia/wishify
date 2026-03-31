@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Users, CreditCard, Layout, TrendingUp, Activity, Globe } from 'lucide-react';
+import { ADMIN_URL } from '../../api/config';
 
 export default function AdminStats() {
   const { user } = useAuth();
@@ -12,7 +13,7 @@ export default function AdminStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('https://localhost:44328/api/admin/stats', {
+        const response = await fetch(`${ADMIN_URL}/stats`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         if (!response.ok) throw new Error('Failed to fetch stats');

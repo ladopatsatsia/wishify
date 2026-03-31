@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { cardsData } from '../../data/cardsData';
 import { useLanguage } from '../../context/LanguageContext';
 import AuthRequiredModal from '../AuthRequiredModal';
+import { CARDS_URL } from '../../api/config';
 
 // Default template data for the new birthday card
 const DEFAULT_BIRTHDAY_CARD = {
@@ -58,7 +59,7 @@ export default function BirthdayCard({ subdomainSlug }) {
         fetchHeaders['Authorization'] = `Bearer ${user.token}`;
       }
 
-      fetch(`https://localhost:44328/api/cards/${cardId}`, {
+      fetch(`${CARDS_URL}/${cardId}`, {
         headers: fetchHeaders
       })
         .then(res => {
@@ -84,7 +85,7 @@ export default function BirthdayCard({ subdomainSlug }) {
         .finally(() => setLoading(false));
     } else if (subdomainSlug) {
       setLoading(true);
-      fetch(`https://localhost:44328/api/cards/slug/${subdomainSlug}`)
+      fetch(`${CARDS_URL}/slug/${subdomainSlug}`)
         .then(res => {
           if (!res.ok) throw new Error(language === 'ka' ? "ბარათი ვერ მოიძებნა ან პრივატულია." : language === 'ru' ? "Открытка не найдена или является приватной." : "Card not found or is private.");
           return res.json();
@@ -167,7 +168,13 @@ export default function BirthdayCard({ subdomainSlug }) {
     return (
       <BirthdayCardEditor
         defaultData={defaultData}
-        onBack={() => setMode('preview')}
+        onBack={() => {
+          if (location.state?.from) {
+            navigate(location.state.from);
+          } else {
+            navigate('/browse/birthday');
+          }
+        }}
         isReelTemplate={isReelTemplate}
       />
     );

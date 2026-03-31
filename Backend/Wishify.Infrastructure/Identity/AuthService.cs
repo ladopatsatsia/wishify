@@ -69,7 +69,7 @@ public class AuthService : IAuthService
         if (user == null) return (false, "User not found.");
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:5173";
+        var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5173";
         
         // Encode token for URL
         var encodedToken = System.Net.WebUtility.UrlEncode(token);

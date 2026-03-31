@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { CARDS_URL } from '../api/config';
 import ScheduleManagementModal from '../components/profile/ScheduleManagementModal';
 import { getScheduleFromCard } from '../components/profile/scheduleUtils';
 
@@ -36,12 +37,11 @@ export default function PublishedCards() {
 
     const fetchPublishedCards = async () => {
       try {
-        const response = await fetch('https://localhost:44328/api/cards/user', {
+        const response = await fetch(`${CARDS_URL}/user`, {
           headers: {
             Authorization: `Bearer ${user.token}`
           }
         });
-        console.log("token" ,user.token);
 
         if (response.status === 401) {
           logout();
@@ -67,7 +67,7 @@ export default function PublishedCards() {
 
   const handleTogglePublish = async (cardId) => {
     try {
-      const response = await fetch(`https://localhost:44328/api/cards/${cardId}/toggle-public`, {
+      const response = await fetch(`${CARDS_URL}/${cardId}/toggle-public`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${user.token}`
@@ -93,7 +93,7 @@ export default function PublishedCards() {
     }
 
     try {
-      const response = await fetch(`https://localhost:44328/api/cards/${cardId}`, {
+      const response = await fetch(`${CARDS_URL}/${cardId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${user.token}`
@@ -210,14 +210,14 @@ export default function PublishedCards() {
                         onClick={() => handleDelete(card.id)}
                         className="w-full bg-red-50 text-red-600 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:bg-red-100 transition-all flex justify-center cursor-pointer items-center gap-2"
                       >
-                        🗑️ {language === 'ka' ? 'წაშლა' : language === 'ru' ? 'Удалить' : 'Remove'}
+                        🗑️ {language === 'ka' ? 'წაშლა' : language === 'ru' ? 'Уდაлить' : 'Remove'}
                       </button>
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-2">
                       <button
                         onClick={() => {
-                          const url = `http://${card.urlSlug}.localhost:5173`;
+                          const url = `${window.location.protocol}//${card.urlSlug}.${window.location.host}`;
                           navigator.clipboard.writeText(url);
                           setCopiedId(card.id);
                           setTimeout(() => setCopiedId(null), 2000);

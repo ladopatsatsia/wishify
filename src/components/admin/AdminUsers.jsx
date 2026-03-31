@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Trash2, UserPlus, Mail, Shield, User as UserIcon } from 'lucide-react';
+import { ADMIN_URL } from '../../api/config';
 
 export default function AdminUsers() {
   const { user: currentUser } = useAuth();
@@ -11,7 +12,7 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('https://localhost:44328/api/admin/users', {
+      const response = await fetch(`${ADMIN_URL}/users`, {
         headers: { Authorization: `Bearer ${currentUser.token}` }
       });
       if (!response.ok) throw new Error('Failed to fetch users');
@@ -32,7 +33,7 @@ export default function AdminUsers() {
     if (!window.confirm('Are you sure you want to delete this user? This cannot be undone.')) return;
     
     try {
-      const response = await fetch(`https://localhost:44328/api/admin/users/${userId}`, {
+      const response = await fetch(`${ADMIN_URL}/users/${userId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${currentUser.token}` }
       });

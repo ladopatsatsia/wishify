@@ -2,8 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cardsData } from '../data/cardsData';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import { CARDS_URL } from '../api/config';
+import MemoryCardView from './memory/MemoryCardView';
+import LoveCardView from './love/LoveCardView';
 
-const API_BASE_URL = 'https://localhost:44328/api/cards';
+const CARDS_API = CARDS_URL;
 
 // Look up a card from local cardsData by ID (searches all categories)
 function findLocalCard(cardId, categoryId) {
@@ -24,11 +28,19 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
   const [card, setCard] = useState(previewData || null);
   const [loading, setLoading] = useState(!previewData);
   const [error, setError] = useState(null);
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [magicClicked, setMagicClicked] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
+  const { user, loading: authLoading } = useAuth();
+
+  // Force actual reload when source changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+  }, [card?.audioUrl, card?.content?.audioUrl]);
 
   useEffect(() => {
     if (previewData) {
@@ -40,7 +52,11 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
     if (cardId) {
       const fetchCard = async () => {
         try {
-          const res = await fetch(`${API_BASE_URL}/${cardId}`);
+          const res = await fetch(`${CARDS_API}/${cardId}`, {
+            headers: {
+              ...(user?.token ? { 'Authorization': `Bearer ${user.token}` } : {})
+            }
+          });
           if (!res.ok) throw new Error('Card not found');
           const data = await res.json();
           setCard(data);
@@ -160,33 +176,116 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
     };
   };
 
-  if (loading) {
+
+  // ... (existing effects and magic click logic)
+
+  const [loadingMessage, setLoadingMessage] = useState(language === 'ka' ? 'ჯადოსნობა მზადდება...' : 'Preparing the Magic...');
+
+  useEffect(() => {
+    if (!loading) return;
+    const messages = language === 'ka' 
+      ? ['სურვილები იტვირთება...', 'სურათები მუშავდება...', 'თითქმის მზადაა...']
+      : ['Fetching wishes...', 'Processing photos...', 'Almost there...'];
+    
+    let i = 0;
+    const interval = setInterval(() => {
+      setLoadingMessage(messages[i % messages.length]);
+      i++;
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [loading, language]);
+
+  if (loading || authLoading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-slate-900 text-white">
-        <div className="w-12 h-12 border-4 border-violet-400 border-t-white rounded-full animate-spin" />
+      <div className="h-screen flex flex-col items-center justify-center bg-slate-900 text-white p-10 text-center">
+        <div className="relative w-20 h-20 mb-8">
+           <div className="absolute inset-0 w-full h-full border-4 border-violet-500/20 rounded-full" />
+           <div className="absolute inset-0 w-full h-full border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+        <div className="space-y-2">
+          <div className="text-xl font-bold animate-pulse text-white">{loadingMessage}</div>
+          <div className="text-xs font-black tracking-[0.3em] uppercase text-violet-400">
+             {authLoading ? (language === 'ka' ? 'იდენტობის მოწმება...' : 'Verifying Identity...') : (language === 'ka' ? 'გთხოვთ დაელოდოთ' : 'Please wait')}
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (error || !card) {
+  // Normalize card data for visibility check
+  const isPublic = card?.isPublic ?? card?.IsPublic ?? false;
+  
+  // Case-insensitive ID comparison for GUIDs (handle both creatorId and CreatorId)
+  const cardCreatorId = (card?.creatorId || card?.CreatorId)?.toString()?.toLowerCase();
+  const currentUserId = user?.id?.toString()?.toLowerCase();
+  const isOwner = currentUserId && cardCreatorId === currentUserId;
+
+  // Debugging ownership (will show in subagent log)
+  if (!isPublic && !isOwner) {
+    console.log("🔒 Access Blocked:", {
+      cardId,
+      cardCreatorId,
+      currentUserId,
+      isOwner,
+      isPublic,
+      user
+    });
+  }
+
+  if (error || !card || (!isPublic && !previewData && !isOwner)) {
     return (
       <div className="h-screen flex items-center justify-center bg-slate-900 text-white">
         <div className="text-center px-6">
-          <div className="text-6xl mb-6 font-bold">🏜️</div>
-          <h1 className="text-4xl font-black mb-4">{language === 'ka' ? 'ბარათი არ მოიძებნა!' : language === 'ru' ? 'Открытка отсутствует!' : 'Card Missing!'}</h1>
-          <p className="text-slate-400 mb-8 max-w-md">{language === 'ka' ? 'შესაძლოა ბარათს გაუვიდა ვადა ან ლინკი არასწორია.' : language === 'ru' ? 'Возможно, срок действия этой открытки истек или ссылка неверна.' : 'This card might have expired or the link is incorrect.'}</p>
+          <div className="text-6xl mb-6 font-bold">🔒</div>
+          <h1 className="text-4xl font-black mb-4">{language === 'ka' ? 'ბარათი ჯერ არ არის გამოქვეყნებული' : 'Card Not Published Yet'}</h1>
+          <p className="text-slate-400 mb-8 max-w-md">{language === 'ka' ? 'გთხოვთ გამოაქვეყნოთ ბარათი პირადი კაბინეტიდან, რათა ლინკი გააქტიურდეს.' : 'Please publish the card from your cabinet to activate this link.'}</p>
           <button 
             onClick={() => navigate('/')} 
             className="bg-white text-slate-900 px-8 py-3 rounded-full font-bold hover:bg-slate-200 transition-all cursor-pointer"
           >
-            {language === 'ka' ? 'შექმენი შენი საკუთარი ბარათი ✨' : language === 'ru' ? 'Создать свою собственную открытку ✨' : 'Create Your Own Card ✨'}
+            {language === 'ka' ? 'მთავარ გვერდზე დაბრუნება ✨' : 'Go to Homepage ✨'}
           </button>
         </div>
       </div>
     );
   }
 
-  const { heading, message1, message2, footer, audioUrl, templateId } = card;
+  const heading = card.heading ?? card.Heading;
+  const message1 = card.message1 ?? card.Message1;
+  const message2 = card.message2 ?? card.Message2;
+  const footer = card.footer ?? card.Footer;
+  const templateId = card.templateId ?? card.TemplateId;
+  const imagesJson = card.imagesJson ?? card.ImagesJson;
+  const audioUrl = card.audioUrl ?? card.AudioUrl ?? card.content?.audioUrl;
+
+  // Helper to safely check if it's a memory card
+  const isMemoryCard = () => {
+    if (categoryId === 'memory') return true;
+    if (!imagesJson) return false;
+    try {
+      // If it's already an object, use it; otherwise parse it
+      const data = typeof imagesJson === 'string' ? JSON.parse(imagesJson) : imagesJson;
+      return data && (data.type === 'memory' || data.galleries);
+    } catch (e) {
+      console.error("Memory card check failed:", e);
+      return false;
+    }
+  };
+
+  if (isMemoryCard()) {
+    return <MemoryCardView card={card} onBackToEdit={onBackToEdit} />;
+  }
+
+  const isLoveCard = () => {
+    if (categoryId === 'love') return true;
+    if (card.templateId?.startsWith('l')) return true;
+    return false;
+  };
+
+  if (isLoveCard()) {
+    return <LoveCardView card={card} onBackToEdit={onBackToEdit} />;
+  }
+
   const style = card.style || card.template || {};
   const { bgGradient = 'from-indigo-600 to-violet-700', emoji = '✨' } = style;
 

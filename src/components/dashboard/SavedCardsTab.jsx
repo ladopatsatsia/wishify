@@ -3,6 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import PublishModal from '../profile/PublishModal';
+import { CARDS_URL } from '../../api/config';
+
+function normalizeCard(card) {
+  return {
+    ...card,
+    id: card.id ?? card.Id,
+    creatorId: card.creatorId ?? card.CreatorId,
+    templateId: card.templateId ?? card.TemplateId,
+    heading: card.heading ?? card.Heading,
+    message1: card.message1 ?? card.Message1,
+    message2: card.message2 ?? card.Message2,
+    footer: card.footer ?? card.Footer,
+    isPublic: card.isPublic ?? card.IsPublic ?? false,
+    customBgGradient: card.customBgGradient ?? card.CustomBgGradient,
+    customEmoji: card.customEmoji ?? card.CustomEmoji,
+    imagesJson: card.imagesJson ?? card.ImagesJson,
+  };
+}
 
 export default function SavedCardsTab() {
   const { user, logout } = useAuth();
@@ -10,28 +28,41 @@ export default function SavedCardsTab() {
   const { language, t } = useLanguage();
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [publishModal, setPublishModal] = useState({ open: false, card: null });
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
-  useEffect(() => {
+  const fetchCards = async () => {
     if (!user) return;
-    const fetchSavedCards = async () => {
-      try {
-        const response = await fetch('https://localhost:44328/api/cards/user', {
-          headers: { 'Authorization': `Bearer ${user.token}` }
-        });
-        if (response.status === 401) { logout(); navigate('/login'); return; }
-        if (!response.ok) throw new Error('Failed to fetch saved cards');
-        const data = await response.json();
-        setCards(data.map(c => ({ ...c, isPublic: c.isPublic ?? c.IsPublic })));
-      } catch (err) {
+    setLoading(true);
+    setError(null);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(`${CARDS_URL}/user`, {
+        headers: { 'Authorization': `Bearer ${user.token}` },
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (response.status === 401) { logout(); navigate('/login'); return; }
+      if (!response.ok) throw new Error('Failed to fetch saved cards');
+      const data = await response.json();
+      setCards(data.map(normalizeCard));
+    } catch (err) {
+      clearTimeout(timeout);
+      if (err.name !== 'AbortError') {
         console.error('Error fetching cards:', err);
-      } finally {
-        setLoading(false);
+        setError(language === 'ka' ? 'ბარათები ვერ ჩაიტვირთა. შეამოწმეთ კავშირი.' : 'Could not load cards. Check connection.');
       }
-    };
-    fetchSavedCards();
-  }, [user, navigate, logout]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCards();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleDelete = async (cardId) => {
     if (confirmDeleteId !== cardId) {
@@ -40,7 +71,7 @@ export default function SavedCardsTab() {
       return;
     }
     try {
-      const response = await fetch(`https://localhost:44328/api/cards/${cardId}`, {
+      const response = await fetch(`${CARDS_URL}/${cardId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
@@ -66,6 +97,21 @@ export default function SavedCardsTab() {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white/80 backdrop-blur rounded-3xl p-14 text-center border border-red-100/80 shadow-sm">
+        <div className="text-6xl mb-4">⚠️</div>
+        <h3 className="text-xl font-bold text-slate-700 mb-3">{error}</h3>
+        <button
+          onClick={fetchCards}
+          className="bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold py-3 px-10 rounded-xl hover:opacity-90 transition shadow-lg shadow-violet-200 cursor-pointer"
+        >
+          {language === 'ka' ? '🔄 ხელახლა ცდა' : '🔄 Retry'}
+        </button>
       </div>
     );
   }
@@ -116,19 +162,25 @@ export default function SavedCardsTab() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full -ml-12 -mb-12 blur-xl" />
 
+              {/* Left Badge: Saved */}
+              <div className="absolute top-5 left-5 z-20 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-white/40 backdrop-blur text-slate-900 border border-white/20 shadow-lg pointer-events-none">
+                <span>💾</span> {language === 'ka' ? 'შენახული' : language === 'ru' ? 'Сохранено' : 'Saved'}
+              </div>
+
+              {/* Right Badge: Publish Toggle */}
               <button
                 onClick={() => handleTogglePublish(card.id)}
                 title={card.isPublic ? 'Click to make Private' : 'Click to Publish'}
                 className={`absolute top-5 right-5 z-20 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-1.5 border border-white/20 ${
                   card.isPublic
                     ? 'bg-emerald-500 text-white hover:bg-emerald-600 scale-105'
-                    : 'bg-white/10 backdrop-blur text-white hover:bg-white/20'
+                    : 'bg-white/40 backdrop-blur text-slate-900 hover:bg-white/60'
                 }`}
               >
                 <span>{card.isPublic ? '🌐' : '🔒'}</span>
                 {card.isPublic
                   ? (language === 'ka' ? 'გამოქვეყნებული' : language === 'ru' ? 'Опубликовано' : 'Published')
-                  : (language === 'ka' ? 'პირადი' : language === 'ru' ? 'Личная' : 'Private')}
+                  : (language === 'ka' ? 'გამოქვეყნება' : language === 'ru' ? 'Опубликовать' : 'Publish')}
               </button>
 
               <div className="flex flex-col h-full p-8 text-center relative z-10">
@@ -138,17 +190,43 @@ export default function SavedCardsTab() {
 
                 <div className="mt-auto grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => navigate(`/birthday-card/${card.id}`, { state: { from: '/dashboard#saved' } })}
-                    className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer"
+                    onClick={() => {
+                      let category = 'birthday';
+                      if (card.templateId?.startsWith('m')) category = 'memory';
+                      else if (card.templateId?.startsWith('l')) category = 'love';
+                      else if (card.imagesJson && (typeof card.imagesJson === 'string' ? card.imagesJson.includes('memory') : card.imagesJson.type === 'memory')) category = 'memory';
+                      
+                      if (category === 'birthday') {
+                        navigate(`/birthday-card/${card.id}`);
+                      } else {
+                        navigate(`/view/${category}/${card.id}`);
+                      }
+                    }}
+                    className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer items-center gap-1.5"
                   >
                     👀 {language === 'ka' ? 'ნახვა' : language === 'ru' ? 'Просмотр' : 'View'}
                   </button>
                   <button
+                    onClick={() => {
+                      let categoryId = 'birthday';
+                      if (card.templateId?.startsWith('m')) categoryId = 'memory';
+                      else if (card.templateId?.startsWith('l')) categoryId = 'love';
+                      else if (card.imagesJson && (typeof card.imagesJson === 'string' ? card.imagesJson.includes('memory') : card.imagesJson.type === 'memory')) categoryId = 'memory';
+                      
+                      navigate(`/edit/${categoryId}/${card.id}`);
+                    }}
+                    className="w-full bg-violet-600 text-white text-sm font-bold py-2.5 rounded-xl shadow-sm hover:bg-violet-700 transition-all flex justify-center cursor-pointer items-center gap-1.5"
+                  >
+                    ✏️ {language === 'ka' ? 'შეცვლა' : language === 'ru' ? 'Смена' : 'Edit'}
+                  </button>
+                </div>
+                <div className="mt-2">
+                  <button
                     onClick={() => handleDelete(card.id)}
-                    className={`w-full text-sm font-bold py-2.5 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer ${
+                    className={`w-full text-xs font-bold py-2.5 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer ${
                       confirmDeleteId === card.id
                         ? 'bg-red-500 text-white shadow-red-500/30 hover:bg-red-600 animate-pulse'
-                        : 'bg-red-100 backdrop-blur text-red-600 hover:bg-red-200 hover:shadow-md'
+                        : 'bg-red-50 text-red-600 hover:bg-red-100 hover:shadow-md'
                     }`}
                   >
                     {confirmDeleteId === card.id

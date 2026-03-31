@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import Card from './Card';
+import { CARDS_URL, TEMPLATES_URL } from '../api/config';
+import { useAuth } from '../context/AuthContext';
 import { cardsData, categories } from '../data/cardsData';
 
 function useFadeIn(ref) {
@@ -21,18 +23,42 @@ function useFadeIn(ref) {
   }, [ref]);
 }
 
-const API_BASE_URL = 'https://localhost:44328/api/templates';
+const API_BASE_URL = TEMPLATES_URL;
 
 export default function CardsBrowser() {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const ref = useRef(null);
   const { language } = useLanguage();
+  const { user } = useAuth();
   const [categoriesList, setCategoriesList] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasPublishedCards, setHasPublishedCards] = useState(false);
 
   useFadeIn(ref);
+
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      if (!user) {
+        setHasPublishedCards(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${CARDS_URL}/user`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Check if user has any cards with a urlSlug (published/sent)
+          setHasPublishedCards(data.some(c => c.urlSlug || c.UrlSlug));
+        }
+      } catch (err) {
+        console.error("Error fetching user stats:", err);
+      }
+    };
+    fetchUserStats();
+  }, [user]);
 
   const activeCategory = categoryId || 'all';
 
@@ -106,28 +132,105 @@ export default function CardsBrowser() {
       <div className="max-w-7xl mx-auto">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-violet-600 font-semibold hover:gap-3 transition-all mb-8 group cursor-pointer"
+          className="flex items-center gap-2 text-violet-600 font-semibold hover:gap-3 transition-all mb-4 group cursor-pointer"
         >
           <span className="group-hover:-translate-x-1 transition-transform">←</span> {language === 'ka' ? 'მთავარ გვერდზე დაბრუნება' : language === 'ru' ? 'Вернуться на главную' : 'Back to Home'}
         </button>
 
-        <div ref={ref} className="fade-in-section mb-10">
+        {!loading && templates.length > 0 && (
+          <div className="mb-0 animate-in fade-in slide-in-from-left-4 duration-700">
+            <div className="bg-gradient-to-r from-violet-100/40 to-pink-100/40 backdrop-blur-sm rounded-t-3xl p-4 sm:p-5 border border-white/50 flex items-center gap-4 shadow-sm">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl shadow-sm animate-pulse shrink-0">
+                ✨
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-black text-slate-800 tracking-tight leading-none mb-1">
+                  {language === 'ka' ? 'სიახლეები გზაშია!' : language === 'ru' ? 'Новинки уже в пути!' : 'New Magic is Coming!'}
+                </h4>
+                <p className="text-[11px] text-slate-500 italic leading-tight">
+                  {language === 'ka' 
+                    ? 'ჩვენს კოლექციას პერიოდულად ახალი, უფრო მეტად ჯადოსნური შაბლონები ემატება. თვალი ადევნეთ სიახლეებს!' 
+                    : language === 'ru' ? 'В нашу коллекцию периодически добавляются новые, еще более волшебные шаблоны. Следите за обновлениями!'
+                    : 'New, even more magical templates are added to our collection periodically.'}
+                </p>
+              </div>
+              <div className="hidden md:block px-3 py-1 bg-white/50 rounded-full text-[9px] font-black text-violet-500 uppercase tracking-widest border border-white whitespace-nowrap">
+                 {language === 'ka' ? 'ყოველკვირეული განახლებები' : language === 'ru' ? 'Еженедельные обновления' : 'Weekly Updates'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cards grid - Attached directly to the banner */}
+        <div className={`grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16 p-6 bg-white/30 backdrop-blur-sm border border-white/50 ${templates.length > 0 ? 'rounded-b-3xl' : 'rounded-3xl'}`}>
+          {loading ? (
+            <div className="col-span-full py-20 text-center">
+              <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-slate-500 font-bold">{language === 'ka' ? 'ჯადოსნური შაბლონები იტვირთება...' : language === 'ru' ? 'Загрузка магических шаблонов...' : 'Loading magical templates...'}</p>
+            </div>
+          ) : (
+            <>
+              {templates.map((card, idx) => (
+                <Card key={card.id} card={card} categoryId={activeCategory} hasPublishedCards={hasPublishedCards} />
+              ))}
+              {templates.length === 0 && (
+                <div className="col-span-full py-20 text-center animate-in fade-in zoom-in duration-700">
+                  {activeCategory === 'holiday' || activeCategory === 'invitation' ? (
+                    <>
+                      <div className="text-8xl mb-6 animate-bounce-slow">
+                        {activeCategory === 'holiday' ? '✨🎁🎄' : '💌🥂✨'}
+                      </div>
+                      <h3 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">
+                        {activeCategory === 'holiday' 
+                          ? (language === 'ka' ? 'სადღესასწაულო მაგია მზადების პროცესშია...' : language === 'ru' ? 'Праздничное волшебство готовится...' : 'Holiday Magic is Brewing...')
+                          : (language === 'ka' ? 'სპეციალური მოსაწვევები მზადების პროცესშია...' : language === 'ru' ? 'Специальные приглашения уже скоро...' : 'Special Invitations are Coming...')}
+                      </h3>
+                      <p className="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed italic">
+                        {activeCategory === 'holiday' 
+                          ? (language === 'ka' 
+                              ? 'ჩვენი დიზაინერები და ელფები დაუღალავად მუშაობენ ახალ, მრავალფეროვან შაბლონებზე. ძალიან მალე აქ რაღაც განსაკუთრებული დაგხვდებათ! 🎄✨' 
+                              : language === 'ru' ? 'Наши дизайнеры и эльфы неустанно работают над новыми тематическими шаблонами. Совсем скоро здесь появится что-то особенное! 🎄✨'
+                              : 'Our designers and elves are tirelessly working on new, diverse templates. Something special will appear here very soon! 🎁✨')
+                          : (language === 'ka'
+                              ? 'ჩვენ ვქმნით ელეგანტურ და დასამახსოვრებელ შაბლონებს თქვენი განსაკუთრებული დღეებისთვის. ძალიან მალე აქ საოცარი სიახლეები დაგხვდებათ! 🥂💍'
+                              : language === 'ru' ? 'Мы создаем элегантные и запоминающиеся шаблоны для ваших особенных дней. Совсем скоро здесь появятся удивительные новинки! 🥂💍'
+                              : 'We are creating elegant and memorable templates for your special days. Amazing updates will appear here very soon! 💌✨')}
+                      </p>
+                      <div className="mt-10 inline-flex items-center gap-2 px-6 py-2 bg-green-50 text-green-600 rounded-full font-bold text-sm border border-green-100">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        {language === 'ka' ? 'მალე დაემატება' : language === 'ru' ? 'Скоро' : 'Coming Soon'}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-6xl mb-4">🔍</div>
+                      <h3 className="text-xl font-bold text-slate-800">{language === 'ka' ? 'ამ კატეგორიაში ბარათები არ მოიძებნა' : language === 'ru' ? 'В этой категории открыток не найдено' : 'No cards found in this category'}</h3>
+                      <p className="text-slate-500">{language === 'ka' ? 'მოგვიანებით შემოწმეთ ახალი დიზაინები!' : language === 'ru' ? 'Заходите позже, чтобы увидеть новые дизайны!' : 'Check back later for new designs!'}</p>
+                    </>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Category Navigation and Info - Moved BELOW cards grid */}
+        <div ref={ref} className="fade-in-section mb-10 pt-10 border-t border-slate-200/50">
           <div className="flex items-center gap-4 mb-3">
-            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${cat?.color} flex items-center justify-center text-3xl shadow-lg animate-bounce-slow`}>
+            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${cat?.color} flex items-center justify-center text-3xl shadow-lg animate-bounce-slow shrink-0`}>
               {cat?.emoji}
             </div>
             <div>
-              <h2 className="text-4xl font-extrabold text-slate-900">
+              <h2 className="text-3xl font-extrabold text-slate-900">
                 {language === 'ka' 
                   ? (activeCategory === 'birthday' ? 'დაბადების დღის' : activeCategory === 'invitation' ? 'მოწვევის' : activeCategory === 'memory' ? 'მოგონების' : activeCategory === 'love' ? 'სიყვარულის' : activeCategory === 'holiday' ? 'დღესასწაულის' : activeCategory) + ' ბარათები'
-                  : language === 'ru' ? (activeCategory === 'birthday' ? 'Дня рождения' : activeCategory === 'invitation' ? 'Пригласительные' : activeCategory === 'memory' ? 'Памятные' : activeCategory === 'love' ? 'Любовные' : activeCategory === 'holiday' ? 'Праздничные' : activeCategory) + ' открытки'
-                  : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1) + ' Cards'}
+                  : language === 'ru' ? (activeCategory === 'birthday' ? 'Дня рождения' : activeCategory === 'invitation' ? 'Пригласительные' : activeCategory === 'memory' ? 'Пამятные' : activeCategory === 'love' ? 'Любовные' : activeCategory === 'holiday' ? 'Праздничные' : activeCategory) + ' открытки'
+                  : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1) + ' Templates'}
               </h2>
-              <p className="text-slate-500 text-lg">{language === 'ka' ? 'აირჩიეთ საბაზისო დიზაინი და გახადეთ უნიკალური.' : language === 'ru' ? 'Выберите базовый дизайн и сделайте его уникальным.' : 'Choose a base design and make it unique.'}</p>
+              <p className="text-slate-400 text-sm mt-1">{language === 'ka' ? 'აღმოაჩინეთ სხვა კატეგორიები' : 'Explore other categories'}</p>
             </div>
           </div>
 
-          {/* Category nav tabs */}
           <div className="flex flex-wrap gap-2 mt-6">
             <button
               onClick={() => navigate('/browse/all')}
@@ -151,29 +254,6 @@ export default function CardsBrowser() {
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Cards grid - Optimized for 100+ cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {loading ? (
-            <div className="col-span-full py-20 text-center">
-              <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-slate-500 font-bold">{language === 'ka' ? 'ჯადოსნური შაბლონები იტვირთება...' : language === 'ru' ? 'Загрузка магических шаблонов...' : 'Loading magical templates...'}</p>
-            </div>
-          ) : (
-            <>
-              {templates.map((card, idx) => (
-                <Card key={card.id} card={card} categoryId={activeCategory} />
-              ))}
-              {templates.length === 0 && (
-                <div className="col-span-full py-20 text-center">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-xl font-bold text-slate-800">{language === 'ka' ? 'ამ კატეგორიაში ბარათები არ მოიძებნა' : language === 'ru' ? 'В этой категории открыток не найдено' : 'No cards found in this category'}</h3>
-                  <p className="text-slate-500">{language === 'ka' ? 'მოგვიანებით შემოწმეთ ახალი დიზაინები!' : language === 'ru' ? 'Заходите позже, чтобы увидеть новые дизайны!' : 'Check back later for new designs!'}</p>
-                </div>
-              )}
-            </>
-          )}
         </div>
       </div>
     </div>

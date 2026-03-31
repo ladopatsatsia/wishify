@@ -105,7 +105,8 @@ const translations = {
       pass: "Password",
       name: "Full Name",
       btn_login: "Sign In",
-      btn_signup: "Create Account"
+      btn_signup: "Create Account",
+      login_required: "Please log in to save your cards!"
     },
     dashboard: {
       saved_title: "My Saved Cards",
@@ -146,19 +147,81 @@ const translations = {
       live_at: "Your gift is now live at:"
     },
     editor: {
-      title: "Birthday Card Editor",
-      desc: "Personalize every detail",
-      live: "Live Preview",
-      settings: "Card Settings",
-      recipient: "Recipient's Name or Title",
-      message: "Your Message",
-      signature: "Signature / From",
-      photos: "Upload Photos (Max 4)",
-      photos_sub: "Add some favorite memories",
-      music: "Background Music",
-      box: "Add Gift Box Link?",
-      btn_save: "Save Changes",
-      btn_preview: "Preview Full Card"
+      common: {
+        back: "Back",
+        preview: "Preview",
+        save: "Save",
+        saving: "Saving...",
+        saved_success: "Card successfully saved!",
+        go_to_cabinet: "Go to Cabinet",
+        read_only_warn: "Published card (Read-Only)",
+        live_preview: "Live Preview",
+        preview_sub: "How it will look...",
+        music: "Music",
+        photos: "Photos",
+        upload_limit: "Upload up to 4 images",
+        add: "Add",
+        uploading: "Uploading...",
+        uploading_failed: "Upload failed",
+        upload_error: "Error during upload",
+        change_song: "Switch the Vibe ✨",
+        find_melody: "Find Your Melody",
+        creative_mode: "Creative Mode",
+        copy: "Copy",
+        copy_success: "Link copied!"
+      },
+      birthday: {
+        studio: "Birthday Studio",
+        title: "Title",
+        title_placeholder: "Happy Birthday!",
+        message: "Message",
+        message_placeholder: "Write your heartfelt message...",
+        signature: "Signature",
+        signature_placeholder: "With Love ❤️",
+        magic_music: "Magic Music Search",
+        gift_link: "Gift Link",
+        gift_sub: "Add a clickable surprise",
+        gift_placeholder: "https://example.com/gift..."
+      },
+      memory: {
+        studio: "Memory Studio",
+        main_heading: "Main Heading",
+        heading_placeholder: "Enter Title...",
+        galleries: "Galleries",
+        add_gallery: "Add Gallery",
+        gallery_name: "Gallery Name",
+        gallery_placeholder: "Enter gallery name...",
+        photos_count: "Photos",
+        secure_memories: "End-to-end Encrypted Memories",
+        no_photos: "No photos here yet",
+        click_to_upload: "Click to start uploading your magic moments",
+        add_photos: "Add Photos",
+        remove: "Remove",
+        limit_alert: "Maximum 25 photos in total per gallery!"
+      },
+      love: {
+        studio: "Love Letter Studio",
+        title: "Love Letter Editor",
+        sub_title: "Create a Masterpiece",
+        who_is_for: "Who is this for?",
+        message: "The Message",
+        message_placeholder: "Pour your heart out here...",
+        final_wish: "Final Wish",
+        signature: "Your Signature",
+        photo: "Your Special Photo",
+        upload_photo: "Upload Photo",
+        change_photo: "Change Photo",
+        locked: "Locked",
+        save_letter: "Save Letter ✨"
+      }
+    },
+    music_search: {
+      title: "Magic Music Library ✨",
+      sub: "Power of iTunes Search",
+      placeholder: "Search for song or artist...",
+      no_results: "No results found...",
+      start_typing: "Start typing to find magic",
+      add: "Add ✨"
     }
   },
   ka: {
@@ -235,7 +298,8 @@ const translations = {
       pass: "პაროლი",
       name: "სრული სახელი",
       btn_login: "შესვლა",
-      btn_signup: "რეგისტრაცია"
+      btn_signup: "რეგისტრაცია",
+      login_required: "გთხოვთ გაიაროთ ავტორიზაცია თქვენი ბარათების შესანახად!"
     },
     dashboard: {
       saved_title: "ჩემი შენახული ბარათები",
@@ -276,19 +340,81 @@ const translations = {
       live_at: "თქვენი საჩუქარი ახლა განთავსებულია აქ:"
     },
     editor: {
-      title: "დაბადების დღის ბარათის რედაქტორი",
-      desc: "დეტალების პერსონალიზაცია",
-      live: "ლაივ გადახედვა",
-      settings: "პარამეტრები",
-      recipient: "მიმღების სახელი ან სათაური",
-      message: "თქვენი მესიჯი",
-      signature: "ხელმოწერა / ვისგან",
-      photos: "ატვირთე ფოტოები (მაქსიმუმ 4)",
-      photos_sub: "დაამატე საუკეთესო მოგონებები",
-      music: "ფონური მუსიკა",
-      box: "სასაჩუქრე ყუთის ლინკი?",
-      btn_save: "ცვლილებების შენახვა",
-      btn_preview: "სრული გადახედვა"
+      common: {
+        back: "უკან",
+        preview: "პრევიუ",
+        save: "შენახვა",
+        saving: "ინახება...",
+        saved_success: "ბარათი წარმატებით შეინახა!",
+        go_to_cabinet: "პირადი კაბინეტი",
+        read_only_warn: "გამოქვეყნებული ბარათის რედაქტირება შეუძლებელია",
+        live_preview: "ლაივ პრევიუ",
+        preview_sub: "ნახე როგორ გამოჩნდება...",
+        music: "მუსიკა",
+        photos: "სურათები",
+        upload_limit: "ატვირთეთ მაქსიმუმ 4 სურათი",
+        add: "დამატება",
+        uploading: "იტვირთება...",
+        uploading_failed: "ატვირთვა ვერ მოხერხდა",
+        upload_error: "შეცდომა ატვირთვისას",
+        change_song: "შეცვალე ჰანგი ✨",
+        find_melody: "იპოვე შენი მელოდია",
+        creative_mode: "Creative Mode",
+        copy: "კოპირება",
+        copy_success: "ლინკი კოპირებულია!"
+      },
+      birthday: {
+        studio: "Birthday სტუდია",
+        title: "სათაური",
+        title_placeholder: "გილოცავ დაბადების დღეს!",
+        message: "ტექსტი",
+        message_placeholder: "დაწერეთ თქვენი გულწრფელი მესიჯი...",
+        signature: "ხელმოწერა",
+        signature_placeholder: "სიყვარულით ❤️",
+        magic_music: "მეჯიქ მუსიკა",
+        gift_link: "საჩუქრის ლინკი",
+        gift_sub: "დაამატე სიურპრიზი",
+        gift_placeholder: "https://example.com/gift..."
+      },
+      memory: {
+        studio: "Memory სტუდია",
+        main_heading: "საწყისი სათაური",
+        heading_placeholder: "ჩაწერეთ სათაური...",
+        galleries: "გალერეები",
+        add_gallery: "გალერეის დამატება",
+        gallery_name: "გალერეის სახელი",
+        gallery_placeholder: "შეიყვანეთ სახელი...",
+        photos_count: "ფოტოები",
+        secure_memories: "მონაცემები დაცულია",
+        no_photos: "აქ ფოტოები ჯერ არ არის",
+        click_to_upload: "დააკლიკეთ ასატვირთად",
+        add_photos: "ფოტოების დამატება",
+        remove: "წაშლა",
+        limit_alert: "ჯამში მაქსიმუმ 25 ფოტო!"
+      },
+      love: {
+        studio: "სიყვარულის სტუდია",
+        title: "სიყვარულის წერილი",
+        sub_title: "შექმენი მოგონება",
+        who_is_for: "ვისთვის არის?",
+        message: "შენი წერილი",
+        message_placeholder: "დაწერე შენი გრძნობები აქ...",
+        final_wish: "დამასრულებელი სურვილი",
+        signature: "ხელმოწერა",
+        photo: "საყვარელი ფოტო",
+        upload_photo: "ატვირთვა",
+        change_photo: "შეცვლა",
+        locked: "დაბლოკილია",
+        save_letter: "შენახვა ✨"
+      }
+    },
+    music_search: {
+      title: "მუსიკალური ბიბლიოთეკა ✨",
+      sub: "Power of iTunes Search",
+      placeholder: "ჩაწერეთ სიმღერა ან მომღერალი...",
+      no_results: "შედეგი ვერ მოიძებნა",
+      start_typing: "დაიწყე ძებნა ჯადოსნობისთვის",
+      add: "დამატება ✨"
     }
   },
   ru: {
@@ -362,10 +488,11 @@ const translations = {
       signup_title: "Присоединяйтесь к Wishyfy",
       signup_desc: "Начните создавать магические открытки сегодня",
       email: "Электронная почта",
-      pass: "Пароль",
+      pass: "Password",
       name: "Полное имя",
       btn_login: "Войти",
-      btn_signup: "Создать аккаунт"
+      btn_signup: "Создать аккаунт",
+      login_required: "Пожалуйста, войдите, чтобы сохранить Ваши открытки!"
     },
     dashboard: {
       saved_title: "Мои сохраненные открытки",
@@ -406,19 +533,81 @@ const translations = {
       live_at: "Ваш подарок доступен по ссылке:"
     },
     editor: {
-      title: "Редактор открыток",
-      desc: "Персонализируйте каждую деталь",
-      live: "Предпросмотр",
-      settings: "Настройки открытки",
-      recipient: "Имя получателя",
-      message: "Ваше сообщение",
-      signature: "Подпись / От кого",
-      photos: "Загрузить фото (макс. 4)",
-      photos_sub: "Добавьте любимые воспоминания",
-      music: "Фоновая музыка",
-      box: "Добавить ссылку на подарок?",
-      btn_save: "Сохранить изменения",
-      btn_preview: "Полный предпросмотр"
+      common: {
+        back: "Назад",
+        preview: "Превью",
+        save: "Сохранить",
+        saving: "Сохранение...",
+        saved_success: "Открытка успешно сохранена!",
+        go_to_cabinet: "Личный кабинет",
+        read_only_warn: "Опубликованную открытку редактировать нельзя",
+        live_preview: "Предпросмотр",
+        preview_sub: "Как это будет выглядеть...",
+        music: "Музыка",
+        photos: "Фотографии",
+        upload_limit: "Загрузите до 4-х фото",
+        add: "Добавить",
+        uploading: "Загрузка...",
+        uploading_failed: "Загрузка не удалась",
+        upload_error: "Ошибка при загрузке",
+        change_song: "Сменить мотив ✨",
+        find_melody: "Найдите свою мелодию",
+        creative_mode: "Creative Mode",
+        copy: "Копировать",
+        copy_success: "Ссылка скопирована!"
+      },
+      birthday: {
+        studio: "Студия Дня Рождения",
+        title: "Заголовок",
+        title_placeholder: "С днем рождения!",
+        message: "Сообщение",
+        message_placeholder: "Напишите ваше искреннее сообщение...",
+        signature: "Подпись",
+        signature_placeholder: "С любовью ❤️",
+        magic_music: "Магический поиск музыки",
+        gift_link: "Ссылка на подарок",
+        gift_sub: "Добавьте кликабельный сюрприз",
+        gift_placeholder: "https://example.com/gift..."
+      },
+      memory: {
+        studio: "Студия памяти",
+        main_heading: "Главный заголовок",
+        heading_placeholder: "Введите заголовок...",
+        galleries: "Галереи",
+        add_gallery: "Добавить галерею",
+        gallery_name: "Название галереи",
+        gallery_placeholder: "Введите название галереи...",
+        photos_count: "Фото",
+        secure_memories: "Воспоминания под защитой",
+        no_photos: "Фотографий пока нет",
+        click_to_upload: "Нажмите, чтобы начать загрузку ваших моментов",
+        add_photos: "Добавить фото",
+        remove: "Удалить",
+        limit_alert: "Максимум 25 фотографий в одной галерее!"
+      },
+      love: {
+        studio: "Студия любовных писем",
+        title: "Редактор писем",
+        sub_title: "Создайте шедевр",
+        who_is_for: "Для кого это?",
+        message: "Сообщение",
+        message_placeholder: "Выплесните свои чувства здесь...",
+        final_wish: "Финальное желание",
+        signature: "Ваша подпись",
+        photo: "Ваше особое фото",
+        upload_photo: "Загрузить",
+        change_photo: "Изменить",
+        locked: "Заблокировано",
+        save_letter: "Сохранить ✨"
+      }
+    },
+    music_search: {
+      title: "Музыкальная библиотека ✨",
+      sub: "Power of iTunes Search",
+      placeholder: "Ищите песню или артиста...",
+      no_results: "Ничего не найдено",
+      start_typing: "Начните вводить текст для поиска",
+      add: "Добавить ✨"
     }
   }
 };

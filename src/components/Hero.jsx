@@ -98,7 +98,7 @@ export default function Hero() {
               <span>🎉</span> {language === 'ka' ? 'გაახარე ყველა გაგზავნით' : language === 'ru' ? 'Дарите радость с каждой отправкой' : 'Spark Joy with Every Send'}
             </div>
             <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight text-slate-900">
-              {language === 'ka' ? 'შექმენი ჯადოსნობა ' : language === 'ru' ? 'Создавайте магию с ' : 'Create Magic with '}<span className="gradient-text">{language === 'ka' ? 'ციფრული ' : language === 'ru' ? 'цифровыми ' : 'Digital '}</span> {language === 'ka' ? 'მისალოცი ბარათებით' : language === 'ru' ? 'открытками' : 'Greeting Cards'}
+              {language === 'ka' ? 'შექმენი ჯადოსნობა ' : language === 'ru' ? 'Создавайте магию с ' : 'Create Magic with '}<span className="gradient-text">{language === 'ka' ? 'ციფრული ' : language === 'ru' ? 'цифровыми ' : 'Digital '}</span> {language === 'ka' ? 'ბარათებით' : language === 'ru' ? 'открытками' : 'Greeting Cards'}
             </h1>
             <p className="text-xl text-slate-500 leading-relaxed max-w-lg">
               {language === 'ka' ? 'პერსონალიზაცია გაუკეთე ულამაზეს შაბლონებს შენი მესიჯებითა და საყვარელი მუსიკით წამებში. გააგზავნე მოგონება, რომელიც მუდამ დარჩება.' : language === 'ru' ? 'Персонализируйте красивые шаблоны с вашими сообщениями и любимой музыкой за считанные секунды. Подарите память, которая останется навсегда.' : 'Personalize beautiful templates with your own messages and favorite music in seconds. Send a lasting memory that stands out.'}

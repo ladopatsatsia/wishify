@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { CreditCard, ExternalLink, Calendar, User, Search, Filter } from 'lucide-react';
+import { ADMIN_URL } from '../../api/config';
 
 export default function AdminCards() {
   const { user } = useAuth();
@@ -13,7 +14,7 @@ export default function AdminCards() {
   useEffect(() => {
     const fetchCards = async () => {
       try {
-        const response = await fetch('https://localhost:44328/api/admin/cards', {
+        const response = await fetch(`${ADMIN_URL}/cards`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         if (!response.ok) throw new Error('Failed to fetch cards');

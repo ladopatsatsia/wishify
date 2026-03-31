@@ -4,10 +4,18 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import ScheduleManagementModal from '../profile/ScheduleManagementModal';
 import { getScheduleFromCard } from '../profile/scheduleUtils';
+import { CARDS_URL } from '../../api/config';
 
 function normalizeCard(card) {
   return {
     ...card,
+    id: card.id ?? card.Id,
+    creatorId: card.creatorId ?? card.CreatorId,
+    templateId: card.templateId ?? card.TemplateId,
+    heading: card.heading ?? card.Heading,
+    message1: card.message1 ?? card.Message1,
+    message2: card.message2 ?? card.Message2,
+    footer: card.footer ?? card.Footer,
     isPublic: card.isPublic ?? card.IsPublic ?? false,
     isAutoSend: card.isAutoSend ?? card.IsAutoSend ?? false,
     autoSendRecipient: card.autoSendRecipient ?? card.AutoSendRecipient ?? '',
@@ -16,6 +24,9 @@ function normalizeCard(card) {
     sendMethod: card.sendMethod ?? card.SendMethod ?? 'email',
     isSent: card.isSent ?? card.IsSent ?? false,
     urlSlug: card.urlSlug ?? card.UrlSlug ?? '',
+    customBgGradient: card.customBgGradient ?? card.CustomBgGradient,
+    customEmoji: card.customEmoji ?? card.CustomEmoji,
+    imagesJson: card.imagesJson ?? card.ImagesJson,
   };
 }
 
@@ -25,32 +36,45 @@ export default function PublishedCardsTab() {
   const { language, t } = useLanguage();
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [scheduleModal, setScheduleModal] = useState({ open: false, card: null });
 
-  useEffect(() => {
+  const fetchCards = async () => {
     if (!user) return;
-    const fetchPublishedCards = async () => {
-      try {
-        const response = await fetch('https://localhost:44328/api/cards/user', {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        if (response.status === 401) { logout(); navigate('/login'); return; }
-        if (!response.ok) throw new Error('Failed to fetch cards');
-        const data = await response.json();
-        setCards(data.map(normalizeCard));
-      } catch (err) {
+    setLoading(true);
+    setError(null);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(`${CARDS_URL}/user`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (response.status === 401) { logout(); navigate('/login'); return; }
+      if (!response.ok) throw new Error('Failed to fetch cards');
+      const data = await response.json();
+      setCards(data.map(normalizeCard));
+    } catch (err) {
+      clearTimeout(timeout);
+      if (err.name !== 'AbortError') {
         console.error('Error fetching cards:', err);
-      } finally {
-        setLoading(false);
+        setError(language === 'ka' ? 'ბარათები ვერ ჩაიტვირთა. შეამოწმეთ კავშირი.' : 'Could not load cards. Check connection.');
       }
-    };
-    fetchPublishedCards();
-  }, [user, navigate, logout]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCards();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleTogglePublish = async (cardId) => {
     try {
-      const response = await fetch(`https://localhost:44328/api/cards/${cardId}/toggle-public`, {
+      const response = await fetch(`${CARDS_URL}/${cardId}/toggle-public`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -68,7 +92,7 @@ export default function PublishedCardsTab() {
       'Are you sure you want to delete this published card?';
     if (!window.confirm(msg)) return;
     try {
-      const response = await fetch(`https://localhost:44328/api/cards/${cardId}`, {
+      const response = await fetch(`${CARDS_URL}/${cardId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -87,6 +111,21 @@ export default function PublishedCardsTab() {
     return (
       <div className="flex items-center justify-center py-24">
         <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white/80 backdrop-blur rounded-3xl p-14 text-center border border-red-100/80 shadow-sm">
+        <div className="text-6xl mb-4">⚠️</div>
+        <h3 className="text-xl font-bold text-slate-700 mb-3">{error}</h3>
+        <button
+          onClick={fetchCards}
+          className="bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold py-3 px-10 rounded-xl hover:opacity-90 transition shadow-lg shadow-violet-200 cursor-pointer"
+        >
+          {language === 'ka' ? '🔄 ხელახლა ცდა' : '🔄 Retry'}
+        </button>
       </div>
     );
   }
@@ -166,8 +205,36 @@ export default function PublishedCardsTab() {
                     onClick={() => handleDelete(card.id)}
                     className="w-full bg-red-50 text-red-600 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:bg-red-100 transition-all flex justify-center cursor-pointer items-center gap-2"
                   >
-                    🗑️ {language === 'ka' ? 'წაშლა' : language === 'ru' ? 'Удалить' : 'Remove'}
+                    🗑️ {language === 'ka' ? 'წაშლა' : language === 'ru' ? 'Удаლის' : 'Remove'}
                   </button>
+                </div>
+
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      if (card.urlSlug) {
+                        const url = `http://${card.urlSlug}.localhost:5173`;
+                        window.open(url, '_blank');
+                      } else {
+                        let category = 'birthday';
+                        if (card.templateId?.startsWith('m')) category = 'memory';
+                        else if (card.templateId?.startsWith('l')) category = 'love';
+                        else if (card.imagesJson && (typeof card.imagesJson === 'string' ? card.imagesJson.includes('memory') : card.imagesJson.type === 'memory')) category = 'memory';
+                        
+                        if (category === 'birthday') {
+                          navigate(`/birthday-card/${card.id}`);
+                        } else {
+                          navigate(`/view/${category}/${card.id}`);
+                        }
+                      }
+                    }}
+                    className="w-full bg-slate-800 text-white text-[10px] font-black uppercase py-2.5 rounded-xl hover:bg-slate-900 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    👀 {language === 'ka' ? 'ნახვა' : 'View'}
+                  </button>
+                  <div className="w-full bg-slate-100 text-slate-400 text-[10px] font-black uppercase py-2.5 rounded-xl flex items-center justify-center gap-2 border border-slate-200 shadow-inner">
+                    🔒 {language === 'ka' ? 'დაბლოკილია' : 'Locked'}
+                  </div>
                 </div>
 
                 <div className="mt-2 grid grid-cols-2 gap-2">
@@ -178,11 +245,14 @@ export default function PublishedCardsTab() {
                       setCopiedId(card.id);
                       setTimeout(() => setCopiedId(null), 2000);
                     }}
-                    className="w-full bg-white/90 backdrop-blur text-slate-800 text-xs font-bold py-2 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer items-center gap-1.5"
+                    className="w-full bg-white/90 backdrop-blur text-slate-800 text-[10px] font-black uppercase py-1.5 rounded-lg shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer items-center gap-1.5"
                   >
                     {copiedId === card.id
-                      ? (language === 'ka' ? '✅ დაკოპირდა!' : language === 'ru' ? '✅ Скопировано!' : '✅ Copied!')
-                      : (language === 'ka' ? '🔗 კოპირება' : language === 'ru' ? '🔗 Скопировать' : '🔗 Copy Link')}
+                      ? (language === 'ka' ? '✅' : '✅')
+                      : (language === 'ka' ? '🔗' : '🔗')}
+                    {copiedId === card.id
+                      ? (language === 'ka' ? 'დაკოპირდა' : 'Copied')
+                      : (language === 'ka' ? 'კოპირება' : 'Copy')}
                   </button>
                   <button
                     onClick={() => handleTogglePublish(card.id)}

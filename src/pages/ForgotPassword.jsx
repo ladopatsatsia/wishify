@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { Mail, ArrowLeft, Send, CheckCircle2 } from 'lucide-react';
+import { AUTH_URL } from '../api/config';
 
 export default function ForgotPassword() {
   const { language } = useLanguage();
@@ -17,7 +18,7 @@ export default function ForgotPassword() {
     setError('');
 
     try {
-      const response = await fetch('https://localhost:44328/api/auth/forgot-password', {
+      const response = await fetch(`${AUTH_URL}/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

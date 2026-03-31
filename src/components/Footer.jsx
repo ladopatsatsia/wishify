@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import logo from '../assets/logo.jpg';
+import LegalModal from './LegalModal';
 
 export default function Footer() {
   const navigate = useNavigate();
   const { language, t } = useLanguage();
+  const [legalModalType, setLegalModalType] = useState(null); // 'privacy' | 'terms' | null
   
   const categoriesList = [
     { label: language === 'ka' ? 'დაბადების დღე 🎂' : language === 'ru' ? 'День рождения 🎂' : 'Birthday 🎂', cat: 'birthday' },
@@ -16,7 +19,7 @@ export default function Footer() {
   ];
 
   const columns = [
-    { title: language === 'ka' ? 'პროდუქტი' : language === 'ru' ? 'Продукт' : 'Product', links: ['browse', 'howItWorks', 'features', 'pricing'] },
+    { title: language === 'ka' ? 'პროდუქტი' : language === 'ru' ? 'Продукт' : 'Product', links: ['browse', 'howItWorks'] },
     { title: language === 'ka' ? 'მხარდაჭერა' : language === 'ru' ? 'Поддержка' : 'Support', links: ['help', 'contact', 'privacy', 'terms'] },
   ];
 
@@ -59,7 +62,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-slate-900 text-slate-300 pt-16 pb-8">
+    <footer className="bg-slate-900 text-slate-300 pt-16 pb-8 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top row */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
@@ -98,6 +101,9 @@ export default function Footer() {
                     <button
                       onClick={() => {
                         if (linkKey === 'browse') navigate('/browse/birthday');
+                        else if (linkKey === 'howItWorks') setLegalModalType('howItWorks');
+                        else if (linkKey === 'privacy') setLegalModalType('privacy');
+                        else if (linkKey === 'terms') setLegalModalType('terms');
                         else navigate('/');
                       }}
                       className="text-slate-400 hover:text-violet-400 transition-colors text-sm text-left cursor-pointer"
@@ -153,18 +159,33 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Copyright */}
+        {/* Copyright & Bottom Legal */}
         <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-slate-500 text-sm">
             {t('footer.rights')}
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">{language === 'ka' ? 'გვერდის წესები' : language === 'ru' ? 'Политика конфиденциальности' : 'Privacy Policy'}</a>
-            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">{language === 'ka' ? 'მოხმარების პირობები' : language === 'ru' ? 'Условия обслуживания' : 'Terms of Service'}</a>
-            <a href="#" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">Cookies</a>
+            <button 
+              onClick={() => setLegalModalType('privacy')}
+              className="text-slate-500 hover:text-slate-300 text-sm transition-colors cursor-pointer"
+            >
+              {language === 'ka' ? 'კონფიდენციალურობა' : language === 'ru' ? 'Политика конфиденциальности' : 'Privacy Policy'}
+            </button>
+            <button 
+              onClick={() => setLegalModalType('terms')}
+              className="text-slate-500 hover:text-slate-300 text-sm transition-colors cursor-pointer"
+            >
+              {language === 'ka' ? 'წესები და პირობები' : language === 'ru' ? 'Условия обслуживания' : 'Terms of Service'}
+            </button>
           </div>
         </div>
       </div>
+
+      <LegalModal 
+        isOpen={!!legalModalType} 
+        onClose={() => setLegalModalType(null)} 
+        type={legalModalType} 
+      />
     </footer>
   );
 }

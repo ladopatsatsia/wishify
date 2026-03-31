@@ -23,7 +23,11 @@ import AdminDashboard from './pages/AdminDashboard';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import MemoryCardEditor from './components/memory/MemoryCardEditor';
+import LoveLetterEditor from './components/love/LoveLetterEditor';
 import { cardsData } from './data/cardsData';
+import { useAuth } from './context/AuthContext';
+import { CARDS_URL } from './api/config';
 
 // Observe all fade-in elements on the landing page after it mounts
 function observeFadeElements() {
@@ -127,15 +131,70 @@ export default function App() {
 // Helper to wrap CardEditor and handle its logic
 function CardEditorWrapper() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const { language } = useLanguage();
   const { categoryId, cardId } = useParams();
   const catId = categoryId?.toLowerCase();
-  console.log("CardEditorWrapper Render:", { categoryId: catId, cardId });
+  const [dbCard, setDbCard] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const card = cardsData[catId]?.find(c => c.id === cardId);
-  console.log("Found Card:", card);
+  // If cardId is a GUID (long), it's likely a saved card from the DB
+  const isSavedCard = cardId && cardId.length > 20;
 
-  if (!card) return (
+  useEffect(() => {
+    if (isSavedCard && !authLoading) {
+      setLoading(true);
+      fetch(`${CARDS_URL}/${cardId}`, {
+        headers: {
+          ...(user?.token ? { 'Authorization': `Bearer ${user.token}` } : {})
+        }
+      })
+      .then(res => {
+        if (res.status === 403) throw new Error('Forbidden: Not your card');
+        if (!res.ok) throw new Error('Failed to fetch card');
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.id) setDbCard(data);
+      })
+      .catch(err => {
+        console.error("Failed to fetch saved card for editing", err);
+        setError(err.message);
+      })
+      .finally(() => setLoading(false));
+    }
+  }, [cardId, isSavedCard, user, authLoading]);
+
+  // Wait for auth to load before deciding what to do
+  if (authLoading || (isSavedCard && !dbCard && loading)) return (
+    <div className="h-screen flex items-center justify-center bg-slate-50">
+      <div className="w-10 h-10 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+    </div>
+  );
+
+  if (error) return (
+    <div className="p-20 text-center">
+      <h2 className="text-2xl font-bold text-red-600">
+        {language === 'ka' ? 'შეცდომა:' : 'Error:'} {error}
+      </h2>
+      <button onClick={() => navigate('/profile/saved')} className="mt-4 text-violet-600 cursor-pointer">
+        {language === 'ka' ? 'შენახულებში დაბრუნება' : 'Back to Saved Cards'}
+      </button>
+    </div>
+  );
+
+  const templateCard = dbCard 
+    ? cardsData[dbCard.templateId?.startsWith('m') ? 'memory' : dbCard.templateId?.startsWith('l') ? 'love' : 'birthday']?.find(t => t.id === dbCard.templateId)
+    : cardsData[catId]?.find(c => c.id === cardId);
+
+  if (loading) return (
+    <div className="h-screen flex items-center justify-center bg-slate-50">
+      <div className="w-10 h-10 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+    </div>
+  );
+
+  if (!templateCard) return (
     <div className="p-20 text-center">
       <h2 className="text-2xl font-bold">
         {language === 'ka' ? 'ბარათი არ მოიძებნა:' : language === 'ru' ? 'Открытка не найдена:' : 'Card not found:'} {cardId}
@@ -146,12 +205,38 @@ function CardEditorWrapper() {
     </div>
   );
 
+  // If it's a memory card
+  if (templateCard.id?.startsWith('m') || dbCard?.templateId?.startsWith('m')) {
+    return (
+      <MemoryCardEditor
+        card={dbCard || templateCard}
+        category={categoryId || 'memory'}
+        onBack={() => navigate(-1)}
+        onClose={() => navigate('/profile/saved')}
+      />
+    );
+  }
+
+  // If it's a love letter
+  if (templateCard.id?.startsWith('l') || dbCard?.templateId?.startsWith('l')) {
+    return (
+      <LoveLetterEditor
+        card={dbCard || templateCard}
+        existingCard={dbCard}
+        category={categoryId || 'love'}
+        onBack={() => navigate(-1)}
+        onClose={() => navigate('/profile/saved')}
+      />
+    );
+  }
+
   return (
     <CardEditor
-      card={card}
-      category={categoryId}
-      onBack={() => navigate(`/browse/${categoryId}`)}
-      onClose={() => navigate(`/browse/${categoryId}`)}
+      card={templateCard}
+      existingCard={dbCard}
+      category={categoryId || 'birthday'}
+      onBack={() => navigate(-1)}
+      onClose={() => navigate('/profile/saved')}
     />
   );
 }

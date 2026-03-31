@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { CARDS_URL } from '../api/config';
 import PublishModal from '../components/profile/PublishModal';
 
 export default function SavedCards() {
@@ -22,7 +23,7 @@ export default function SavedCards() {
 
     const fetchSavedCards = async () => {
       try {
-        const response = await fetch('https://localhost:44328/api/cards/user', {
+        const response = await fetch(`${CARDS_URL}/user`, {
           headers: {
             'Authorization': `Bearer ${user.token}`
           }
@@ -67,7 +68,7 @@ export default function SavedCards() {
     }
 
     try {
-      const response = await fetch(`https://localhost:44328/api/cards/${cardId}`, {
+      const response = await fetch(`${CARDS_URL}/${cardId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token}`
@@ -115,7 +116,7 @@ export default function SavedCards() {
             {language === 'ka' ? 'ჩემი ' : language === 'ru' ? 'Мои ' : 'My '}<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">{language === 'ka' ? 'შენახული ბარათები' : language === 'ru' ? 'Сохраненные открытки' : 'Saved Cards'}</span>
           </h1>
           <p className="text-lg text-slate-500 font-medium">
-            {language === 'ka' ? 'თქვენი ყველა პერსონალიზებული მისალოცი ბარათი.' : language === 'ru' ? 'Все ваши настроенные и красиво персонализированные поздравительные открытки.' : 'All your customized and beautifully personalized greeting cards.'}
+            {language === 'ka' ? 'თქვენი ყველა პერსონალიზებული მისალოცი ბარათი.' : language === 'ru' ? 'Все ваши настроенные и красиво персонализированные позდაвительные открытки.' : 'All your customized and beautifully personalized greeting cards.'}
           </p>
         </div>
 
@@ -175,19 +176,58 @@ export default function SavedCards() {
                     <h3 className="text-xl font-black mb-2 text-slate-800 line-clamp-1">{card.heading}</h3>
                     <p className="text-slate-600 text-sm font-medium line-clamp-2 px-2">{card.message1}</p>
 
-                    <div className="mt-auto grid grid-cols-2 gap-2">
+                    <div className="mt-auto grid grid-cols-2 gap-2 mb-2">
                        <button
-                        onClick={() => navigate(`/birthday-card/${card.id}`, { state: { from: '/profile/saved' } })}
-                        className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer"
+                        onClick={() => {
+                          let isMemory = false;
+                          if (card.templateId?.startsWith('m')) {
+                            isMemory = true;
+                          } else if (card.imagesJson) {
+                             const parsed = typeof card.imagesJson === 'string' ? JSON.parse(card.imagesJson) : card.imagesJson;
+                             isMemory = parsed && parsed.type === 'memory';
+                          }
+                          
+                          const isNewBirthday = card.templateId?.startsWith('b');
+                          const viewUrl = isMemory 
+                            ? `/view/memory/${card.id}` 
+                            : isNewBirthday 
+                              ? `/birthday-card/${card.id}` 
+                              : `/view/birthday/${card.id}`;
+                          navigate(viewUrl, { state: { from: '/profile/saved' } });
+                        }}
+                        className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer items-center"
                        >
-                         👀 {language === 'ka' ? 'ნახვა' : language === 'ru' ? 'Просмотр' : 'View'}
+                         <span className="mr-1">👀</span> {language === 'ka' ? 'ნახვა' : language === 'ru' ? 'Просмотр' : 'View'}
                        </button>
                        <button
+                        onClick={() => {
+                          let isMemory = false;
+                          if (card.templateId?.startsWith('m')) {
+                            isMemory = true;
+                          } else if (card.imagesJson) {
+                             const parsed = typeof card.imagesJson === 'string' ? JSON.parse(card.imagesJson) : card.imagesJson;
+                             isMemory = parsed && parsed.type === 'memory';
+                          }
+
+                          const editUrl = isMemory 
+                            ? `/edit/memory/${card.id}` 
+                            : card.templateId?.startsWith('b')
+                              ? `/birthday-card/${card.id}?mode=edit`
+                              : `/edit/birthday/${card.id}`;
+                          navigate(editUrl, { state: { from: '/profile/saved' } });
+                        }}
+                        className="w-full bg-violet-600 text-white text-sm font-bold py-2.5 rounded-xl shadow-sm hover:bg-violet-700 transition-all flex justify-center cursor-pointer items-center"
+                       >
+                         <span className="mr-1">✏️</span> {language === 'ka' ? 'შეცვლა' : language === 'ru' ? 'Изменить' : 'Edit'}
+                       </button>
+                    </div>
+                    <div className="grid grid-cols-1">
+                       <button
                         onClick={() => handleDelete(card.id)}
-                        className={`w-full text-sm font-bold py-2.5 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer ${
+                        className={`w-full text-sm font-bold py-2 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer ${
                           confirmDeleteId === card.id 
                             ? 'bg-red-500 text-white shadow-red-500/30 hover:bg-red-600 animate-pulse'
-                            : 'bg-red-100 backdrop-blur text-red-600 hover:bg-red-200 hover:shadow-md'
+                            : 'bg-red-50 backdrop-blur text-red-600 hover:bg-red-100 hover:shadow-md'
                         }`}
                        >
                          {confirmDeleteId === card.id ? (language === 'ka' ? '⚠️ დარწმუნებული ხართ?' : language === 'ru' ? '⚠️ Вы уверены?' : '⚠️ Confirm?') : (language === 'ka' ? '🗑️ წაშლა' : language === 'ru' ? '🗑️ Удалить' : '🗑️ Remove')}

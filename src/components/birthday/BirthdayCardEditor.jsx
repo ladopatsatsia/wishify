@@ -1,51 +1,82 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import BirthdayCardPreview from './BirthdayCardPreview';
 import ReelBirthdayCardPreview from './ReelBirthdayCardPreview';
+import MusicSearch from '../MusicSearch';
 import { useAuth } from '../../context/AuthContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { CARDS_URL, UPLOAD_URL } from '../../api/config';
 
 export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate }) {
   const navigate = useNavigate();
-  const { language } = useLanguage();
-  // Editable state initialized from defaults
+  const { language, t } = useLanguage();
+  
   const [title, setTitle] = useState(defaultData.title || 'Happy Birthday!');
   const [message, setMessage] = useState(defaultData.message || 'Wishing you a wonderful day!');
   const [signature, setSignature] = useState(defaultData.signature || 'With Love ❤️');
   const [images, setImages] = useState(defaultData.images || []);
   const [musicEnabled, setMusicEnabled] = useState(defaultData.musicEnabled || false);
-  const [musicFile, setMusicFile] = useState(null);
+  const [musicUrl, setMusicUrl] = useState(defaultData.audioUrl || defaultData.musicUrl || '');
+  const [musicLabel, setMusicLabel] = useState(defaultData.audioLabel || '');
+  const [showMusicSearch, setShowMusicSearch] = useState(false);
   const [giftBoxEnabled, setGiftBoxEnabled] = useState(defaultData.giftBoxEnabled || false);
   const [giftBoxUrl, setGiftBoxUrl] = useState(defaultData.giftBoxUrl || '');
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const imageInputRef = useRef(null);
-  const musicInputRef = useRef(null);
+
+  const isReadOnly = !!(defaultData.urlSlug || defaultData.UrlSlug);
   
   const { user } = useAuth();
-  const { cardId, categoryId } = useParams();
+  const { cardId } = useParams();
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    
     if (files.length + images.length > 4) {
-      alert('Maximum 4 images allowed');
+      alert(t('editor.common.upload_limit'));
       return;
     }
-    setImages(prev => [...prev, ...files].slice(0, 4));
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      files.forEach(file => formData.append('files', file));
+
+      const response = await fetch(UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+          ...(user?.token ? { 'Authorization': `Bearer ${user.token}` } : {})
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const uploadedUrls = await response.json();
+        setImages(prev => [...prev, ...uploadedUrls].slice(0, 4));
+      } else {
+        const errorText = await response.text();
+        console.error('Upload failed:', errorText);
+        alert(t('editor.common.uploading_failed') || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      alert(t('editor.common.upload_error') || 'Error during upload');
+    } finally {
+      setUploading(false);
+      if (e.target) e.target.value = ''; // Reset input
+    }
   };
 
   const removeImage = (index) => {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleMusicUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith('audio/')) {
-      setMusicFile(file);
-      setMusicEnabled(true);
-    }
-  };
+  const { bgGradient = 'from-pink-400 via-rose-400 to-violet-500', emoji = '🎂' } = defaultData.style || {};
 
   const getPreviewData = () => ({
     title,
@@ -53,55 +84,40 @@ export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate
     signature,
     images,
     musicEnabled,
-    musicFile,
-    musicUrl: defaultData.musicUrl,
+    musicUrl: musicUrl || defaultData.musicUrl,
+    musicLabel,
     giftBoxEnabled,
     giftBoxUrl,
-    style: defaultData.style || {},
-  });
-
-  const { bgGradient = 'from-pink-400 via-rose-400 to-violet-500', emoji = '🎂' } = defaultData.style || {};
-
-  const fileToBase64 = (file) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
+    style: { bgGradient, emoji }
   });
 
   const handleSave = async () => {
-    console.log("handleSave called in Editor", { user, cardId, categoryId });
     if (!user) {
-      console.warn("handleSave: No user found, alerting...");
-      alert(language === 'ka' ? "გთხოვთ გაიაროთ ავტორიზაცია თქვენი ბარათების შესანახად!" : language === 'ru' ? "Пожалуйста, войдите, чтобы сохранить ваши персонализированные открытки!" : "Please log in to save your personalize cards!");
+      alert(t('auth.login_required') || "Please log in to save your cards!");
+      return;
+    }
+    if (isReadOnly) {
+      alert(t('editor.common.read_only_warn'));
       return;
     }
     setSaving(true);
-    console.log("handleSave: setSaving(true)");
     try {
-      // Convert all images to base64
-      const base64Images = await Promise.all(
-        images.map(async (img) => {
-          if (typeof img === 'string') return img; // existing picture string
-          return await fileToBase64(img);
-        })
-      );
-
       const cardData = {
-        templateId: cardId, // or link to specific template
+        templateId: cardId,
         recipientName: title, 
         heading: title,
         message1: message,
         message2: '', 
         footer: signature,
-        audioUrl: musicEnabled && musicFile ? "Custom Music Not Supported Yet" : (musicEnabled ? defaultData.musicUrl : null),
+        audioUrl: musicEnabled ? musicUrl : null,
+        audioLabel: musicEnabled ? musicLabel : null,
         customEmoji: emoji,
         customBgGradient: bgGradient,
         giftBoxUrl: giftBoxEnabled ? giftBoxUrl : null,
-        imagesJson: JSON.stringify(base64Images)
+        imagesJson: JSON.stringify(images)
       };
 
-      const response = await fetch('https://localhost:44328/api/cards', {
+      const response = await fetch(CARDS_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +130,6 @@ export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate
         throw new Error('Failed to save card');
       }
 
-      const savedCard = await response.json();
       setIsSaved(true);
     } catch (e) {
       console.error(e);
@@ -131,247 +146,284 @@ export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate
         data={getPreviewData()} 
         onClose={() => {
           setShowPreview(false);
-          setIsSaved(false); // reset if they go back to editor
+          setIsSaved(false);
         }} 
         onSave={handleSave} 
         saving={saving}
         isSaved={isSaved}
+        isReadOnly={isReadOnly}
         onGoToSaved={() => navigate('/profile/saved')}
       />
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4 py-10">
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-100">
+    <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col font-sans">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 p-4 shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto flex items-center justify-between relative">
+          {/* Left: Back Button */}
+          <div className="flex items-center">
+            <button 
+              onClick={onBack} 
+              className="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 rounded-2xl transition text-slate-600 font-bold text-sm border border-transparent hover:border-slate-100 active:scale-95 cursor-pointer"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              {t('editor.common.back')}
+            </button>
+          </div>
+
+          {/* Center: Title */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none sm:pointer-events-auto">
+            <h1 className="text-xl font-black text-slate-800 tracking-tight leading-none text-nowrap">
+              {t('editor.birthday.studio')} {emoji}
+            </h1>
+            <p className="text-[10px] font-black text-pink-500 uppercase tracking-[0.3em] leading-none mt-1">{t('editor.common.creative_mode')}</p>
+          </div>
+
+          {/* Right: Actions */}
           <div className="flex items-center gap-3">
-            <div className="text-3xl">{emoji}</div>
-            <div>
-              <h2 className="text-xl font-extrabold text-slate-800">{language === 'ka' ? 'დაბადების დღის ბარათის რედაქტორი' : language === 'ru' ? 'Редактор поздравительной открытки' : 'Birthday Card Editor'}</h2>
-              <p className="text-sm text-slate-400">{language === 'ka' ? 'პერსონალიზაცია ყველა დეტალში' : language === 'ru' ? 'Персонализируйте каждую деталь' : 'Personalize every detail'}</p>
-            </div>
+            <button 
+              onClick={() => setShowPreview(true)}
+              className="hidden sm:block px-5 py-2.5 border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition active:scale-95 text-xs cursor-pointer"
+            >
+              {t('editor.common.preview')}
+            </button>
+            <button 
+              onClick={handleSave}
+              disabled={saving}
+              className="px-8 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-pink-500/20 disabled:opacity-50 active:scale-95 text-xs cursor-pointer min-w-[100px]"
+            >
+              {saving ? t('editor.common.saving') : t('editor.common.save')}
+            </button>
           </div>
-          <button
-            onClick={onBack}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition font-bold text-lg cursor-pointer"
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {/* Live Mini Preview */}
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{language === 'ka' ? 'ლაივ პრევიუ' : language === 'ru' ? 'Предпросмотр' : 'Live Preview'}</div>
-          <div className={`rounded-2xl bg-gradient-to-br ${bgGradient} p-5 text-center space-y-2`}>
-            <div className="text-4xl">{emoji}</div>
-            <div className="font-bold text-white text-base drop-shadow">{title || 'Your Title Here'}</div>
-            <div className="text-white/80 text-[10px] leading-tight line-clamp-2">{message}</div>
-            {images.length > 0 && (
-              <div className="flex justify-center gap-1 mt-2">
-                {images.map((img, i) => (
-                  <div key={i} className="w-8 h-8 rounded-lg overflow-hidden border-2 border-white/40">
-                    <img
-                      src={typeof img === 'string' ? img : URL.createObjectURL(img)}
-                      className="w-full h-full object-cover"
-                      alt=""
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="text-white/70 text-[10px] italic">{signature}</div>
-          </div>
-
-          {/* ===== TEXT FIELDS ===== */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">🎉 {language === 'ka' ? 'სათაური' : language === 'ru' ? 'Заголовок' : 'Title'}</label>
-              <input
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:border-violet-400 transition"
-                placeholder={language === 'ka' ? 'გილოცავ დაბადების დღეს!' : language === 'ru' ? 'С днем рождения!' : 'Happy Birthday!'}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">💬 {language === 'ka' ? 'ტექსტი' : language === 'ru' ? 'Сообщение' : 'Message'}</label>
-              <textarea
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                rows={4}
-                className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition resize-none text-sm"
-                placeholder={language === 'ka' ? 'დაწერეთ თქვენი გულწრფელი მესიჯი...' : language === 'ru' ? 'Напишите ваше искреннее сообщение...' : 'Write your heartfelt message...'}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">✍️ {language === 'ka' ? 'ხელმოწერა' : language === 'ru' ? 'Подпись' : 'Signature'}</label>
-              <input
-                value={signature}
-                onChange={e => setSignature(e.target.value)}
-                className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition"
-                placeholder={language === 'ka' ? 'სიყვარულით ❤️' : language === 'ru' ? 'С любовью ❤️' : 'With Love ❤️'}
-              />
-            </div>
-          </div>
-
-          {/* ===== IMAGE UPLOAD ===== */}
-          <div className="bg-sky-50 rounded-2xl p-5 space-y-4 border border-sky-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">📸</span>
-                <div>
-                  <div className="font-bold text-slate-800">{language === 'ka' ? 'სურათები' : language === 'ru' ? 'Фотографии' : 'Photos'}</div>
-                  <div className="text-xs text-slate-400">{language === 'ka' ? 'ატვირთეთ მაქსიმუმ 4 სურათი' : language === 'ru' ? 'Загрузите до 4 изображений' : 'Upload up to 4 images'}</div>
-                </div>
-              </div>
-              <button
-                onClick={() => imageInputRef.current?.click()}
-                className="bg-sky-500 text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-sky-600 transition cursor-pointer"
-              >
-                + {language === 'ka' ? 'დამატება' : language === 'ru' ? 'Добавить' : 'Add'}
-              </button>
-              <input
-                ref={imageInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </div>
-
-            {images.length > 0 && (
-              <div className="grid grid-cols-4 gap-3">
-                {images.map((img, i) => (
-                  <div key={i} className="relative group">
-                    <div className="aspect-square rounded-xl overflow-hidden border-2 border-white shadow-md">
-                      <img
-                        src={typeof img === 'string' ? img : URL.createObjectURL(img)}
-                        className="w-full h-full object-cover"
-                        alt=""
-                      />
-                    </div>
-                    <button
-                      onClick={() => removeImage(i)}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition cursor-pointer flex items-center justify-center"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {images.length === 0 && (
-              <div
-                onClick={() => imageInputRef.current?.click()}
-                className="border-2 border-dashed border-sky-200 rounded-xl p-8 text-center cursor-pointer hover:bg-sky-100/50 transition"
-              >
-                <div className="text-3xl mb-2">📷</div>
-                <p className="text-sm text-slate-500">{language === 'ka' ? 'დააკლიკეთ სურათების ასატვირთად' : language === 'ru' ? 'Нажмите, чтобы загрузить фотографии' : 'Click to upload photos'}</p>
-              </div>
-            )}
-          </div>
-
-          {/* ===== MUSIC ===== */}
-          <div className="bg-violet-50 rounded-2xl p-5 space-y-4 border border-violet-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🎵</span>
-                <div>
-                  <div className="font-bold text-slate-800">{language === 'ka' ? 'მუსიკა' : language === 'ru' ? 'Музыка' : 'Music'}</div>
-                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ მუსიკა თქვენს ბარათს' : language === 'ru' ? 'Добавьте звуковую дорожку к вашей открытке' : 'Add a soundtrack to your card'}</div>
-                </div>
-              </div>
-              <button
-                onClick={() => setMusicEnabled(!musicEnabled)}
-                className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer ${musicEnabled ? 'bg-violet-500' : 'bg-slate-200'}`}
-              >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${musicEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
-              </button>
-            </div>
-
-            {musicEnabled && (
-              <div className="space-y-3">
-                 {musicFile && (
-                  <div className="bg-white rounded-xl p-3 flex items-center gap-3 border border-violet-100">
-                    <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xs">♪</div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-slate-700 truncate">{musicFile.name}</div>
-                      <div className="text-xs text-violet-400">{language === 'ka' ? 'ატვირთული' : language === 'ru' ? 'Собственная загрузка' : 'Custom Upload'}</div>
-                    </div>
-                    <div className="text-green-500 text-xs font-bold">✓</div>
-                  </div>
-                )}
-                <button
-                  onClick={() => musicInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-violet-200 rounded-xl p-4 text-center hover:bg-violet-100/50 transition cursor-pointer"
-                >
-                  <span className="text-sm text-violet-600 font-semibold">
-                    {musicFile ? (language === 'ka' ? 'შეცვალე მუსიკა' : language === 'ru' ? 'Изменить музыкальный файл' : 'Change Music File') : (language === 'ka' ? '🎧 ატვირთეთ MP3 ფაილი' : language === 'ru' ? '🎧 Загрузить MP3 файл' : '🎧 Upload MP3 File')}
-                  </span>
-                </button>
-                <input
-                  ref={musicInputRef}
-                  type="file"
-                  accept="audio/*"
-                  onChange={handleMusicUpload}
-                  className="hidden"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* ===== GIFT BOX ===== */}
-          <div className="bg-rose-50 rounded-2xl p-5 space-y-4 border border-rose-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🎁</span>
-                <div>
-                  <div className="font-bold text-slate-800">{language === 'ka' ? 'საჩუქრის ყუთი' : language === 'ru' ? 'Подарочная коробка' : 'Gift Box'}</div>
-                  <div className="text-xs text-slate-400">{language === 'ka' ? 'დაამატეთ ლინკი საჩუქრისთვის' : language === 'ru' ? 'Добавьте кликабельную ссылку на подарок' : 'Add a clickable gift link'}</div>
-                </div>
-              </div>
-              <button
-                onClick={() => setGiftBoxEnabled(!giftBoxEnabled)}
-                className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer ${giftBoxEnabled ? 'bg-rose-500' : 'bg-slate-200'}`}
-              >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${giftBoxEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
-              </button>
-            </div>
-
-            {giftBoxEnabled && (
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">{language === 'ka' ? 'საჩუქრის URL' : language === 'ru' ? 'URL подарка' : 'Gift URL'}</label>
-                <input
-                  value={giftBoxUrl}
-                  onChange={e => setGiftBoxUrl(e.target.value)}
-                  placeholder="https://example.com/gift"
-                  className="w-full border-2 border-rose-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-400 transition"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="p-6 pt-0 flex gap-3">
-          <button
-            onClick={onBack}
-            className="flex-1 border-2 border-slate-200 text-slate-700 font-semibold rounded-2xl py-3 hover:bg-slate-50 transition cursor-pointer"
-          >
-            ← {language === 'ka' ? 'უკან' : language === 'ru' ? 'Назад' : 'Back'}
-          </button>
-          <button
-            onClick={() => setShowPreview(true)}
-            className="flex-[2] bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold rounded-2xl py-3 hover:opacity-90 transition shadow-lg cursor-pointer flex items-center justify-center gap-2"
-          >
-            ✨ {language === 'ka' ? 'ბარათის ნახვა' : language === 'ru' ? 'Предпросмотр открытки' : 'Preview Card'}
-          </button>
         </div>
       </div>
+
+      {/* Workspace */}
+      <div className="flex-1 overflow-y-auto p-4 py-8">
+        <div className="relative bg-white rounded-3xl shadow-xl w-full max-w-2xl mx-auto overflow-hidden">
+          
+          {isSaved && (
+            <div className="bg-green-50 border-b border-green-200 p-6 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+               <div className="text-green-700 font-bold text-lg mb-4 flex items-center justify-center gap-2">
+                 <span>✅</span>
+                 {t('editor.common.saved_success')}
+               </div>
+               <button 
+                 onClick={() => navigate('/dashboard')}
+                 className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition active:scale-95 shadow-md cursor-pointer"
+               >
+                 {t('editor.common.go_to_cabinet')}
+               </button>
+            </div>
+          )}
+
+          {isReadOnly && (
+            <div className="bg-amber-50 border-b border-amber-200 p-4 flex items-center justify-center gap-3 text-amber-700 text-sm font-bold uppercase tracking-wider">
+               <span>🔒</span>
+               {t('editor.common.read_only_warn')}
+            </div>
+          )}
+
+          <div className="p-6 space-y-6">
+            {/* Original Live Mini Preview */}
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{t('editor.common.live_preview')}</div>
+            <div className={`rounded-2xl bg-gradient-to-br ${bgGradient} p-5 text-center space-y-2 shadow-inner`}>
+              <div className="text-4xl">{emoji}</div>
+              <div className="font-bold text-white text-base drop-shadow">{title || 'Your Title Here'}</div>
+              <div className="text-white/80 text-[10px] leading-tight line-clamp-2">{message}</div>
+              {images.length > 0 && (
+                <div className="flex justify-center gap-1 mt-2">
+                  {images.map((img, i) => (
+                    <div key={i} className="w-8 h-8 rounded-lg overflow-hidden border-2 border-white/40 shadow-sm">
+                      <img src={img} className="w-full h-full object-cover" alt="" />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="text-white/70 text-[10px] italic">{signature}</div>
+            </div>
+
+            {/* Standard Birthday Inputs */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">🎉 {t('editor.birthday.title')}</label>
+                <input
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  disabled={isReadOnly}
+                  className={`w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:border-violet-400 transition ${isReadOnly ? 'bg-slate-50 cursor-not-allowed text-slate-400' : 'hover:border-slate-300'}`}
+                  placeholder={t('editor.birthday.title_placeholder')}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">💬 {t('editor.birthday.message')}</label>
+                <textarea
+                  value={message}
+                  onChange={e => setMessage(e.target.value)}
+                  rows={4}
+                  disabled={isReadOnly}
+                  className={`w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition resize-none text-sm ${isReadOnly ? 'bg-slate-50 cursor-not-allowed text-slate-400' : 'hover:border-slate-300'}`}
+                  placeholder={t('editor.birthday.message_placeholder')}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">✍️ {t('editor.birthday.signature')}</label>
+                <input
+                  value={signature}
+                  onChange={e => setSignature(e.target.value)}
+                  disabled={isReadOnly}
+                  className={`w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-violet-400 transition ${isReadOnly ? 'bg-slate-50 cursor-not-allowed text-slate-400' : 'hover:border-slate-300'}`}
+                  placeholder={t('editor.birthday.signature_placeholder')}
+                />
+              </div>
+            </div>
+
+            {/* Photos Section */}
+            <div className="bg-sky-50 rounded-2xl p-5 space-y-4 border border-sky-100 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📸</span>
+                  <div>
+                    <div className="font-bold text-slate-800">{t('editor.common.photos')}</div>
+                    <div className="text-xs text-slate-400">{t('editor.common.upload_limit')}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => !isReadOnly && imageInputRef.current?.click()}
+                  disabled={isReadOnly || uploading}
+                  className={`bg-sky-500 text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-sky-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md`}
+                >
+                  {uploading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>+ {t('editor.common.add')}</>
+                  )}
+                </button>
+                <input ref={imageInputRef} type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
+              </div>
+
+              {images.length > 0 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {images.map((img, i) => (
+                    <div key={i} className="relative group">
+                      <div className="aspect-square rounded-xl overflow-hidden border-2 border-white shadow-md bg-slate-100">
+                        <img src={img} className="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="" />
+                      </div>
+                      {!isReadOnly && (
+                        <button
+                          onClick={() => removeImage(i)}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition cursor-pointer flex items-center justify-center border-2 border-white shadow-lg"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Music Section */}
+            <div className="bg-violet-50 rounded-2xl p-5 space-y-4 border border-violet-100 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🎵</span>
+                  <div>
+                    <div className="font-bold text-slate-800">{t('editor.common.music')}</div>
+                    <div className="text-xs text-slate-400">{t('editor.birthday.magic_music')}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => !isReadOnly && setMusicEnabled(!musicEnabled)}
+                  disabled={isReadOnly}
+                  className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${musicEnabled ? 'bg-violet-500' : 'bg-slate-200'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${musicEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {musicEnabled && (
+                <div className="space-y-4">
+                  {musicUrl ? (
+                    <div className="bg-white rounded-2xl p-4 flex items-center gap-4 border border-violet-100 shadow-sm animate-in zoom-in-95 duration-300">
+                      <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl shadow-lg ring-4 ring-violet-50">♪</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-black text-slate-800 truncate">{musicLabel || 'Active Melody'}</div>
+                        <button 
+                          onClick={() => setShowMusicSearch(true)} 
+                          className="px-3 py-1.5 bg-violet-100 text-violet-600 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-violet-200 transition-colors cursor-pointer mt-1 active:scale-95"
+                        >
+                          {t('editor.common.change_song')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => setShowMusicSearch(true)}
+                      className="w-full bg-white border-2 border-dashed border-violet-200 rounded-[2rem] p-8 text-center hover:bg-violet-50 transition group cursor-pointer shadow-inner"
+                    >
+                       <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 group-hover:scale-110 transition-transform">✨</div>
+                       <span className="block text-violet-600 font-black text-lg">{t('editor.common.find_melody')}</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Gift Section */}
+            <div className="bg-rose-50 rounded-2xl p-5 space-y-4 border border-rose-100 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🎁</span>
+                  <div>
+                    <div className="font-bold text-slate-800">{t('editor.birthday.gift_link')}</div>
+                    <div className="text-xs text-slate-400">{t('editor.birthday.gift_sub')}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => !isReadOnly && setGiftBoxEnabled(!giftBoxEnabled)}
+                  disabled={isReadOnly}
+                  className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${giftBoxEnabled ? 'bg-rose-500' : 'bg-slate-200'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${giftBoxEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {giftBoxEnabled && (
+                <div className="animate-in slide-in-from-top-4 duration-300">
+                  <input 
+                    value={giftBoxUrl}
+                    onChange={e => setGiftBoxUrl(e.target.value)}
+                    className="w-full border-2 border-rose-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rose-400 transition hover:border-rose-300"
+                    placeholder={t('editor.birthday.gift_placeholder')}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Final Studio Branding */}
+            <div className="text-center pt-6 opacity-30 select-none">
+                <div className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">{t('editor.common.creative_mode')}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showMusicSearch && (
+        <MusicSearch 
+          onClose={() => setShowMusicSearch(false)}
+          onSelect={(song) => {
+            setMusicUrl(song.url);
+            setMusicLabel(song.name);
+            setMusicEnabled(true);
+            setShowMusicSearch(false);
+          }}
+        />
+      )}
     </div>
   );
 }
