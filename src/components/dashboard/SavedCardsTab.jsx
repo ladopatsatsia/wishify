@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import PublishModal from '../profile/PublishModal';
+import DeleteConfirmModal from '../profile/DeleteConfirmModal';
 import { CARDS_URL } from '../../api/config';
 
 function normalizeCard(card) {
@@ -30,7 +31,7 @@ export default function SavedCardsTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [publishModal, setPublishModal] = useState({ open: false, card: null });
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ open: false, cardId: null });
 
   const fetchCards = async () => {
     if (!user) return;
@@ -65,11 +66,13 @@ export default function SavedCardsTab() {
   }, [user]);
 
   const handleDelete = async (cardId) => {
-    if (confirmDeleteId !== cardId) {
-      setConfirmDeleteId(cardId);
-      setTimeout(() => setConfirmDeleteId(c => c === cardId ? null : c), 3000);
-      return;
-    }
+    setDeleteModal({ open: true, cardId });
+  };
+
+  const confirmDelete = async () => {
+    const cardId = deleteModal.cardId;
+    if (!cardId) return;
+    
     try {
       const response = await fetch(`${CARDS_URL}/${cardId}`, {
         method: 'DELETE',
@@ -79,6 +82,8 @@ export default function SavedCardsTab() {
       setCards(prev => prev.filter(c => c.id !== cardId));
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteModal({ open: false, cardId: null });
     }
   };
 
@@ -144,6 +149,11 @@ export default function SavedCardsTab() {
           onClose={() => setPublishModal({ open: false, card: null })}
           onProceed={startPublishProcess}
         />
+        <DeleteConfirmModal 
+          isOpen={deleteModal.open}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteModal({ open: false, cardId: null })}
+        />
       </>
     );
   }
@@ -167,20 +177,13 @@ export default function SavedCardsTab() {
                 <span>💾</span> {language === 'ka' ? 'შენახული' : language === 'ru' ? 'Сохранено' : 'Saved'}
               </div>
 
-              {/* Right Badge: Publish Toggle */}
+              {/* Right Badge: Delete Button */}
               <button
-                onClick={() => handleTogglePublish(card.id)}
-                title={card.isPublic ? 'Click to make Private' : 'Click to Publish'}
-                className={`absolute top-5 right-5 z-20 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-1.5 border border-white/20 ${
-                  card.isPublic
-                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 scale-105'
-                    : 'bg-white/40 backdrop-blur text-slate-900 hover:bg-white/60'
-                }`}
+                onClick={() => handleDelete(card.id)}
+                className="absolute top-5 right-5 z-20 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center gap-1.5 border border-white/20 bg-white/40 backdrop-blur text-red-600 hover:bg-white/60"
               >
-                <span>{card.isPublic ? '🌐' : '🔒'}</span>
-                {card.isPublic
-                  ? (language === 'ka' ? 'გამოქვეყნებული' : language === 'ru' ? 'Опубликовано' : 'Published')
-                  : (language === 'ka' ? 'გამოქვეყნება' : language === 'ru' ? 'Опубликовать' : 'Publish')}
+                <span>🗑️</span>
+                {language === 'ka' ? 'წაშლა' : language === 'ru' ? 'Удалить' : 'Remove'}
               </button>
 
               <div className="flex flex-col h-full p-8 text-center relative z-10">
@@ -192,14 +195,21 @@ export default function SavedCardsTab() {
                   <button
                     onClick={() => {
                       let category = 'birthday';
-                      if (card.templateId?.startsWith('m')) category = 'memory';
-                      else if (card.templateId?.startsWith('l')) category = 'love';
-                      else if (card.imagesJson && (typeof card.imagesJson === 'string' ? card.imagesJson.includes('memory') : card.imagesJson.type === 'memory')) category = 'memory';
+                      if (card.templateId?.startsWith('i') || card.templateId?.startsWith('inv')) {
+                        category = 'invitation';
+                      } else if (card.templateId?.startsWith('m')) {
+                        category = 'memory';
+                      } else if (card.templateId?.startsWith('l')) {
+                        category = 'love';
+                      } else if (card.imagesJson) {
+                        const parsed = typeof card.imagesJson === 'string' ? JSON.parse(card.imagesJson) : card.imagesJson;
+                        if (parsed && parsed.type === 'memory') category = 'memory';
+                      }
                       
                       if (category === 'birthday') {
-                        navigate(`/birthday-card/${card.id}`);
+                        navigate(`/birthday-card/${card.id}`, { state: { from: '/dashboard#saved' } });
                       } else {
-                        navigate(`/view/${category}/${card.id}`);
+                        navigate(`/view/${category}/${card.id}`, { state: { from: '/dashboard#saved' } });
                       }
                     }}
                     className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer items-center gap-1.5"
@@ -209,11 +219,22 @@ export default function SavedCardsTab() {
                   <button
                     onClick={() => {
                       let categoryId = 'birthday';
-                      if (card.templateId?.startsWith('m')) categoryId = 'memory';
-                      else if (card.templateId?.startsWith('l')) categoryId = 'love';
-                      else if (card.imagesJson && (typeof card.imagesJson === 'string' ? card.imagesJson.includes('memory') : card.imagesJson.type === 'memory')) categoryId = 'memory';
+                      if (card.templateId?.startsWith('i') || card.templateId?.startsWith('inv')) {
+                        categoryId = 'invitation';
+                      } else if (card.templateId?.startsWith('m')) {
+                        categoryId = 'memory';
+                      } else if (card.templateId?.startsWith('l')) {
+                        categoryId = 'love';
+                      } else if (card.imagesJson) {
+                        const parsed = typeof card.imagesJson === 'string' ? JSON.parse(card.imagesJson) : card.imagesJson;
+                        if (parsed && parsed.type === 'memory') categoryId = 'memory';
+                      }
                       
-                      navigate(`/edit/${categoryId}/${card.id}`);
+                      const editUrl = categoryId === 'birthday'
+                        ? `/birthday-card/${card.id}?mode=edit`
+                        : `/edit/${categoryId}/${card.id}`;
+                        
+                      navigate(editUrl, { state: { from: '/dashboard#saved' } });
                     }}
                     className="w-full bg-violet-600 text-white text-sm font-bold py-2.5 rounded-xl shadow-sm hover:bg-violet-700 transition-all flex justify-center cursor-pointer items-center gap-1.5"
                   >
@@ -222,16 +243,18 @@ export default function SavedCardsTab() {
                 </div>
                 <div className="mt-2">
                   <button
-                    onClick={() => handleDelete(card.id)}
-                    className={`w-full text-xs font-bold py-2.5 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer ${
-                      confirmDeleteId === card.id
-                        ? 'bg-red-500 text-white shadow-red-500/30 hover:bg-red-600 animate-pulse'
-                        : 'bg-red-50 text-red-600 hover:bg-red-100 hover:shadow-md'
+                    onClick={() => handleTogglePublish(card.id)}
+                    className={`w-full text-xs font-black py-2.5 rounded-xl shadow-sm transition-all flex justify-center cursor-pointer uppercase tracking-widest ${
+                      card.isPublic
+                        ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                        : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:shadow-md'
                     }`}
                   >
-                    {confirmDeleteId === card.id
-                      ? (language === 'ka' ? '⚠️ დარწმუნებული ხართ?' : language === 'ru' ? '⚠️ Вы уверены?' : '⚠️ Confirm?')
-                      : (language === 'ka' ? '🗑️ წაშლა' : language === 'ru' ? '🗑️ Удалить' : '🗑️ Remove')}
+                    <span>{card.isPublic ? '🌐' : '🔒'}</span>
+                    &nbsp;
+                    {card.isPublic
+                      ? (language === 'ka' ? 'გამოქვეყნებული' : language === 'ru' ? 'Опубликовано' : 'Published')
+                      : (language === 'ka' ? 'გამოქვეყნება' : language === 'ru' ? 'Опубликовать' : 'Publish')}
                   </button>
                 </div>
               </div>
@@ -245,6 +268,11 @@ export default function SavedCardsTab() {
         card={publishModal.card}
         onClose={() => setPublishModal({ open: false, card: null })}
         onProceed={startPublishProcess}
+      />
+      <DeleteConfirmModal 
+        isOpen={deleteModal.open}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteModal({ open: false, cardId: null })}
       />
     </>
   );

@@ -5,19 +5,32 @@ import {
   normalizeRecipientInput,
   normalizeScheduleDraft,
   validateScheduleDraft,
+  getGuestCountFromCard,
 } from './scheduleUtils';
+import { CARDS_URL } from '../../api/config';
 
 export default function PublishModal({ isOpen, card, onClose, onProceed }) {
   const { language } = useLanguage();
   const [slug, setSlug] = useState('');
   const [error, setError] = useState('');
   const [schedule, setSchedule] = useState(createEmptySchedule());
+  const [checking, setChecking] = useState(false);
+  const [isTaken, setIsTaken] = useState(false);
+  const [debouncedSlug, setDebouncedSlug] = useState('');
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && card) {
+      let draft = normalizeScheduleDraft(card);
+      if (card?.templateId?.startsWith('i')) {
+        draft.sendMethod = 'phone';
+        if (draft.isAutoSend) {
+          draft.recipient = 'GUESTS_LIST';
+        }
+      }
+      setSchedule(draft);
       setSlug('');
+      setIsTaken(false);
       setError('');
-      setSchedule(normalizeScheduleDraft(card));
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -28,6 +41,59 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
     };
   }, [isOpen, card]);
 
+  useEffect(() => {
+    if (schedule.isAutoSend && card?.templateId?.startsWith('i')) {
+      if (schedule.sendMethod !== 'phone' || schedule.recipient !== 'GUESTS_LIST') {
+        setSchedule(prev => ({
+          ...prev,
+          sendMethod: 'phone',
+          recipient: 'GUESTS_LIST'
+        }));
+      }
+    }
+  }, [schedule.isAutoSend, card?.templateId]);
+
+  // Debounce slug input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSlug(slug);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [slug]);
+
+  // Check slug availability
+  useEffect(() => {
+    const checkSlug = async () => {
+      if (!debouncedSlug || debouncedSlug.length < 3 || !card) {
+        setIsTaken(false);
+        return;
+      }
+      
+      setChecking(true);
+      try {
+        const response = await fetch(`${CARDS_URL}/slug/${debouncedSlug}`);
+        if (response.status === 200) {
+          // If 200, card with this slug was found, so it's taken
+          const data = await response.json();
+          // If it's the SAME card, it's NOT taken (though publish usually handles this)
+          if (data.id === card.id) {
+            setIsTaken(false);
+          } else {
+            setIsTaken(true);
+          }
+        } else {
+          setIsTaken(false);
+        }
+      } catch (err) {
+        console.error('Slug check failed:', err);
+      } finally {
+        setChecking(false);
+      }
+    };
+
+    checkSlug();
+  }, [debouncedSlug, card?.id]);
+
   if (!isOpen || !card) return null;
 
   const handleSlugChange = (e) => {
@@ -37,12 +103,12 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
   };
 
   const handleProceed = () => {
-    if (!slug.trim()) {
-      setError(language === 'ka' ? 'გთხოვთ შეიყვანოთ მორგებული URL გაგრძელებამდე.' : language === 'ru' ? 'Пожалуйста, введите собственный URL перед продолжением.' : 'Please enter a custom URL before proceeding.');
+    if (isTaken) {
+      setError(language === 'ka' ? 'ასეთი URL უკვე არსებობს, გთხოვთ აირჩიოთ სხვა.' : 'This URL is already taken, please choose another.');
       return;
     }
 
-    const validationError = validateScheduleDraft(schedule, language);
+    const validationError = validateScheduleDraft(schedule, language, card.templateId?.startsWith('i') ? 'invitation' : 'generic');
     if (validationError) {
       setError(validationError);
       return;
@@ -51,10 +117,11 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
     onProceed(card.id, slug.trim(), schedule);
   };
 
+  const guestCount = getGuestCountFromCard(card);
   const hostname = window.location.host;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
@@ -75,7 +142,7 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
               {language === 'ka' ? 'თქვენი მორგებული URL' : language === 'ru' ? 'Ваш собственный URL' : 'Your Custom URL'}
             </label>
 
-            <div className="flex items-center border-2 border-slate-100 rounded-2xl bg-slate-50 focus-within:border-violet-400 focus-within:ring-4 focus-within:ring-violet-400/10 transition-all overflow-hidden">
+            <div className={`flex items-center border-2 rounded-2xl bg-slate-50 transition-all overflow-hidden ${isTaken ? 'border-red-400 ring-4 ring-red-400/10' : 'border-slate-100 focus-within:border-violet-400 focus-within:ring-4 focus-within:ring-violet-400/10'}`}>
               <input
                 type="text"
                 value={slug}
@@ -85,12 +152,25 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
                 maxLength={40}
                 autoFocus
               />
+              {checking && (
+                <div className="mr-3">
+                  <span className="flex w-4 h-4 border-2 border-slate-300 border-t-violet-500 rounded-full animate-spin" />
+                </div>
+              )}
               <span className="pr-4 text-slate-400 text-sm font-bold whitespace-nowrap shrink-0">
                 .{hostname}
               </span>
             </div>
 
-            {slug && (
+            {isTaken && (
+              <div className="flex items-center gap-1.5 px-1">
+                <span className="text-red-500 text-[10px] font-black uppercase tracking-tight">
+                  ⚠️ {language === 'ka' ? 'მისამართი დაკავებულია' : 'URL already taken'}
+                </span>
+              </div>
+            )}
+
+            {!isTaken && slug && !checking && (
               <div className="flex items-center gap-2 px-1">
                 <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shrink-0" />
                 <span className="text-xs text-slate-500 font-mono break-all">
@@ -127,46 +207,86 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
 
             {schedule.isAutoSend && (
               <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-300 pt-2 border-t border-slate-200/50">
-                <div className="flex bg-white/50 p-1 rounded-xl border border-slate-100 shadow-inner">
-                  <button
-                    onClick={() => {
-                      setSchedule(current => ({ ...current, sendMethod: 'email', recipient: '' }));
-                      setError('');
-                    }}
-                    className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.sendMethod === 'email' ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                  >
-                    📧 Email
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSchedule(current => ({ ...current, sendMethod: 'phone', recipient: '' }));
-                      setError('');
-                    }}
-                    className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.sendMethod === 'phone' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                  >
-                    📱 Phone
-                  </button>
-                </div>
+                {card.templateId?.startsWith('i') && (
+                  <div className="flex bg-white/50 p-1 rounded-xl border border-slate-100 shadow-inner">
+                    <button
+                      onClick={() => {
+                        setSchedule(current => ({ ...current, recipient: 'GUESTS_LIST' }));
+                        setError('');
+                      }}
+                      className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.recipient === 'GUESTS_LIST' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      📋 Guest List ({guestCount})
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSchedule(current => ({ ...current, recipient: '' }));
+                        setError('');
+                      }}
+                      className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.recipient !== 'GUESTS_LIST' ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      👤 Single Guest
+                    </button>
+                  </div>
+                )}
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center justify-between">
-                    <span>{schedule.sendMethod === 'email' ? (language === 'ka' ? 'მიმღების Email' : 'Recipient Email') : (language === 'ka' ? 'ტელეფონის ნომერი' : 'Phone Number')}</span>
-                    {schedule.sendMethod === 'phone' && <span className="text-[9px] text-emerald-500 font-bold px-1.5 py-0.5 bg-emerald-50 rounded-full border border-emerald-100">GEO +995</span>}
-                  </label>
-                  <input
-                    type={schedule.sendMethod === 'email' ? 'email' : 'text'}
-                    value={schedule.recipient}
-                    onChange={(e) => {
-                      setSchedule(current => ({
-                        ...current,
-                        recipient: normalizeRecipientInput(current.sendMethod, e.target.value),
-                      }));
-                      setError('');
-                    }}
-                    placeholder={schedule.sendMethod === 'email' ? 'lado@example.com' : '599 XXX XXX'}
-                    className="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-violet-400 transition-all shadow-sm"
-                  />
-                </div>
+                {(!card.templateId?.startsWith('i') || schedule.recipient !== 'GUESTS_LIST') ? (
+                  <>
+                    <div className="flex bg-white/50 p-1 rounded-xl border border-slate-100 shadow-inner">
+                      <button
+                        onClick={() => {
+                          setSchedule(current => ({ ...current, sendMethod: 'email', recipient: schedule.recipient === 'GUESTS_LIST' ? '' : schedule.recipient }));
+                          setError('');
+                        }}
+                        className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.sendMethod === 'email' ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        📧 Email
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSchedule(current => ({ ...current, sendMethod: 'phone', recipient: schedule.recipient === 'GUESTS_LIST' ? '' : schedule.recipient }));
+                          setError('');
+                        }}
+                        className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.sendMethod === 'phone' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        📱 Phone
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center justify-between">
+                        <span>{schedule.sendMethod === 'email' ? (language === 'ka' ? 'მიმღების Email' : 'Recipient Email') : (language === 'ka' ? 'ტელეფონის ნომერი' : 'Phone Number')}</span>
+                        {schedule.sendMethod === 'phone' && <span className="text-[9px] text-emerald-500 font-bold px-1.5 py-0.5 bg-emerald-50 rounded-full border border-emerald-100">GEO +995</span>}
+                      </label>
+                      <input
+                        type={schedule.sendMethod === 'email' ? 'email' : 'text'}
+                        value={schedule.recipient === 'GUESTS_LIST' ? '' : schedule.recipient}
+                        onChange={(e) => {
+                          setSchedule(current => ({
+                            ...current,
+                            recipient: normalizeRecipientInput(current.sendMethod, e.target.value),
+                          }));
+                          setError('');
+                        }}
+                        placeholder={schedule.sendMethod === 'email' ? 'lado@example.com' : '599 XXX XXX'}
+                        className="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-violet-400 transition-all shadow-sm"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex items-center gap-3">
+                    <span className="text-xl">📋</span>
+                    <div className="flex-1">
+                      <p className="text-xs font-black text-emerald-800 uppercase tracking-wider">
+                        {language === 'ka' ? 'გაგზავნა სტუმრების სიაზე' : 'Send to Guest List'}
+                      </p>
+                      <p className="text-[10px] text-emerald-600 font-medium mt-0.5">
+                        {language === 'ka' ? `ბარათი ავტომატურად გაიგზავნება მობილურზე ${guestCount} სტუმართან.` : `Card will be automatically sent to ${guestCount} guests via SMS.`}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
@@ -203,9 +323,9 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
             )}
           </div>
 
-          {error && (
-            <p className="text-red-500 text-xs font-bold text-center -mt-2">{error}</p>
-          )}
+          {error || (isTaken && !checking) ? (
+            <p className="text-red-500 text-xs font-bold text-center -mt-2">{error || (language === 'ka' ? 'ასეთი URL უკვე არსებობს' : 'This URL already exists')}</p>
+          ) : null}
 
           <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
             <span className="text-xl shrink-0 mt-0.5">⚡</span>
@@ -233,10 +353,10 @@ export default function PublishModal({ isOpen, card, onClose, onProceed }) {
           </button>
           <button
             onClick={handleProceed}
-            disabled={!slug.trim()}
+            disabled={!slug.trim() || isTaken || checking}
             className="flex-1 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-pink-600 text-white font-black hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-lg shadow-violet-500/25 cursor-pointer"
           >
-            {language === 'ka' ? 'გაგრძელება →' : language === 'ru' ? 'Продолжить →' : 'Process →'}
+            {checking ? (language === 'ka' ? 'მოწმდება...' : 'Checking...') : (language === 'ka' ? 'გაგრძელება →' : language === 'ru' ? 'Продолжить →' : 'Process →')}
           </button>
         </div>
       </div>

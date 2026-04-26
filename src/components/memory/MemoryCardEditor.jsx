@@ -1,64 +1,91 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { CARDS_URL, UPLOAD_URL } from '../../api/config';
+import { useNavigate } from 'react-router-dom';
+import MusicSearch from '../MusicSearch';
+import PublishModal from '../profile/PublishModal';
 import MemoryCardView from './MemoryCardView';
 
-export default function MemoryCardEditor({ card, category, onBack, onClose }) {
+const CARDS_API = CARDS_URL;
+
+export default function MemoryCardEditor({ card, existingCard, category, onBack, onClose }) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { language, t } = useLanguage();
-  const [headerText, setHeaderText] = useState(card.defaultHeading || 'Our Beautiful Journey');
-  const [galleries, setGalleries] = useState([
-    { id: Date.now(), name: 'Gallery 1', images: [] }
-  ]);
+  const fileInputRef = useRef(null);
+
+  const isReadOnly = !!(existingCard?.urlSlug || existingCard?.UrlSlug);
+
+  const initialHeading = existingCard?.heading || '';
+  const initialAudioUrl = existingCard?.audioUrl || card.content?.audioUrl || '';
+  const initialAudioLabel = existingCard?.audioLabel || '';
+  
+  let initialData = {
+    galleries: [],
+    heroSubtitle: '',
+    heroScrollText: '',
+    heroPhoto: ''
+  };
+
+  if (existingCard?.imagesJson) {
+    try {
+      const parsed = typeof existingCard.imagesJson === 'string' 
+        ? JSON.parse(existingCard.imagesJson) 
+        : existingCard.imagesJson;
+      
+      if (Array.isArray(parsed)) {
+        initialData.galleries = parsed;
+      } else {
+        initialData = { ...initialData, ...parsed };
+      }
+    } catch (e) {
+      console.error("Failed to parse imagesJson", e);
+    }
+  }
+
+  const [headerText, setHeaderText] = useState(initialHeading);
+  const [heroSubtitle, setHeroSubtitle] = useState(initialData.heroSubtitle || '');
+  const [heroScrollText, setHeroScrollText] = useState(initialData.heroScrollText || '');
+  const [heroPhoto, setHeroPhoto] = useState(initialData.heroPhoto || '');
+  const [galleries, setGalleries] = useState(initialData.galleries || []);
   const [preview, setPreview] = useState(false);
+  const [localId, setLocalId] = useState(existingCard?.id || existingCard?.Id);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [uploadingGalleryId, setUploadingGalleryId] = useState(null);
-  const fileInputRef = useRef(null);
+  const [uploadingHero, setUploadingHero] = useState(false);
+  
+  const [musicEnabled, setMusicEnabled] = useState(!!initialAudioUrl);
+  const [musicUrl, setMusicUrl] = useState(initialAudioUrl);
+  const [musicLabel, setMusicLabel] = useState(initialAudioLabel);
+  const [showMusicSearch, setShowMusicSearch] = useState(false);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [cardToPublish, setCardToPublish] = useState(null);
 
-  // Load existing data if any
-  useEffect(() => {
-    if (card.imagesJson) {
-      try {
-        const data = JSON.parse(card.imagesJson);
-        if (data.type === 'memory') {
-          setHeaderText(data.headerText || '');
-          setGalleries(data.galleries || []);
-        }
-      } catch (e) {
-        console.error("Failed to parse imagesJson", e);
-      }
-    }
-  }, [card]);
-
-  const addGallery = () => {
-    setGalleries([...galleries, { id: Date.now(), name: `New Gallery ${galleries.length + 1}`, images: [] }]);
+  const handleAddGallery = () => {
+    const id = Date.now();
+    setGalleries([...galleries, { id, title: '', description: '', images: [] }]);
   };
 
-  const removeGallery = (id) => {
+  const handleUpdateGalleryTitle = (id, title) => {
+    setGalleries(galleries.map(g => g.id === id ? { ...g, title } : g));
+  };
+
+  const handleUpdateGalleryDesc = (id, description) => {
+    setGalleries(galleries.map(g => g.id === id ? { ...g, description } : g));
+  };
+
+  const handleRemoveGallery = (id) => {
     setGalleries(galleries.filter(g => g.id !== id));
   };
 
-  const updateGalleryName = (id, name) => {
-    setGalleries(galleries.map(g => g.id === id ? { ...g, name } : g));
-  };
-
-  // Multi-file upload logic
-  const handleFileUpload = async (e, galleryId) => {
+  const handleImageUpload = async (galleryId, e) => {
     const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-
-    // Check gallery limit (25 photos)
-    const gallery = galleries.find(g => g.id === galleryId);
-    if (gallery.images.length + files.length > 25) {
-      alert(t('editor.memory.limit_alert'));
-      return;
-    }
+    if (files.length === 0) return;
 
     setUploadingGalleryId(galleryId);
-    
     try {
       const formData = new FormData();
       files.forEach(file => formData.append('files', file));
@@ -72,59 +99,78 @@ export default function MemoryCardEditor({ card, category, onBack, onClose }) {
       });
 
       if (response.ok) {
-        const uploadedUrls = await response.json();
-        setGalleries(galleries.map(g => {
-          if (g.id === galleryId) {
-            return { ...g, images: [...g.images, ...uploadedUrls] };
-          }
-          return g;
-        }));
+        const urls = await response.json();
+        if (urls && urls.length > 0) {
+          setGalleries(galleries.map(g => 
+            g.id === galleryId ? { ...g, images: [...g.images, ...urls] } : g
+          ));
+        }
       } else {
-        const errorText = await response.text();
-        console.error('Upload failed:', errorText);
-        alert(t('editor.common.uploading_failed') || 'Upload failed');
+        alert(t('editor.common.uploading_failed'));
       }
     } catch (error) {
-      console.error('Error uploading files:', error);
-      alert(t('editor.common.upload_error') || 'Error during upload');
+       console.error('Image upload error:', error);
+       alert(t('editor.common.upload_error'));
     } finally {
-      setUploadingGalleryId(null);
-      e.target.value = ''; // Reset input
+       setUploadingGalleryId(null);
     }
   };
 
-  const removeImage = (galleryId, index) => {
-    setGalleries(galleries.map(g => {
-      if (g.id === galleryId) {
-        const newImages = g.images.filter((_, i) => i !== index);
-        return { ...g, images: newImages };
+  const handleRemoveImage = (galleryId, imgUrl) => {
+    setGalleries(galleries.map(g => 
+      g.id === galleryId ? { ...g, images: g.images.filter(url => url !== imgUrl) } : g
+    ));
+  };
+
+  const handleHeroPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingHero(true);
+    try {
+      const formData = new FormData();
+      formData.append('files', file);
+      const res = await fetch(UPLOAD_URL, {
+        method: 'POST',
+        headers: { ...(user?.token ? { 'Authorization': `Bearer ${user.token}` } : {}) },
+        body: formData
+      });
+      if (res.ok) {
+        const urls = await res.json();
+        if (urls?.length > 0) setHeroPhoto(urls[0]);
       }
-      return g;
-    }));
+    } catch (e) { console.error(e); }
+    finally { setUploadingHero(false); }
   };
 
   const handleSave = async () => {
+    if (!user) {
+      alert(t('auth.login_required'));
+      return;
+    }
+    if (isReadOnly) {
+      alert(t('editor.common.read_only_warn'));
+      return;
+    }
     setSaving(true);
     try {
-      const memoryData = {
-        type: 'memory',
-        headerText,
-        galleries: galleries.filter(g => g.images.length > 0)
-      };
-
+      const targetId = localId;
       const cardData = {
-        templateId: card.templateId || card.id,
-        recipientName: "Memory Collection",
+        id: targetId || undefined,
+        templateId: card.templateId || card.id || existingCard?.templateId,
+        recipientName: headerText || "Memory Card",
         heading: headerText,
-        message1: "A collection of memories",
-        message2: "",
-        footer: "Sent with Love from Wishify",
-        imagesJson: JSON.stringify(memoryData),
+        audioUrl: musicEnabled ? musicUrl : null,
+        audioLabel: musicEnabled ? musicLabel : null,
+        imagesJson: JSON.stringify({
+          galleries,
+          heroSubtitle,
+          heroScrollText,
+          heroPhoto
+        })
       };
 
-      const isExisting = card.id && card.id.length > 20;
-      const url = isExisting ? `${CARDS_URL}/${card.id}` : CARDS_URL;
-      const method = isExisting ? 'PUT' : 'POST';
+      const url = targetId ? `${CARDS_API}/${targetId}` : CARDS_API;
+      const method = targetId ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
@@ -136,232 +182,227 @@ export default function MemoryCardEditor({ card, category, onBack, onClose }) {
       });
 
       if (response.ok) {
+        let result = {};
+        try { result = await response.json(); } catch(e) {}
         setSaved(true);
-        const result = await response.json();
-        const cardId = isExisting ? card.id : result.id;
-        setShareUrl(`${window.location.origin}/view/memory/${cardId}`);
+        const savedId = targetId || result.id || result.Id;
+        if (savedId && !localId) setLocalId(savedId);
+        const savedCard = { ...cardData, id: savedId };
+        setCardToPublish(savedCard);
+      } else {
+        alert(t('editor.common.save_failed'));
       }
     } catch (error) {
-      console.error('Error saving memory card:', error);
+      console.error('Save error:', error);
+      alert(t('editor.common.save_error'));
     } finally {
       setSaving(false);
     }
   };
 
+  const handlePurchase = () => {
+    if (localId) {
+      setCardToPublish({
+        id: localId,
+        templateId: card.templateId || card.id || existingCard?.templateId,
+        heading: headerText,
+        audioUrl: musicEnabled ? musicUrl : null,
+        audioLabel: musicEnabled ? musicLabel : null,
+        imagesJson: JSON.stringify({ 
+          galleries,
+          heroSubtitle,
+          heroScrollText,
+          heroPhoto
+        })
+      });
+      setPublishModalOpen(true);
+    } else {
+      handleSave().then(() => { setPublishModalOpen(true); });
+    }
+  };
+
+  const startPublishProcess = (cardId, slug, scheduleData) => {
+    navigate('/payment', { state: { cardId, slug, schedule: scheduleData } });
+  };
+
+  const previewData = {
+    templateId: card.templateId || card.id || existingCard?.templateId,
+    heading: headerText,
+    audioUrl: musicEnabled ? musicUrl : null,
+    imagesJson: JSON.stringify({ 
+      galleries,
+      heroSubtitle,
+      heroScrollText,
+      heroPhoto
+    })
+  };
+
   if (preview) {
-    const previewData = {
-      ...card,
-      heading: headerText,
-      imagesJson: JSON.stringify({ type: 'memory', headerText, galleries })
-    };
     return (
-      <div className="fixed inset-0 z-[100] bg-black overflow-y-auto">
-        <MemoryCardView 
-          card={previewData} 
-          onBackToEdit={() => setPreview(false)} 
-        />
-      </div>
+      <MemoryCardView 
+        card={previewData} 
+        onBackToEdit={() => setPreview(false)}
+        onSave={handleSave}
+        onPurchase={handlePurchase}
+        onGoToSaved={() => navigate('/dashboard#saved')}
+        saving={saving}
+        isReadOnly={isReadOnly}
+        isSaved={saved}
+      />
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col font-sans">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 p-4 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between relative">
-          {/* Left: Back Button Only */}
-          <div className="flex items-center">
-            <button 
-              onClick={onBack} 
-              className="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 rounded-2xl transition text-slate-600 font-bold text-sm border border-transparent hover:border-slate-100 active:scale-95"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="15 19l-7-7 7-7" /></svg>
-              {t('editor.common.back')}
-            </button>
-          </div>
+    <div className="fixed inset-0 z-[100] bg-slate-50 flex flex-col font-sans overflow-hidden">
+      <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full relative bg-white sm:shadow-2xl overflow-hidden sm:my-4 sm:rounded-[3rem]">
+        <div className="bg-white border-b border-slate-100 p-2 sm:p-6 sticky top-0 z-50 shadow-sm sm:shadow-none">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center justify-between sm:justify-start gap-3">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={onBack} 
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 transition active:scale-95 cursor-pointer flex-shrink-0"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <div className="overflow-hidden">
+                  <h1 className="text-sm sm:text-xl font-black text-slate-800 italic leading-none truncate">
+                    {t('editor.memory.title') || t('editor.memory.studio')}
+                  </h1>
+                  <p className="text-[8px] sm:text-[9px] font-black text-teal-500 uppercase tracking-widest leading-none mt-1">{t('editor.memory.secure_memories')}</p>
+                </div>
+              </div>
+            </div>
 
-          {/* Center: Title (Absolute Centered) */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none sm:pointer-events-auto">
-            <h1 className="text-xl font-black text-slate-800 tracking-tight leading-none text-nowrap">
-              {t('editor.memory.studio')}
-            </h1>
-            <p className="text-[10px] font-black text-teal-500 uppercase tracking-[0.3em] leading-none mt-1">{t('editor.common.creative_mode')}</p>
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setPreview(true)}
-              className="hidden sm:block px-5 py-2.5 border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition active:scale-95 text-xs"
-            >
-              {t('editor.common.preview')}
-            </button>
-            <button 
-              onClick={handleSave}
-              disabled={saving}
-              className="px-8 py-2.5 bg-teal-500 text-white rounded-2xl font-black hover:bg-teal-600 transition shadow-xl shadow-teal-500/20 disabled:opacity-50 active:scale-95 text-xs min-w-[100px]"
-            >
-              {saving ? t('editor.common.saving') : t('editor.common.save')}
-            </button>
+            <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+              <button 
+                onClick={() => setPreview(true)}
+                className="flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl font-black hover:bg-slate-50 transition active:scale-95 text-[10px] sm:text-xs"
+              >
+                {t('editor.common.preview')}
+              </button>
+              <button 
+                onClick={handleSave}
+                disabled={saving || isReadOnly}
+                className={`flex-1 sm:flex-none px-6 py-2 bg-slate-900 text-white rounded-xl font-black hover:bg-slate-800 transition shadow-lg disabled:opacity-50 active:scale-95 text-[10px] sm:text-xs ${isReadOnly ? 'bg-slate-400 !cursor-not-allowed shadow-none' : ''}`}
+              >
+                {saving ? t('editor.common.saving') : t('editor.common.save')}
+              </button>
+              {!isReadOnly && (
+                <button 
+                  onClick={handlePurchase}
+                  className="flex-1 sm:flex-none px-6 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl font-black hover:opacity-90 transition shadow-lg shadow-teal-500/20 active:scale-95 text-[10px] sm:text-xs flex items-center justify-center gap-1"
+                >
+                  💳 <span>{t('editor.common.purchase')}</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Workspace */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-10 max-w-5xl mx-auto w-full">
-        {saved && (
-          <div className="bg-white border-2 border-green-100 rounded-[2.5rem] p-8 animate-in fade-in slide-in-from-top-4 duration-500 shadow-2xl shadow-green-100/50 space-y-4">
-            <div className="text-green-600 font-black text-xl flex items-center gap-3">
-              <span className="text-3xl">✨</span>
-              {t('editor.common.saved_success')}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-10 pb-24 relative no-scrollbar">
+          {saved && (
+            <div className="bg-emerald-50 border-b border-emerald-100 p-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+               <div className="text-emerald-700 font-bold text-lg mb-6 flex items-center justify-center gap-2">
+                 <span>✅</span> {t('editor.common.saved_success')}
+               </div>
+               <button onClick={() => navigate('/dashboard#saved')} className="bg-emerald-600 text-white px-8 py-3 rounded-2xl text-sm font-black hover:bg-emerald-700 transition active:scale-95 shadow-lg">
+                 {t('editor.common.dashboard')}
+               </button>
             </div>
-            <div className="flex justify-center pt-2">
-              <button 
-                onClick={() => window.location.href = '/dashboard'}
-                className="bg-teal-500 text-white px-10 py-4 rounded-2xl font-black hover:bg-teal-600 transition active:scale-95 shadow-lg shadow-teal-500/20"
-              >
-                {t('editor.common.go_to_cabinet')}
-              </button>
+          )}
+
+          <section className="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-2xl shadow-slate-200/50 border border-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+              <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M22 13h-8v-2h8v2m0-6h-8v2h8V7m0 12h-8v2h8v-2M7 19c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2h10V3H7c-2.21 0-4 1.79-4 4v10c0 2.21 1.79 4 4 4h10v-2H7z"/></svg>
             </div>
-          </div>
-        )}
-
-        {/* Header Setting */}
-        <section className="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-2xl shadow-slate-200/50 border border-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-5">
-            <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M22 13h-8v-2h8v2m0-6h-8v2h8V7m0 12h-8v2h8v-2M7 19c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2h10V3H7c-2.21 0-4 1.79-4 4v10c0 2.21 1.79 4 4 4h10v-2H7z"/></svg>
-          </div>
-          <label className="block text-[10px] font-black text-teal-500 uppercase tracking-[0.3em] mb-4">
-            {t('editor.memory.main_heading')}
-          </label>
-          <input 
-            value={headerText}
-            onChange={e => setHeaderText(e.target.value)}
-            className="w-full text-4xl md:text-7xl font-black text-slate-900 border-none focus:ring-0 placeholder-slate-200 bg-transparent tracking-tighter leading-tight"
-            placeholder={t('editor.memory.heading_placeholder')}
-          />
-        </section>
-
-        {/* Galleries List */}
-        <div className="space-y-10">
-          <div className="flex items-center justify-between px-2">
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-              {t('editor.memory.galleries')}
-            </h2>
-            <button 
-              onClick={addGallery}
-              className="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 text-teal-600 font-black hover:scale-105 transition active:scale-95"
-            >
-              <div className="w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-teal-500/30">+</div>
-              {t('editor.memory.add_gallery')}
-            </button>
-          </div>
-
-          {galleries.map((gallery, gIdx) => (
-            <div key={gallery.id} className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-200/50 border border-white space-y-8 relative group">
-              <div className="flex flex-col md:flex-row md:items-center gap-6">
-                <div className="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center text-3xl shadow-inner">📁</div>
-                <div className="flex-1 space-y-1 text-left">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">{t('editor.memory.gallery_name')}</label>
-                  <input 
-                    value={gallery.name}
-                    onChange={e => updateGalleryName(gallery.id, e.target.value)}
-                    className="text-2xl font-black text-slate-800 bg-transparent border-none focus:outline-none focus:ring-0 w-full placeholder-slate-200"
-                    placeholder={t('editor.memory.gallery_placeholder')}
-                  />
+            
+            <div className="grid md:grid-cols-2 gap-10">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[10px] font-black text-teal-500 uppercase tracking-[0.3em] mb-4">{t('editor.memory.main_heading')}</label>
+                  <input value={headerText} onChange={e => setHeaderText(e.target.value)} className="w-full text-4xl md:text-6xl font-black text-slate-900 border-none focus:ring-0 placeholder-slate-200 bg-transparent tracking-tighter leading-tight" placeholder={t('editor.memory.heading_placeholder')} />
                 </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <div className="text-sm font-black text-slate-900">{gallery.images.length}/25</div>
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('editor.memory.photos_count')}</div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {/* Local Upload Input */}
-                    <div className="relative">
-                      <input 
-                        type="file" 
-                        multiple 
-                        accept="image/*"
-                        className="hidden" 
-                        id={`file-upload-${gallery.id}`}
-                        onChange={(e) => handleFileUpload(e, gallery.id)}
-                      />
-                      <label 
-                        htmlFor={`file-upload-${gallery.id}`}
-                        className={`flex items-center justify-center gap-3 px-6 py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-teal-600 transition cursor-pointer shadow-xl active:scale-95 text-xs whitespace-nowrap ${uploadingGalleryId === gallery.id ? 'opacity-50 pointer-events-none' : ''}`}
-                      >
-                        {uploadingGalleryId === gallery.id ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            <span>{t('editor.common.uploading')}</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                            <span>{t('editor.memory.add_photos') || t('editor.common.add')}</span>
-                          </>
-                        )}
-                      </label>
-                    </div>
-
-                    {/* Delete Gallery Button (Moved here from absolute position) */}
-                    <button 
-                      onClick={() => removeGallery(gallery.id)}
-                      title={t('editor.memory.remove') || 'Delete Gallery'}
-                      className="p-4 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-95 border border-transparent hover:border-red-100 flex-shrink-0"
-                    >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                  </div>
+                <div>
+                  <label className="block text-[10px] font-black text-teal-500 uppercase tracking-[0.3em] mb-2">{t('editor.memory.hero_subtitle')}</label>
+                  <input value={heroSubtitle} onChange={e => setHeroSubtitle(e.target.value)} className="w-full text-lg font-bold text-slate-600 bg-slate-50 rounded-xl px-4 py-2 border-none focus:ring-2 focus:ring-teal-500/20" placeholder={t('editor.memory.hero_subtitle_placeholder')} />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-teal-500 uppercase tracking-[0.3em] mb-2">{t('editor.memory.hero_scroll')}</label>
+                  <input value={heroScrollText} onChange={e => setHeroScrollText(e.target.value)} className="w-full text-lg font-bold text-slate-600 bg-slate-50 rounded-xl px-4 py-2 border-none focus:ring-2 focus:ring-teal-500/20" placeholder={t('editor.memory.hero_scroll_placeholder')} />
                 </div>
               </div>
 
-              {/* Photos Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 pt-4">
-                {gallery.images.map((img, iIdx) => (
-                  <div key={iIdx} className="relative group/img aspect-square rounded-3xl overflow-hidden bg-slate-100 border-2 border-white shadow-lg transition-transform hover:scale-105 active:scale-95">
-                    <img 
-                      src={img} 
-                      className="w-full h-full object-cover transition duration-500 group-hover/img:scale-110" 
-                      alt="Uploaded Preview" 
+              <div className="relative group">
+                <label className="block text-[10px] font-black text-teal-500 uppercase tracking-[0.3em] mb-4">{t('editor.memory.main_photo')}</label>
+                <div 
+                  onClick={() => document.getElementById('heroPhotoInput').click()}
+                  className="aspect-[4/3] rounded-[2rem] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-teal-400 hover:bg-teal-50 transition-all overflow-hidden relative"
+                >
+                  {heroPhoto ? (
+                    <>
+                      <img src={heroPhoto} className="w-full h-full object-cover" alt="Hero" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <span className="text-white font-black text-xs uppercase tracking-widest">{t('editor.love.change_photo')}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-4xl">🖼️</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{uploadingHero ? t('editor.common.uploading') : t('editor.love.upload_photo')}</span>
+                    </>
+                  )}
+                </div>
+                <input id="heroPhotoInput" type="file" className="hidden" accept="image/*" onChange={handleHeroPhotoUpload} />
+              </div>
+            </div>
+          </section>
+
+          <div className="space-y-10">
+            <div className="flex items-center justify-between px-2">
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight">{t('editor.memory.galleries')}</h2>
+              <button onClick={handleAddGallery} className="w-12 h-12 bg-teal-500 text-white rounded-2xl flex items-center justify-center hover:bg-teal-600 transition shadow-lg shadow-teal-500/30 active:scale-90">+</button>
+            </div>
+
+            <div className="space-y-8">
+              {galleries.map((gallery) => (
+                <div key={gallery.id} className="bg-slate-50 rounded-[3rem] p-8 sm:p-12 border border-white shadow-xl shadow-slate-200/30 relative group animate-in slide-in-from-bottom-8 duration-500">
+                  <button onClick={() => handleRemoveGallery(gallery.id)} className="absolute top-8 right-8 w-10 h-10 bg-white text-slate-400 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition hover:text-red-500 shadow-sm">×</button>
+                  <div className="max-w-2xl">
+                    <input value={gallery.title} onChange={e => handleUpdateGalleryTitle(gallery.id, e.target.value)} className="w-full text-2xl sm:text-4xl font-black text-slate-800 bg-transparent border-none focus:ring-0 placeholder-slate-300" placeholder={t('editor.memory.gallery_placeholder')} />
+                    <textarea 
+                      value={gallery.description} 
+                      onChange={e => handleUpdateGalleryDesc(gallery.id, e.target.value)} 
+                      className="w-full mt-4 text-lg font-medium text-slate-400 bg-transparent border-none focus:ring-0 placeholder-slate-200 resize-none h-20" 
+                      placeholder={t('editor.memory.gallery_desc_placeholder')} 
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                      <button 
-                        onClick={() => removeImage(gallery.id, iIdx)}
-                        className="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-white hover:text-red-500 transition-all"
-                      >
-                         {t('editor.memory.remove') || 'Remove'}
+                    <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {gallery.images.map((url, idx) => (
+                        <div key={idx} className="relative aspect-square rounded-3xl overflow-hidden group/img shadow-md">
+                          <img src={url} className="w-full h-full object-cover transition duration-500 group-hover/img:scale-110" alt="" />
+                          <button onClick={() => handleRemoveImage(gallery.id, url)} className="absolute inset-0 bg-red-500/90 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition font-black text-xs">REMOVE</button>
+                        </div>
+                      ))}
+                      <button onClick={() => { fileInputRef.current.galleryId = gallery.id; fileInputRef.current.click(); }} disabled={uploadingGalleryId === gallery.id} className="aspect-square bg-white border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center gap-2 hover:border-teal-400 hover:bg-teal-50 transition-all group disabled:opacity-50">
+                        {uploadingGalleryId === gallery.id ? <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" /> : <><span className="text-2xl group-hover:scale-125 transition-transform">📸</span><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Add Photo</span></>}
                       </button>
                     </div>
                   </div>
-                ))}
-                
-                {/* Empty State / Prompt */}
-                {gallery.images.length === 0 && !uploadingGalleryId && (
-                  <label 
-                    htmlFor={`file-upload-${gallery.id}`}
-                    className="col-span-full py-16 flex flex-col items-center justify-center gap-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] text-slate-400 hover:text-teal-500 hover:border-teal-200 transition-all cursor-pointer"
-                  >
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg text-3xl">🖼️</div>
-                    <div className="text-center">
-                      <p className="font-bold text-slate-600">{t('editor.memory.no_photos')}</p>
-                      <p className="text-xs">{t('editor.memory.click_to_upload')}</p>
-                    </div>
-                  </label>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {/* Finish Info */}
-        <div className="text-center pb-24 pt-10">
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-full shadow-xl shadow-slate-100 border border-slate-50 text-slate-400 text-xs font-bold uppercase tracking-widest text-nowrap">
-            <span className="w-2 h-2 bg-teal-500 rounded-full animate-pulse" />
-            {t('editor.memory.secure_memories')}
           </div>
+
         </div>
       </div>
+
+      <input type="file" ref={fileInputRef} onChange={e => handleImageUpload(fileInputRef.current.galleryId, e)} className="hidden" accept="image/*" multiple />
+      {showMusicSearch && (
+        <MusicSearch onClose={() => setShowMusicSearch(false)} onSelect={(song) => { setMusicUrl(song.url); setMusicLabel(song.name); setShowMusicSearch(false); }} />
+      )}
+      <PublishModal isOpen={publishModalOpen} card={cardToPublish} onClose={() => setPublishModalOpen(false)} onProceed={startPublishProcess} />
     </div>
   );
 }

@@ -84,23 +84,43 @@ export function normalizeRecipientInput(method, rawValue) {
   return `+995${digits.slice(0, 9)}`;
 }
 
-export function validateScheduleDraft(schedule, language) {
+export function getGuestCountFromCard(card) {
+  if (!card?.imagesJson) return 0;
+  try {
+    const data = typeof card.imagesJson === 'string' ? JSON.parse(card.imagesJson) : card.imagesJson;
+    const phones = data.phones || [];
+    const seating = data.seating || [];
+    const guests = new Set([...phones, ...seating.map(s => s.phone)].filter(Boolean));
+    return guests.size;
+  } catch (e) {
+    return 0;
+  }
+}
+
+export function validateScheduleDraft(schedule, language, cardType) {
   if (!schedule.isAutoSend) {
     return '';
   }
 
-  if (!schedule.recipient.trim()) {
+  // For invitations, recipient can be empty if we're using GUESTS_LIST
+  const isInvitation = cardType === 'invitation';
+  const effectiveRecipient = isInvitation && !schedule.recipient.trim() ? 'GUESTS_LIST' : schedule.recipient.trim();
+
+  if (!effectiveRecipient) {
     return getMessage(language, 'emptyRecipient');
   }
 
   if (schedule.sendMethod === 'email') {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(schedule.recipient.trim())) {
+    if (!emailRegex.test(effectiveRecipient)) {
       return getMessage(language, 'invalidEmail');
     }
   } else {
+    if (effectiveRecipient === 'GUESTS_LIST') {
+      return '';
+    }
     const phoneRegex = /^\+995\d{9}$/;
-    if (!phoneRegex.test(schedule.recipient.trim())) {
+    if (!phoneRegex.test(effectiveRecipient)) {
       return getMessage(language, 'invalidPhone');
     }
   }
@@ -116,3 +136,4 @@ export function validateScheduleDraft(schedule, language) {
 
   return '';
 }
+

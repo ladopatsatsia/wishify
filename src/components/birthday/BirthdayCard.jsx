@@ -8,6 +8,8 @@ import { cardsData } from '../../data/cardsData';
 import { useLanguage } from '../../context/LanguageContext';
 import AuthRequiredModal from '../AuthRequiredModal';
 import { CARDS_URL } from '../../api/config';
+import PublishModal from '../profile/PublishModal';
+import { useLocation as useLocationRouter } from 'react-router-dom'; // Alias just in case
 
 // Default template data for the new birthday card
 const DEFAULT_BIRTHDAY_CARD = {
@@ -41,6 +43,19 @@ export default function BirthdayCard({ subdomainSlug }) {
   const [dbCard, setDbCard] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [cardToPublish, setCardToPublish] = useState(null);
+
+  const handlePurchase = () => {
+    if (!dbCard) return;
+    setCardToPublish(dbCard);
+    setPublishModalOpen(true);
+  };
+
+  const startPublishProcess = (cardId, slug, scheduleData) => {
+    setPublishModalOpen(false);
+    navigate('/payment', { state: { cardId, slug, schedule: scheduleData } });
+  };
 
   useEffect(() => {
     const editMode = searchParams.get('mode') === 'edit' || searchParams.get('edit') === 'true';
@@ -112,7 +127,12 @@ export default function BirthdayCard({ subdomainSlug }) {
       title: dbCard.heading,
       message: [dbCard.message1, dbCard.message2].filter(Boolean).join('\n\n'),
       signature: dbCard.footer,
-      images: dbCard.imagesJson ? JSON.parse(dbCard.imagesJson).filter(img => img) : [],
+      images: dbCard.imagesJson ? (() => {
+        try {
+          const parsed = JSON.parse(dbCard.imagesJson);
+          return Array.isArray(parsed) ? parsed.filter(img => img) : [];
+        } catch(e) { return []; }
+      })() : [],
       musicEnabled: !!dbCard.audioUrl,
       musicUrl: dbCard.audioUrl || null,
       giftBoxEnabled: !!dbCard.giftBoxUrl,
@@ -203,8 +223,17 @@ export default function BirthdayCard({ subdomainSlug }) {
           }
         }}
         cardId={cardId}
+        onPurchase={(!subdomainSlug && dbCard) ? handlePurchase : undefined}
       />
       
+      <PublishModal
+        isOpen={publishModalOpen}
+        card={cardToPublish}
+        onClose={() => setPublishModalOpen(false)}
+        onProceed={startPublishProcess}
+        className="z-[200]" 
+      />
+
       <AuthRequiredModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}

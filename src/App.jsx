@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
 import { useLanguage } from './context/LanguageContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -25,6 +25,7 @@ import ResetPassword from './pages/ResetPassword';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import MemoryCardEditor from './components/memory/MemoryCardEditor';
 import LoveLetterEditor from './components/love/LoveLetterEditor';
+import InvitationEditor from './components/invitation/InvitationEditor';
 import { cardsData } from './data/cardsData';
 import { useAuth } from './context/AuthContext';
 import { CARDS_URL } from './api/config';
@@ -77,9 +78,13 @@ export default function App() {
     ? parts[0]
     : null;
 
-  // If on a subdomain, render the card page directly (no Navbar, no routing)
-  if (subdomain) {
-    return <BirthdayCard subdomainSlug={subdomain} />;
+  if (subdomain && subdomain !== 'localhost' && subdomain !== 'www' && subdomain !== 'wishyfy') {
+    const guestPhone = window.location.pathname.split('/')[1];
+    return (
+      <div className="min-h-screen bg-white flex flex-col font-sans">
+        <InteractiveCardView subdomainSlug={subdomain} guestPhone={guestPhone} />
+      </div>
+    );
   }
 
   // Hide main UI components when viewing a full-screen interactive card or Admin Dashboard
@@ -87,7 +92,11 @@ export default function App() {
     location.pathname.startsWith('/view/') || 
     location.pathname.startsWith('/birthday-card') || 
     location.pathname === '/payment' ||
-    location.pathname.startsWith('/admin');
+    location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/create/') ||
+    location.pathname.startsWith('/edit/') ||
+    (window.location.hostname.split('.').length > 2 && !window.location.hostname.includes('www') && !window.location.hostname.includes('localhost')) ||
+    (subdomain && subdomain !== 'localhost' && subdomain !== 'www' && subdomain !== 'wishyfy');
 
   const handleCardClick = (categoryId, card) => {
     if (card) {
@@ -109,10 +118,11 @@ export default function App() {
           element={<CardEditorWrapper />}
         />
         <Route path="/view/:categoryId/:cardId" element={<InteractiveCardView />} />
+        <Route path="/view/:categoryId/:cardId/:guestPhone" element={<InteractiveCardView />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/profile/saved" element={<SavedCards />} />
-        <Route path="/profile/published" element={<PublishedCards />} />
+        <Route path="/profile/saved" element={<Navigate to="/dashboard#saved" replace />} />
+        <Route path="/profile/published" element={<Navigate to="/dashboard#published" replace />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/birthday-card" element={<BirthdayCard />} />
@@ -123,7 +133,7 @@ export default function App() {
       </Routes>
 
       {!isViewMode && <Footer />}
-      <LanguageSwitcher />
+      {!isViewMode && <LanguageSwitcher />}
     </div>
   );
 }
@@ -178,14 +188,14 @@ function CardEditorWrapper() {
       <h2 className="text-2xl font-bold text-red-600">
         {language === 'ka' ? 'შეცდომა:' : 'Error:'} {error}
       </h2>
-      <button onClick={() => navigate('/profile/saved')} className="mt-4 text-violet-600 cursor-pointer">
+      <button onClick={() => navigate('/dashboard#saved')} className="mt-4 text-violet-600 cursor-pointer">
         {language === 'ka' ? 'შენახულებში დაბრუნება' : 'Back to Saved Cards'}
       </button>
     </div>
   );
 
   const templateCard = dbCard 
-    ? cardsData[dbCard.templateId?.startsWith('m') ? 'memory' : dbCard.templateId?.startsWith('l') ? 'love' : 'birthday']?.find(t => t.id === dbCard.templateId)
+    ? cardsData[dbCard.templateId?.startsWith('m') ? 'memory' : dbCard.templateId?.startsWith('l') ? 'love' : dbCard.templateId?.startsWith('i') ? 'invitation' : 'birthday']?.find(t => t.id === dbCard.templateId)
     : cardsData[catId]?.find(c => c.id === cardId);
 
   if (loading) return (
@@ -212,7 +222,7 @@ function CardEditorWrapper() {
         card={dbCard || templateCard}
         category={categoryId || 'memory'}
         onBack={() => navigate(-1)}
-        onClose={() => navigate('/profile/saved')}
+        onClose={() => navigate('/dashboard#saved')}
       />
     );
   }
@@ -225,7 +235,20 @@ function CardEditorWrapper() {
         existingCard={dbCard}
         category={categoryId || 'love'}
         onBack={() => navigate(-1)}
-        onClose={() => navigate('/profile/saved')}
+        onClose={() => navigate('/dashboard#saved')}
+      />
+    );
+  }
+
+  // If it's an invitation
+  if (templateCard.id?.startsWith('i') || dbCard?.templateId?.startsWith('i') || categoryId === 'invitation') {
+    return (
+      <InvitationEditor
+        card={dbCard || templateCard}
+        existingCard={dbCard}
+        category={categoryId || 'invitation'}
+        onBack={() => navigate(-1)}
+        onClose={() => navigate('/dashboard#saved')}
       />
     );
   }
@@ -236,7 +259,7 @@ function CardEditorWrapper() {
       existingCard={dbCard}
       category={categoryId || 'birthday'}
       onBack={() => navigate(-1)}
-      onClose={() => navigate('/profile/saved')}
+      onClose={() => navigate('/dashboard#saved')}
     />
   );
 }

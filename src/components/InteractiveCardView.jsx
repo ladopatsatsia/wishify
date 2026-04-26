@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { CARDS_URL } from '../api/config';
 import MemoryCardView from './memory/MemoryCardView';
 import LoveCardView from './love/LoveCardView';
+import InvitationView from './invitation/InvitationView';
+import PublishModal from './profile/PublishModal';
 
 const CARDS_API = CARDS_URL;
 
@@ -22,8 +24,19 @@ function findLocalCard(cardId, categoryId) {
   return null;
 }
 
-export default function InteractiveCardView({ previewData, onBackToEdit }) {
-  const { cardId, categoryId } = useParams();
+export default function InteractiveCardView({ 
+  previewData, 
+  onBackToEdit, 
+  subdomainSlug,
+  onSave,
+  onPurchase,
+  onGoToSaved,
+  saving,
+  isSaved,
+  guestPhone: propGuestPhone
+}) {
+  const { cardId, categoryId, guestPhone: urlGuestPhone } = useParams();
+  const guestPhone = propGuestPhone || urlGuestPhone;
   const navigate = useNavigate();
   const [card, setCard] = useState(previewData || null);
   const [loading, setLoading] = useState(!previewData);
@@ -34,6 +47,21 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
   const { user, loading: authLoading } = useAuth();
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
+
+  const handleInnerPurchase = () => {
+    if (onPurchase) {
+      onPurchase();
+      return;
+    }
+    if (!card) return;
+    setPublishModalOpen(true);
+  };
+
+  const startPublishProcess = (cardId, slug, scheduleData) => {
+    setPublishModalOpen(false);
+    navigate('/payment', { state: { cardId, slug, schedule: scheduleData } });
+  };
 
   // Force actual reload when source changes
   useEffect(() => {
@@ -73,10 +101,25 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
         }
       };
       fetchCard();
+    } else if (subdomainSlug) {
+      const fetchBySlug = async () => {
+        try {
+          const res = await fetch(`${CARDS_API}/slug/${subdomainSlug}`);
+          if (!res.ok) throw new Error('Card not found or private');
+          const data = await res.json();
+          setCard(data);
+        } catch (err) {
+          console.error("Failed to fetch by slug", err);
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchBySlug();
     } else {
       setLoading(false);
     }
-  }, [cardId, categoryId, previewData]);
+  }, [cardId, categoryId, previewData, subdomainSlug]);
 
   const handleMagicClick = () => {
     setMagicClicked(true);
@@ -213,7 +256,8 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
   }
 
   // Normalize card data for visibility check
-  const isPublic = card?.isPublic ?? card?.IsPublic ?? false;
+  const isTemplate = !!card?.content; // Local templates have a nested 'content' object
+  const isPublic = isTemplate || (card?.isPublic ?? card?.IsPublic ?? false);
   
   // Case-insensitive ID comparison for GUIDs (handle both creatorId and CreatorId)
   const cardCreatorId = (card?.creatorId || card?.CreatorId)?.toString()?.toLowerCase();
@@ -273,7 +317,26 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
   };
 
   if (isMemoryCard()) {
-    return <MemoryCardView card={card} onBackToEdit={onBackToEdit} />;
+    return (
+      <>
+        <MemoryCardView 
+          card={card} 
+          onBackToEdit={onBackToEdit} 
+          onSave={onSave}
+          onPurchase={onPurchase || (isOwner ? handleInnerPurchase : undefined)} 
+          onGoToSaved={onGoToSaved}
+          saving={saving}
+          isSaved={isSaved}
+        />
+        <PublishModal
+          isOpen={publishModalOpen}
+          card={card}
+          onClose={() => setPublishModalOpen(false)}
+          onProceed={startPublishProcess}
+          className="z-[200]" 
+        />
+      </>
+    );
   }
 
   const isLoveCard = () => {
@@ -283,7 +346,56 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
   };
 
   if (isLoveCard()) {
-    return <LoveCardView card={card} onBackToEdit={onBackToEdit} />;
+    return (
+      <>
+        <LoveCardView 
+          card={card} 
+          onBackToEdit={onBackToEdit} 
+          onSave={onSave}
+          onPurchase={onPurchase || (isOwner ? handleInnerPurchase : undefined)} 
+          onGoToSaved={onGoToSaved}
+          saving={saving}
+          isSaved={isSaved}
+        />
+        <PublishModal
+          isOpen={publishModalOpen}
+          card={card}
+          onClose={() => setPublishModalOpen(false)}
+          onProceed={startPublishProcess}
+          className="z-[200]" 
+        />
+      </>
+    );
+  }
+
+  const isInvitation = () => {
+     if (categoryId === 'invitation') return true;
+     if (card.templateId?.startsWith('i')) return true;
+     return false;
+  };
+
+  if (isInvitation()) {
+    return (
+      <>
+        <InvitationView 
+          card={card} 
+          onBackToEdit={onBackToEdit} 
+          guestPhone={guestPhone} 
+          onSave={onSave}
+          onPurchase={onPurchase || (isOwner ? handleInnerPurchase : undefined)} 
+          onGoToSaved={onGoToSaved}
+          saving={saving}
+          isSaved={isSaved}
+        />
+        <PublishModal
+          isOpen={publishModalOpen}
+          card={card}
+          onClose={() => setPublishModalOpen(false)}
+          onProceed={startPublishProcess}
+          className="z-[200]" 
+        />
+      </>
+    );
   }
 
   const style = card.style || card.template || {};
@@ -310,14 +422,69 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
       <div className={`relative transition-opacity duration-1000 ${showContent ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
         <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-10" />
 
-        {/* Back to Edit Button (only in preview mode) */}
+        {/* --- PREVIEW ACTIONS --- */}
+        {/* Red X Back Button (Top Left) - Invitation Style */}
         {onBackToEdit && (
           <button 
             onClick={onBackToEdit}
-            className="fixed top-8 left-8 z-[110] bg-white/20 backdrop-blur-md border border-white/30 text-white px-6 py-2.5 rounded-full font-bold hover:bg-white/40 transition-all flex items-center gap-2 cursor-pointer"
+            className="fixed top-6 left-6 z-[230] w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-all cursor-pointer shadow-2xl active:scale-90 border-2 border-white ring-4 ring-red-600/20"
+            title={language === 'ka' ? 'უკან' : 'Back'}
           >
-            {language === 'ka' ? '← უკან დაბრუნება' : language === 'ru' ? '← Назад в редактор' : '← Back to Editor'}
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
+        )}
+
+        {/* Fixed Bottom Footer for Preview Mode - Invitation Style */}
+        {onBackToEdit && (
+          <div className="fixed bottom-0 left-0 right-0 z-[220] bg-white/80 backdrop-blur-xl border-t border-slate-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-500">
+            <div className="max-w-2xl mx-auto flex items-center justify-center gap-4">
+              {isSaved ? (
+                <button 
+                  onClick={onGoToSaved}
+                  className="bg-emerald-500 text-white font-black px-12 py-3.5 rounded-2xl flex items-center gap-2 shadow-xl shadow-emerald-500/20 animate-in zoom-in duration-300 text-sm cursor-pointer hover:opacity-90 transition-all"
+                >
+                  📂 {language === 'ka' ? 'შენახულ ბარათებში გადასვლა' : 'Go to Saved Cards'}
+                </button>
+              ) : (
+                <>
+                  <button 
+                    onClick={onSave}
+                    disabled={saving}
+                    className="flex-1 max-w-[200px] py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-amber-500/20 disabled:opacity-50 active:scale-95 text-sm cursor-pointer"
+                  >
+                    {saving ? (language === 'ka' ? 'ინახება...' : 'Saving...') : (language === 'ka' ? 'შენახვა' : 'Save')}
+                  </button>
+                  <button 
+                    onClick={handleInnerPurchase}
+                    disabled={saving}
+                    className="flex-1 max-w-[200px] py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-amber-500/20 disabled:opacity-50 active:scale-95 text-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    💳 {language === 'ka' ? 'შეძენა' : 'Purchase'}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Owner Purchase Header (for saved cards viewed from profile) */}
+        {isOwner && !isPublic && !onBackToEdit && (
+          <div className="fixed top-0 left-0 w-full z-[110] flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur border-b border-white/10">
+            <button
+              onClick={() => navigate('/dashboard#saved')}
+              className="flex items-center gap-2 text-white/70 hover:text-white font-semibold transition-colors cursor-pointer"
+            >
+              <span>←</span> <span className="hidden sm:inline">{language === 'ka' ? 'შენახულებში დაბრუნება' : 'Back to Saved'}</span>
+            </button>
+            <button
+              onClick={handleInnerPurchase}
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm sm:text-base font-bold px-6 py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer"
+            >
+              💳 <span>{language === 'ka' ? 'შეძენა' : 'Purchase'}</span>
+            </button>
+          </div>
         )}
 
         <div className="relative z-20 max-w-5xl mx-auto px-6 py-20 min-h-screen flex flex-col items-center">
@@ -380,6 +547,14 @@ export default function InteractiveCardView({ previewData, onBackToEdit }) {
       </div>
 
       <audio ref={audioRef} src={audioUrl} loop />
+
+      <PublishModal
+        isOpen={publishModalOpen}
+        card={card}
+        onClose={() => setPublishModalOpen(false)}
+        onProceed={startPublishProcess}
+        className="z-[200]" 
+      />
 
       <style>{`
         @keyframes float {

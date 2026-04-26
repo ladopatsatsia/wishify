@@ -28,6 +28,14 @@ export default function Dashboard() {
     }
   }, [user, authLoading, navigate]);
 
+  // Handle hash changes for tab navigation
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    if (['saved', 'published', 'password'].includes(hash)) {
+      setActiveTab(hash);
+    }
+  }, [location.hash]);
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     navigate(`/dashboard#${tab}`, { replace: true });
@@ -59,7 +67,7 @@ export default function Dashboard() {
 
         <div className="relative max-w-5xl mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight mb-2">
-            {language === 'ka' ? 'გამარჯობა, ' : language === 'ru' ? 'Привет, ' : 'Hello, '}
+            {t('dashboard.hello')}, 
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600">
               {user.firstName}!
             </span>

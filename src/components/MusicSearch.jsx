@@ -80,9 +80,9 @@ export default function MusicSearch({ onSelect, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="bg-white w-full max-w-lg rounded-3xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-violet-50 to-pink-50">
+        <div className="p-5 sm:p-8 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-violet-50 to-pink-50">
           <div>
             <h3 className="text-2xl font-black text-slate-800 tracking-tight">
               {t('music_search.title')}
@@ -98,7 +98,7 @@ export default function MusicSearch({ onSelect, onClose }) {
         </div>
 
         {/* Search Input Area */}
-        <div className="p-8 pb-4">
+        <div className="p-4 sm:p-8 pb-2 sm:pb-4">
           <div className="relative group">
             <input
               autoFocus
@@ -117,7 +117,7 @@ export default function MusicSearch({ onSelect, onClose }) {
         </div>
 
         {/* Results Area */}
-        <div className="flex-1 overflow-y-auto p-4 pt-0 space-y-3 px-8 pb-8 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 pt-0 space-y-2 sm:space-y-3 px-5 sm:px-8 pb-5 sm:pb-8 custom-scrollbar">
           {error && (
             <div className="text-center py-10 text-red-400 font-bold text-sm bg-red-50 rounded-2xl border border-red-100 italic">
                ⚠️ {error}

@@ -22,6 +22,7 @@ public class Card
     public string Message2 { get; set; } = string.Empty;
     public string Footer { get; set; } = "Sent with Love from Wishify";
     public string? AudioUrl { get; set; }
+    public string? AudioLabel { get; set; }
     
     // Style overrides (optional)
     public string? CustomEmoji { get; set; }

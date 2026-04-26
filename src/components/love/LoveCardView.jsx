@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 
-export default function LoveCardView({ card, onBackToEdit }) {
+export default function LoveCardView({ card, onBackToEdit, onSave, onPurchase, onGoToSaved, saving, isSaved }) {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [showHearts, setShowHearts] = useState(true);
@@ -91,14 +91,71 @@ export default function LoveCardView({ card, onBackToEdit }) {
     <div className="min-h-screen bg-gradient-to-br from-rose-500 via-red-600 to-rose-700 flex items-center justify-center p-6 relative overflow-hidden font-serif">
       <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />
       
-      {/* Back to Edit Button */}
+      {/* --- PREVIEW ACTIONS --- */}
+      {/* Standalone Owner Header */}
+      {!onBackToEdit && onPurchase && (
+        <div className="fixed top-0 left-0 w-full z-[230] flex items-center justify-between px-6 py-4 bg-white/20 backdrop-blur border-b border-rose-100">
+          <button
+            onClick={() => window.history.back()}
+            className="flex items-center gap-2 text-rose-600 hover:text-rose-900 font-semibold transition-colors cursor-pointer"
+          >
+            <span>←</span> <span className="hidden sm:inline">{language === 'ka' ? 'უკან დაბრუნება' : 'Back'}</span>
+          </button>
+          <button
+            onClick={onPurchase}
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm sm:text-base font-bold px-6 py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer"
+          >
+            💳 <span>{language === 'ka' ? 'შეძენა' : 'Purchase'}</span>
+          </button>
+        </div>
+      )}
+
+      {/* Red X Back Button (Top Left) - Invitation Style */}
       {onBackToEdit && (
         <button 
           onClick={onBackToEdit}
-          className="fixed top-8 left-8 z-[110] bg-white/20 backdrop-blur-md border border-white/30 text-white px-6 py-2.5 rounded-full font-bold hover:bg-white/40 transition-all flex items-center gap-2 cursor-pointer"
+          className="fixed top-6 left-6 z-[230] w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-all cursor-pointer shadow-2xl active:scale-90 border-2 border-white ring-4 ring-red-600/20"
+          title={language === 'ka' ? 'უკან' : 'Back'}
         >
-          {language === 'ka' ? '← რედაქტირება' : '← Back to Editor'}
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
+      )}
+
+      {/* Fixed Bottom Footer for Preview Mode - Invitation Style */}
+      {onBackToEdit && (
+        <div className="fixed bottom-0 left-0 right-0 z-[220] bg-white/80 backdrop-blur-xl border-t border-slate-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-500">
+          <div className="max-w-2xl mx-auto flex items-center justify-center gap-4">
+            {isSaved ? (
+              <button 
+                onClick={onGoToSaved}
+                className="bg-emerald-500 text-white font-black px-12 py-3.5 rounded-2xl flex items-center gap-2 shadow-xl shadow-emerald-500/20 animate-in zoom-in duration-300 text-sm cursor-pointer hover:opacity-90 transition-all"
+              >
+                📂 {language === 'ka' ? 'შენახულ ბარათებში გადასვლა' : 'Go to Saved Cards'}
+              </button>
+            ) : (
+              <>
+                <button 
+                  onClick={onSave}
+                  disabled={saving}
+                  className="flex-1 max-w-[200px] py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-amber-500/20 disabled:opacity-50 active:scale-95 text-sm cursor-pointer"
+                >
+                  {saving ? (language === 'ka' ? 'ინახება...' : 'Saving...') : (language === 'ka' ? 'შენახვა' : 'Save')}
+                </button>
+                {onPurchase && (
+                  <button 
+                    onClick={onPurchase}
+                    disabled={saving}
+                    className="flex-1 max-w-[200px] py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-emerald-500/20 disabled:opacity-50 active:scale-95 text-sm cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    💳 {language === 'ka' ? 'შეძენა' : 'Purchase'}
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Interactive Envelope Container */}

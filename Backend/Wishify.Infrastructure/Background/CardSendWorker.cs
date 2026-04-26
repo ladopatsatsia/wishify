@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Text.Json;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Globalization;
@@ -128,6 +130,12 @@ public class CardSendWorker : BackgroundService
             return;
         }
 
+        if (card.AutoSendRecipient == "GUESTS_LIST")
+        {
+            await SendSmsToAllGuests(card, smsService, context, ct);
+            return;
+        }
+
         var cardType = card.Template?.Category?.Label ?? "Greeting Card";
         var link = $"https://{card.UrlSlug}.wishyfy.ge";
         var message = $"👋 {card.RecipientName}, you received a {cardType} from Wishyfy! 🎁 View it here: {link}";
@@ -140,6 +148,62 @@ public class CardSendWorker : BackgroundService
         {
             _logger.LogInformation("[CardSendWorker] Success! Card {Id} SMS sent.", card.Id);
             card.IsSent = true;
+            await context.SaveChangesAsync(ct);
+        }
+    }
+
+    private async Task SendSmsToAllGuests(Wishify.Domain.Entities.Card card, ISmsService smsService, ApplicationDbContext context, CancellationToken ct)
+    {
+        _logger.LogInformation("[CardSendWorker] Sending SMS to all guests for Invitation {CardId}...", card.Id);
+
+        if (string.IsNullOrEmpty(card.ImagesJson))
+        {
+            _logger.LogWarning("[CardSendWorker] Card {CardId} has GUESTS_LIST but ImagesJson is empty.", card.Id);
+            card.IsSent = true;
+            await context.SaveChangesAsync(ct);
+            return;
+        }
+
+        try
+        {
+            var data = JsonDocument.Parse(card.ImagesJson);
+            if (data.RootElement.TryGetProperty("seating", out var seating) && seating.ValueKind == JsonValueKind.Array)
+            {
+                var guests = seating.EnumerateArray();
+                int successCount = 0;
+                int totalGuests = 0;
+
+                foreach (var guest in guests)
+                {
+                    totalGuests++;
+                    var phone = guest.TryGetProperty("phone", out var p) ? p.GetString() : null;
+                    var name = guest.TryGetProperty("name", out var n) ? n.GetString() : "Guest";
+
+                    if (string.IsNullOrEmpty(phone)) continue;
+
+                    var link = $"https://{card.UrlSlug}.wishyfy.ge/view/{card.Template?.CategoryId ?? "invitation"}/{card.Id}/{phone}";
+                    var message = $"👋 {name}, you are invited! 💌 View your invitation and seating details here: {link}";
+
+                    _logger.LogInformation("[CardSendWorker] Sending SMS to guest {Name} ({Phone})...", name, phone);
+                    var success = await smsService.SendSmsAsync(phone, message);
+                    if (success) successCount++;
+                }
+
+                _logger.LogInformation("[CardSendWorker] Finished sending guest SMS. Success: {Success}/{Total}", successCount, totalGuests);
+                card.IsSent = true;
+                await context.SaveChangesAsync(ct);
+            }
+            else
+            {
+                _logger.LogWarning("[CardSendWorker] Card {CardId} ImagesJson does not contain seating array.", card.Id);
+                card.IsSent = true;
+                await context.SaveChangesAsync(ct);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[CardSendWorker] Error parsing ImagesJson for Card {CardId}", card.Id);
+            card.IsSent = true; // Mark as sent anyway to avoid infinite retry if JSON is corrupted
             await context.SaveChangesAsync(ct);
         }
     }

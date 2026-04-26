@@ -150,7 +150,7 @@ export default function PublishedCards() {
               {language === 'ka' ? 'ჯერ არ გაქვთ გამოქვეყნებული ბარათები. გამოაქვეყნეთ შენახული ბარათებიდან!' : language === 'ru' ? 'Вы еще не сделали ни одной открытки публичной. Опубликуйте открытку из раздела «Сохраненные», чтобы увидеть её здесь!' : "You haven't made any cards public yet. Publish a card from your Saved section to see it here!"}
             </p>
             <button
-              onClick={() => navigate('/profile/saved')}
+              onClick={() => navigate('/dashboard#saved')}
               className="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-slate-800 transition shadow-lg cursor-pointer"
             >
               {language === 'ka' ? 'გადასვლა შენახულ ბარათებზე' : language === 'ru' ? 'Перейти к сохраненным открыткам' : 'Go to Saved Cards'}

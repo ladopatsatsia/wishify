@@ -2,18 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-
 export default function ReelBirthdayCardPreview({ 
   data, 
   onClose, 
+  standalone, 
+  onPersonalize, 
   onSave, 
-  saving, 
   isSaved, 
-  onGoToSaved,
-  standalone = false,
-  isPublic = false,
-  onPersonalize,
-  onBack
+  saving, 
+  onGoToSaved, 
+  isPublic, 
+  isReadOnly,
+  onBack,
+  onPurchase,
+  showActions
 }) {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -140,61 +142,78 @@ export default function ReelBirthdayCardPreview({
             <span>←</span> <span className="hidden sm:inline">{language === 'ka' ? 'უკან' : language === 'ru' ? 'Назад' : 'Back'}</span>
           </button>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {onPurchase && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onPurchase(); }}
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm sm:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer ml-1 sm:ml-2"
+              >
+                💳 <span>{language === 'ka' ? 'შეძენა' : 'Purchase'}</span>
+              </button>
+            )}
             {onPersonalize && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPersonalize();
-                }}
-                className="bg-gradient-to-r from-violet-600 to-pink-600 text-white text-sm sm:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer ml-1 sm:ml-2"
+                onClick={(e) => { e.stopPropagation(); onPersonalize(); }}
+                className="bg-gradient-to-r from-slate-600 to-slate-800 text-white text-sm sm:text-base font-bold px-4 py-2 sm:px-6 sm:py-2.5 rounded-xl shadow-lg hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer ml-1 sm:ml-2"
               >
-                ✏️ <span className="hidden sm:inline">{language === 'ka' ? 'შექმნა' : language === 'ru' ? 'Персонаალიზირება' : 'Personalize'}</span>
+                ✏️ <span className="hidden sm:inline">
+                  {onPurchase 
+                    ? (language === 'ka' ? 'რედაქტირება' : 'Edit') 
+                    : (language === 'ka' ? 'შექმნა' : 'Create')
+                  }
+                </span>
               </button>
             )}
           </div>
         </div>
       )}
 
-      {/* --- EDITOR MODAL TOP BAR --- */}
-      {!standalone && (
-        <div className="fixed top-0 left-0 w-full z-[210] flex items-center justify-between px-6 py-4 bg-black/20 backdrop-blur border-b border-white/10 shadow-lg">
-          <div className="flex items-center gap-3">
-            {isSaved ? (
-              <div className="flex items-center gap-2">
-                <span className="bg-green-500/20 text-green-300 font-bold px-3 py-2 rounded-xl flex items-center border border-green-500/30 text-sm sm:text-base">
-                  ✅ <span className="hidden sm:inline ml-1">{language === 'ka' ? 'წარმატებით შეინახა!' : language === 'ru' ? 'Успешно сохранено!' : 'Saved Successfully!'}</span>
-                </span>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); onGoToSaved(); }}
-                  className="bg-white hover:bg-slate-100 text-violet-600 text-sm sm:text-base font-bold px-4 py-2 rounded-xl border border-white/20 shadow-lg transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  📂 <span className="hidden sm:inline">{language === 'ka' ? 'გადასვლა შენახულ ბარათებზე' : language === 'ru' ? 'Перейти к сохраненным открыткам' : 'Go to Saved Cards'}</span>
-                </button>
-              </div>
-            ) : (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSave();
-                }}
-                disabled={saving}
-                className="bg-white/10 hover:bg-white/20 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur transition-all flex items-center gap-2 cursor-pointer shadow-lg disabled:opacity-50"
-              >
-                {saving ? (
-                  <>⏳ <span className="hidden sm:inline">{language === 'ka' ? 'ინახება...' : language === 'ru' ? 'Сохранение...' : 'Saving...'}</span></>
-                ) : (
-                  <>💾 <span className="hidden sm:inline">{language === 'ka' ? 'შენახვა' : language === 'ru' ? 'Сохранить' : 'Save'}</span></>
-                )}
-              </button>
-            )}
-          </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); onClose && onClose(); onBack && onBack(); }}
-            className="w-10 h-10 bg-white/20 backdrop-blur border border-white/30 rounded-full text-white font-bold text-xl hover:bg-white/40 transition-all flex items-center justify-center cursor-pointer shadow-lg"
+      {/* --- PREVIEW ACTIONS --- */}
+      {(!standalone || showActions) && (
+        <>
+          {/* Red X Back Button (Top Left) - Invitation Style */}
+          <button 
+            onClick={() => { onClose && onClose(); onBack && onBack(); }}
+            className="fixed top-6 left-6 z-[230] w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-all cursor-pointer shadow-2xl active:scale-90 border-2 border-white ring-4 ring-red-600/20"
+            title={language === 'ka' ? 'უკან' : 'Back'}
           >
-            ×
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
-        </div>
+
+          {/* Fixed Bottom Footer for Preview Mode - Invitation Style */}
+          <div className="fixed bottom-0 left-0 right-0 z-[220] bg-white/80 backdrop-blur-xl border-t border-slate-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-500">
+            <div className="max-w-2xl mx-auto flex items-center justify-center gap-4">
+              {isSaved ? (
+                <button 
+                  onClick={onGoToSaved}
+                  className="bg-emerald-500 text-white font-black px-12 py-3.5 rounded-2xl flex items-center gap-2 shadow-xl shadow-emerald-500/20 animate-in zoom-in duration-300 text-sm cursor-pointer hover:opacity-90 transition-all"
+                >
+                  📂 {language === 'ka' ? 'შენახულ ბარათებში გადასვლა' : 'Go to Saved Cards'}
+                </button>
+              ) : (
+                <>
+                  <button 
+                    onClick={onSave}
+                    disabled={saving}
+                    className="flex-1 max-w-[200px] py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-amber-500/20 disabled:opacity-50 active:scale-95 text-sm cursor-pointer"
+                  >
+                    {saving ? (language === 'ka' ? 'ინახება...' : 'Saving...') : (language === 'ka' ? 'შენახვა' : 'Save')}
+                  </button>
+                  {onPurchase && (
+                    <button 
+                      onClick={onPurchase}
+                      disabled={saving}
+                      className="flex-1 max-w-[200px] py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-emerald-500/20 disabled:opacity-50 active:scale-95 text-sm cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      💳 {language === 'ka' ? 'შეძენა' : 'Purchase'}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Main Reel Container (9:16 aspect ratio roughly limit for desktop, full for mobile) */}

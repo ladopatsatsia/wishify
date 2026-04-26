@@ -36,7 +36,7 @@ export default function PaymentPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!cardId || !slug) navigate('/profile/saved');
+    if (!cardId || !slug) navigate('/dashboard#saved');
   }, [cardId, slug, navigate]);
 
   const handlePay = async () => {
@@ -61,7 +61,7 @@ export default function PaymentPage() {
       if (!response.ok) throw new Error('Failed to publish');
 
       setStep('success');
-      setTimeout(() => navigate('/profile/published'), 2500);
+      setTimeout(() => navigate('/dashboard#published'), 2500);
     } catch (err) {
       setError(language === 'ka' ? 'რაღაც შეფერხდა. გთხოვთ სცადოთ თავიდან.' : language === 'ru' ? 'Что-то пошло не так. Пожалуйста, попробуйте еще раз.' : 'Something went wrong. Please try again.');
       setStep('checkout');

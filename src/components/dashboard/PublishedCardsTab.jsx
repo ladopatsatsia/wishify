@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import ScheduleManagementModal from '../profile/ScheduleManagementModal';
+import DeleteConfirmModal from '../profile/DeleteConfirmModal';
 import { getScheduleFromCard } from '../profile/scheduleUtils';
 import { CARDS_URL } from '../../api/config';
 
@@ -39,6 +40,7 @@ export default function PublishedCardsTab() {
   const [error, setError] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [scheduleModal, setScheduleModal] = useState({ open: false, card: null });
+  const [deleteModal, setDeleteModal] = useState({ open: false, cardId: null });
 
   const fetchCards = async () => {
     if (!user) return;
@@ -85,12 +87,14 @@ export default function PublishedCardsTab() {
     }
   };
 
-  const handleDelete = async (cardId) => {
-    const msg =
-      language === 'ka' ? 'დარწმუნებული ხართ, რომ გსურთ ამ ბარათის წაშლა?' :
-      language === 'ru' ? 'Вы уверены, что хотите удалить эту открытку?' :
-      'Are you sure you want to delete this published card?';
-    if (!window.confirm(msg)) return;
+  const handleDelete = (cardId) => {
+    setDeleteModal({ open: true, cardId });
+  };
+
+  const confirmDelete = async () => {
+    const cardId = deleteModal.cardId;
+    if (!cardId) return;
+
     try {
       const response = await fetch(`${CARDS_URL}/${cardId}`, {
         method: 'DELETE',
@@ -100,6 +104,8 @@ export default function PublishedCardsTab() {
       setCards(prev => prev.filter(c => c.id !== cardId));
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteModal({ open: false, cardId: null });
     }
   };
 
@@ -217,7 +223,8 @@ export default function PublishedCardsTab() {
                         window.open(url, '_blank');
                       } else {
                         let category = 'birthday';
-                        if (card.templateId?.startsWith('m')) category = 'memory';
+                        if (card.templateId?.startsWith('i') || card.templateId?.startsWith('inv')) category = 'invitation';
+                        else if (card.templateId?.startsWith('m')) category = 'memory';
                         else if (card.templateId?.startsWith('l')) category = 'love';
                         else if (card.imagesJson && (typeof card.imagesJson === 'string' ? card.imagesJson.includes('memory') : card.imagesJson.type === 'memory')) category = 'memory';
                         
@@ -276,6 +283,11 @@ export default function PublishedCardsTab() {
         card={scheduleModal.card}
         onClose={() => setScheduleModal({ open: false, card: null })}
         onUpdate={handleScheduleUpdate}
+      />
+      <DeleteConfirmModal 
+        isOpen={deleteModal.open}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteModal({ open: false, cardId: null })}
       />
     </>
   );

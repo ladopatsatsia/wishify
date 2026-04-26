@@ -78,6 +78,7 @@ public class CardService : ICardService
                 Message2 = c.Message2,
                 Footer = c.Footer,
                 AudioUrl = c.AudioUrl,
+                AudioLabel = c.AudioLabel,
                 CustomEmoji = c.CustomEmoji,
                 CustomBgGradient = c.CustomBgGradient,
                 GiftBoxUrl = c.GiftBoxUrl,

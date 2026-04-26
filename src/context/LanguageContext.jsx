@@ -109,6 +109,7 @@ const translations = {
       login_required: "Please log in to save your cards!"
     },
     dashboard: {
+      hello: "Hello",
       saved_title: "My Saved Cards",
       saved_desc: "All your customized and beautifully personalized greeting cards.",
       published_title: "My Published Cards",
@@ -130,7 +131,13 @@ const translations = {
       btn_change_password: "Update Password",
       password_success: "Password changed successfully!",
       password_mismatch: "New passwords do not match.",
-      password_short: "New password must be at least 6 characters."
+      password_short: "New password must be at least 6 characters.",
+      delete_modal: {
+        title: "Delete Forever?",
+        desc: "This magic card will be deleted forever. You won't be able to recover it.",
+        btn_confirm: "Delete Forever",
+        btn_cancel: "Cancel"
+      }
     },
     publish: {
       modal_title: "Choose Your Live Link",
@@ -154,6 +161,7 @@ const translations = {
         saving: "Saving...",
         saved_success: "Card successfully saved!",
         go_to_cabinet: "Go to Cabinet",
+        go_to_saved: "Go to Saved Cards",
         read_only_warn: "Published card (Read-Only)",
         live_preview: "Live Preview",
         preview_sub: "How it will look...",
@@ -161,14 +169,21 @@ const translations = {
         photos: "Photos",
         upload_limit: "Upload up to 4 images",
         add: "Add",
+        add_photo: "Add Photo",
         uploading: "Uploading...",
         uploading_failed: "Upload failed",
         upload_error: "Error during upload",
         change_song: "Switch the Vibe ✨",
         find_melody: "Find Your Melody",
+        add_melody: "Add Music",
         creative_mode: "Creative Mode",
         copy: "Copy",
-        copy_success: "Link copied!"
+        copy_success: "Link copied!",
+        purchase: "Purchase",
+        dashboard: "Go to Dashboard",
+        ready_publish: "Ready to Publish?",
+        preserve_forever: "Your memory card will be preserved forever. Choose a beautiful URL and share it with the world.",
+        go_to_publish: "Go to Publish"
       },
       birthday: {
         studio: "Birthday Studio",
@@ -185,6 +200,7 @@ const translations = {
       },
       memory: {
         studio: "Memory Studio",
+        title: "Memory Editor",
         main_heading: "Main Heading",
         heading_placeholder: "Enter Title...",
         galleries: "Galleries",
@@ -192,12 +208,19 @@ const translations = {
         gallery_name: "Gallery Name",
         gallery_placeholder: "Enter gallery name...",
         photos_count: "Photos",
-        secure_memories: "End-to-end Encrypted Memories",
+        secure_memories: "Your private memories are secure 🔐",
         no_photos: "No photos here yet",
         click_to_upload: "Click to start uploading your magic moments",
         add_photos: "Add Photos",
         remove: "Remove",
-        limit_alert: "Maximum 25 photos in total per gallery!"
+        limit_alert: "Maximum 25 photos in total per gallery!",
+        hero_subtitle: "Hero Subtitle",
+        hero_subtitle_placeholder: "Our Collection of Memories",
+        hero_scroll: "Scroll Instruction",
+        hero_scroll_placeholder: "Scroll to explore our story",
+        gallery_description: "Gallery Description",
+        gallery_desc_placeholder: "Tell the story behind these photos...",
+        main_photo: "Main Cover Photo"
       },
       love: {
         studio: "Love Letter Studio",
@@ -213,6 +236,41 @@ const translations = {
         change_photo: "Change Photo",
         locked: "Locked",
         save_letter: "Save Letter ✨"
+      },
+      invitation: {
+        studio: "Invitation Studio",
+        title: "Invitation Editor",
+        sub_title: "Create Your Celebration",
+        locations: "Locations",
+        add_location: "Add Location",
+        location_name: "Place",
+        location_time: "Time",
+        location_desc: "What happens?",
+        phones: "Phone Numbers",
+        add_phone: "Add Number",
+        seating: "Seating Arrangement",
+        add_seating: "Add Guest",
+        add_guest: "Add Guest",
+        phone_number: "Phone",
+        guest_name: "Guest Name",
+        table_number: "Table",
+        seat_number: "Seat",
+        photo: "Photo",
+        music: "Music",
+        guest_links: "Personalized Guest Links 💌",
+        copy_guest_link: "Copy Link",
+        save_to_generate: "Please save the invitation to generate personalized guest links.",
+        heading_placeholder: "Enter Event Title",
+        msg_placeholder: "Enter Event Details",
+        basic_info: "Basic Info",
+        no_seating: "No guest seating added yet",
+        signature: "Sign Off (Footer)",
+        signature_placeholder: "e.g. With Love, Lado",
+        event_date: "Event Date",
+        date_placeholder: "e.g. 24.08.2024",
+        guest_phone: "Guest Phone",
+        guest_table: "Table #",
+        guest_seat: "Seat #"
       }
     },
     music_search: {
@@ -225,7 +283,7 @@ const translations = {
     }
   },
   ka: {
-     nav: {
+    nav: {
       templates: "შაბლონები",
       features: "ფუნქციები",
       howItWorks: "როგორ მუშაობს",
@@ -302,6 +360,7 @@ const translations = {
       login_required: "გთხოვთ გაიაროთ ავტორიზაცია თქვენი ბარათების შესანახად!"
     },
     dashboard: {
+      hello: "გამარჯობა",
       saved_title: "ჩემი შენახული ბარათები",
       saved_desc: "თქვენი ყველა პერსონალიზებული ბარათი.",
       published_title: "ჩემი გამოქვეყნებული ბარათები",
@@ -323,7 +382,13 @@ const translations = {
       btn_change_password: "პაროლის განახლება",
       password_success: "პაროლი წარმატებით შეიცვალა!",
       password_mismatch: "ახალი პაროლები არ ემთხვევა.",
-      password_short: "ახალი პაროლი მინიმუმ 6 სიმბოლო უნდა იყოს."
+      password_short: "ახალი პაროლი მინიმუმ 6 სიმბოლო უნდა იყოს.",
+      delete_modal: {
+        title: "სამუდამოდ წაშლა?",
+        desc: "ეს მაგიური ბარათი წაიშლება სამუდამოდ. მისი აღდგენა შეუძლებელი იქნება.",
+        btn_confirm: "სამუდამოდ წაშლა",
+        btn_cancel: "გაუქმება"
+      }
     },
     publish: {
       modal_title: "აირჩიეთ ლაივ ლინკი",
@@ -342,11 +407,12 @@ const translations = {
     editor: {
       common: {
         back: "უკან",
-        preview: "პრევიუ",
+        preview: "ბარათის ნახვა",
         save: "შენახვა",
         saving: "ინახება...",
         saved_success: "ბარათი წარმატებით შეინახა!",
         go_to_cabinet: "პირადი კაბინეტი",
+        go_to_saved: "შენახულ ბარათებში გადასვლა",
         read_only_warn: "გამოქვეყნებული ბარათის რედაქტირება შეუძლებელია",
         live_preview: "ლაივ პრევიუ",
         preview_sub: "ნახე როგორ გამოჩნდება...",
@@ -354,14 +420,21 @@ const translations = {
         photos: "სურათები",
         upload_limit: "ატვირთეთ მაქსიმუმ 4 სურათი",
         add: "დამატება",
+        add_photo: "ფოტოს დამატება",
         uploading: "იტვირთება...",
         uploading_failed: "ატვირთვა ვერ მოხერხდა",
         upload_error: "შეცდომა ატვირთვისას",
         change_song: "შეცვალე ჰანგი ✨",
         find_melody: "იპოვე შენი მელოდია",
+        add_melody: "დაამატე მუსიკა",
         creative_mode: "Creative Mode",
         copy: "კოპირება",
-        copy_success: "ლინკი კოპირებულია!"
+        copy_success: "ლინკი კოპირებულია!",
+        purchase: "შეძენა",
+        dashboard: "მართვის პანელი",
+        ready_publish: "მზად ხართ გამოსაქვეყნებლად?",
+        preserve_forever: "თქვენი ბარათი სამუდამოდ შენარჩუნდება. აირჩიეთ ლამაზი მისამართი და გაუზიარეთ სამყაროს.",
+        go_to_publish: "გამოქვეყნება"
       },
       birthday: {
         studio: "Birthday სტუდია",
@@ -378,6 +451,7 @@ const translations = {
       },
       memory: {
         studio: "Memory სტუდია",
+        title: "მოგონებების რედაქტორი",
         main_heading: "საწყისი სათაური",
         heading_placeholder: "ჩაწერეთ სათაური...",
         galleries: "გალერეები",
@@ -385,12 +459,19 @@ const translations = {
         gallery_name: "გალერეის სახელი",
         gallery_placeholder: "შეიყვანეთ სახელი...",
         photos_count: "ფოტოები",
-        secure_memories: "მონაცემები დაცულია",
+        secure_memories: "პირადი მოგონებები დაცულია 🔐",
         no_photos: "აქ ფოტოები ჯერ არ არის",
         click_to_upload: "დააკლიკეთ ასატვირთად",
         add_photos: "ფოტოების დამატება",
         remove: "წაშლა",
-        limit_alert: "ჯამში მაქსიმუმ 25 ფოტო!"
+        limit_alert: "ჯამში მაქსიმუმ 25 ფოტო!",
+        hero_subtitle: "ზედა პატარა სათაური",
+        hero_subtitle_placeholder: "ჩვენი მოგონებების კოლექცია",
+        hero_scroll: "სქროლვის ინსტრუქცია",
+        hero_scroll_placeholder: "ჩამოწკაპუნეთ ამბის სანახავად",
+        gallery_description: "გალერეის აღწერა",
+        gallery_desc_placeholder: "მოყევით ამ ფოტოების ისტორია...",
+        main_photo: "მთავარი გარეკანის ფოტო"
       },
       love: {
         studio: "სიყვარულის სტუდია",
@@ -406,6 +487,41 @@ const translations = {
         change_photo: "შეცვლა",
         locked: "დაბლოკილია",
         save_letter: "შენახვა ✨"
+      },
+      invitation: {
+        studio: "მოსაწვევების სტუდია",
+        title: "მოსაწვევის რედაქტორი",
+        sub_title: "შექმენი შენი დღესასწაული",
+        locations: "ლოკაციები",
+        add_location: "ლოკაციის დამატება",
+        location_name: "ადგილი",
+        location_time: "დრო",
+        location_desc: "რა ხდება?",
+        phones: "ტელეფონის ნომრები: (დაამატეთ ის საკონტაქტო,ვისაც შეუძლიათ რომ დაუკავშირდნენ, რათა დაადასტურონ მოწვევა)",
+        add_phone: "ნომრის დამატება",
+        seating: "სტუმრების განლაგება",
+        add_seating: "სტუმრის დამატება",
+        add_guest: "სტუმრის დამატება",
+        phone_number: "ტელეფონი",
+        guest_name: "სტუმრის სახელი",
+        table_number: "მაგიდა",
+        seat_number: "ადგილი",
+        photo: "ფოტო",
+        music: "მუსიკა",
+        guest_links: "პერსონალური ლინკები სტუმრებისთვის 💌",
+        copy_guest_link: "ლინკის კოპირება",
+        save_to_generate: "გთხოვთ შეინახოთ მოსაწვევი პერსონალური ლინკების მისაღებად.",
+        heading_placeholder: "ჩაწერეთ მოსაწვევის სახელი-(მაგ. ქორწილის მოსაწვევი)",
+        msg_placeholder: "ჩაწერეთ მოსაწვევის ტექსტი",
+        basic_info: "ძირითადი ინფორმაცია",
+        no_seating: "სტუმრების სია ცარიელია",
+        signature: "ხელმოწერა / დასასრული",
+        signature_placeholder: "მაგ: სიყვარულით, გიორგი ან სიყვარულით გიორგი და ანა",
+        event_date: "წვეულების თარიღი",
+        date_placeholder: "მაგ: 24.08.2024",
+        guest_phone: "სტუმრის ტელეფონი",
+        guest_table: "მაგიდა #",
+        guest_seat: "ადგილი #"
       }
     },
     music_search: {
@@ -516,7 +632,13 @@ const translations = {
       btn_change_password: "Обновить пароль",
       password_success: "Пароль успешно изменён!",
       password_mismatch: "Новые пароли не совпадают.",
-      password_short: "Новый пароль должен содержать не менее 6 символов."
+      password_short: "Новый пароль должен содержать не менее 6 символов.",
+      delete_modal: {
+        title: "Удалить навсегда?",
+        desc: "Эта магическая открытка будет удалена навсегда. Вы не сможете её восстановить.",
+        btn_confirm: "Удалить навсегда",
+        btn_cancel: "Отмена"
+      }
     },
     publish: {
       modal_title: "Выберите ссылку для открытки",
@@ -540,10 +662,13 @@ const translations = {
         saving: "Сохранение...",
         saved_success: "Открытка успешно сохранена!",
         go_to_cabinet: "Личный кабинет",
+        go_to_saved: "Перейти к сохраненным",
         read_only_warn: "Опубликованную открытку редактировать нельзя",
         live_preview: "Предпросмотр",
         preview_sub: "Как это будет выглядеть...",
         music: "Музыка",
+        basic_info: "Основная информация",
+        no_seating: "Список гостей пуст",
         photos: "Фотографии",
         upload_limit: "Загрузите до 4-х фото",
         add: "Добавить",

@@ -8,6 +8,7 @@ import {
   getScheduleFromCard,
   normalizeRecipientInput,
   validateScheduleDraft,
+  getGuestCountFromCard,
 } from './scheduleUtils';
 
 export default function ScheduleManagementModal({ isOpen, card, onClose, onUpdate }) {
@@ -37,7 +38,7 @@ export default function ScheduleManagementModal({ isOpen, card, onClose, onUpdat
   const handleSave = async () => {
     setError('');
 
-    const validationError = validateScheduleDraft(schedule, language);
+    const validationError = validateScheduleDraft(schedule, language, card.category || card.Category);
     if (validationError) {
       setError(validationError);
       return;
@@ -60,8 +61,8 @@ export default function ScheduleManagementModal({ isOpen, card, onClose, onUpdat
           schedule: {
             ...schedule,
             // Ensure recipient is synced with either field the backend might check
-            autoSendRecipient: schedule.recipient,
-            recipient: schedule.recipient
+            autoSendRecipient: (card.category === 'invitation' && !schedule.recipient) ? 'GUESTS_LIST' : schedule.recipient,
+            recipient: (card.category === 'invitation' && !schedule.recipient) ? 'GUESTS_LIST' : schedule.recipient
           }
         })
       });
@@ -96,8 +97,8 @@ export default function ScheduleManagementModal({ isOpen, card, onClose, onUpdat
         <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-6 scrollbar-hide">
           <div className="text-center">
             <div className="text-5xl mb-3">🤖</div>
-            <h2 className="text-2xl font-black text-slate-800">{language === 'ka' ? 'ავტომატური გაგზავნის მართვა' : language === 'ru' ? 'Управление авто-отправкой' : 'Manage Automatic Send'}</h2>
-            <p className="text-slate-500 text-sm mt-1 font-medium">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800">{language === 'ka' ? 'ავტომატური გაგზავნის მართვა' : language === 'ru' ? 'Управление авто-отправкой' : 'Manage Automatic Send'}</h2>
+            <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
               {language === 'ka' ? 'დაგეგმეთ ან შეცვალეთ თქვენი ბარათის ავტომატური გაგზავნის პარამეტრები.' : language === 'ru' ? 'Запланируйте или измените настройки автоматической отправки вашей открытки.' : 'Schedule or change the delivery settings for your card.'}
             </p>
           </div>
@@ -129,46 +130,65 @@ export default function ScheduleManagementModal({ isOpen, card, onClose, onUpdat
 
             {schedule.isAutoSend && (
               <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-300 pt-4 border-t border-slate-200/50">
-                <div className="flex bg-white/50 p-1 rounded-xl border border-slate-100 shadow-inner">
-                  <button
-                    onClick={() => {
-                      setSchedule(current => ({ ...current, sendMethod: 'email', recipient: '' }));
-                      setError('');
-                    }}
-                    className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.sendMethod === 'email' ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                  >
-                    📧 Email
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSchedule(current => ({ ...current, sendMethod: 'phone', recipient: '' }));
-                      setError('');
-                    }}
-                    className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.sendMethod === 'phone' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                  >
-                    📱 Phone
-                  </button>
-                </div>
+                {card.category === 'invitation' ? (
+                  <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex flex-col gap-2">
+                    <div className="flex items-center gap-2 text-amber-700 font-bold text-xs uppercase tracking-wider">
+                      <span>👥</span>
+                      {language === 'ka' ? 'სტუმრების სია' : 'Guest List'}
+                    </div>
+                    <p className="text-xs text-amber-600 font-medium">
+                      {language === 'ka' 
+                        ? `ბარათი გაეგზავნება სტუმრების სიაში მითითებულ ${getGuestCountFromCard(card)} ნომერს.`
+                        : `The card will be sent to the ${getGuestCountFromCard(card)} guest(s) in your list.`}
+                    </p>
+                    <div className="text-[10px] text-amber-400 font-bold italic mt-1 uppercase tracking-widest">
+                      {language === 'ka' ? 'ავტომატური შერჩევა' : 'Automatic Selection'}
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex bg-white/50 p-1 rounded-xl border border-slate-100 shadow-inner">
+                      <button
+                        onClick={() => {
+                          setSchedule(current => ({ ...current, sendMethod: 'email', recipient: '' }));
+                          setError('');
+                        }}
+                        className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.sendMethod === 'email' ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        📧 Email
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSchedule(current => ({ ...current, sendMethod: 'phone', recipient: '' }));
+                          setError('');
+                        }}
+                        className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${schedule.sendMethod === 'phone' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        📱 Phone
+                      </button>
+                    </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center justify-between">
-                    <span>{schedule.sendMethod === 'email' ? (language === 'ka' ? 'მიმღების Email' : 'Recipient Email') : (language === 'ka' ? 'ტელეფონის ნომერი' : 'Phone Number')}</span>
-                    {schedule.sendMethod === 'phone' && <span className="text-[9px] text-emerald-500 font-bold px-1.5 py-0.5 bg-emerald-50 rounded-full border border-emerald-100">GEO +995</span>}
-                  </label>
-                  <input
-                    type={schedule.sendMethod === 'email' ? 'email' : 'text'}
-                    value={schedule.recipient}
-                    onChange={(e) => {
-                      setSchedule(current => ({
-                        ...current,
-                        recipient: normalizeRecipientInput(current.sendMethod, e.target.value),
-                      }));
-                      setError('');
-                    }}
-                    placeholder={schedule.sendMethod === 'email' ? 'lado@example.com' : '599 XXX XXX'}
-                    className="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-violet-400 transition-all shadow-sm"
-                  />
-                </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center justify-between">
+                        <span>{schedule.sendMethod === 'email' ? (language === 'ka' ? 'მიმღების Email' : 'Recipient Email') : (language === 'ka' ? 'ტელეფონის ნომერი' : 'Phone Number')}</span>
+                        {schedule.sendMethod === 'phone' && <span className="text-[9px] text-emerald-500 font-bold px-1.5 py-0.5 bg-emerald-50 rounded-full border border-emerald-100">GEO +995</span>}
+                      </label>
+                      <input
+                        type={schedule.sendMethod === 'email' ? 'email' : 'text'}
+                        value={schedule.recipient}
+                        onChange={(e) => {
+                          setSchedule(current => ({
+                            ...current,
+                            recipient: normalizeRecipientInput(current.sendMethod, e.target.value),
+                          }));
+                          setError('');
+                        }}
+                        placeholder={schedule.sendMethod === 'email' ? 'lado@example.com' : '599 XXX XXX'}
+                        className="w-full bg-white border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 outline-none focus:border-violet-400 transition-all shadow-sm"
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">

@@ -32,6 +32,35 @@ public partial class CardsController : ControllerBase
         return CreatedAtAction(nameof(GetCardById), new { id = created.Id }, created);
     }
 
+    [Authorize]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCard(Guid id, [FromBody] Card updatedCard)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var card = await _cardService.GetCardByIdAsync(id);
+        if (card == null || card.CreatorId != userId) return NotFound();
+
+        // Update properties
+        card.TemplateId = updatedCard.TemplateId;
+        card.RecipientName = updatedCard.RecipientName;
+        card.Heading = updatedCard.Heading;
+        card.Message1 = updatedCard.Message1;
+        card.Message2 = updatedCard.Message2;
+        card.Footer = updatedCard.Footer;
+        card.AudioUrl = updatedCard.AudioUrl;
+        card.AudioLabel = updatedCard.AudioLabel;
+        card.ImagesJson = updatedCard.ImagesJson;
+        if (updatedCard.CustomBgGradient != null) card.CustomBgGradient = updatedCard.CustomBgGradient;
+        if (updatedCard.CustomEmoji != null) card.CustomEmoji = updatedCard.CustomEmoji;
+
+        var success = await _cardService.UpdateCardAsync(card);
+        if (!success) return BadRequest(new { message = "Could not update card." });
+
+        return Ok(card);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCardById(Guid id)
     {

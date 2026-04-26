@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap');
 
 @layer base {
   * {
@@ -29,6 +30,36 @@
 
   .animate-spin-slow {
     animation: spin 8s linear infinite;
+  }
+
+  /* Foil & Texture Utilities */
+  .bg-paper {
+    background-color: #fdfcf6;
+    background-image: 
+      url("https://www.transparenttextures.com/patterns/creampaper.png"),
+      linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4));
+  }
+
+  .gold-foil {
+    background: linear-gradient(
+      135deg,
+      #d4af37 0%,
+      #f9e19d 25%,
+      #d4af37 50%,
+      #f9e19d 75%,
+      #d4af37 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  }
+
+  .gold-border {
+    border: 3px double #d4af37;
+    box-shadow: 
+      0 0 0 1px rgba(212, 175, 55, 0.4),
+      inset 0 0 20px rgba(212, 175, 55, 0.1);
   }
 }
 

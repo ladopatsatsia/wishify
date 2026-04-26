@@ -17,7 +17,7 @@ export default function SavedCards() {
     if (authLoading) return; // Wait for auth to initialize
 
     if (!user) {
-      navigate('/login', { state: { from: '/profile/saved' } });
+      navigate('/login', { state: { from: '/dashboard#saved' } });
       return;
     }
 
@@ -31,7 +31,7 @@ export default function SavedCards() {
 
         if (response.status === 401) {
           logout();
-          navigate('/login', { state: { from: '/profile/saved' } });
+          navigate('/login', { state: { from: '/dashboard#saved' } });
           return;
         }
 
@@ -193,7 +193,7 @@ export default function SavedCards() {
                             : isNewBirthday 
                               ? `/birthday-card/${card.id}` 
                               : `/view/birthday/${card.id}`;
-                          navigate(viewUrl, { state: { from: '/profile/saved' } });
+                          navigate(viewUrl, { state: { from: '/dashboard#saved' } });
                         }}
                         className="w-full bg-white/90 backdrop-blur text-slate-800 text-sm font-bold py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all flex justify-center cursor-pointer items-center"
                        >
@@ -214,7 +214,7 @@ export default function SavedCards() {
                             : card.templateId?.startsWith('b')
                               ? `/birthday-card/${card.id}?mode=edit`
                               : `/edit/birthday/${card.id}`;
-                          navigate(editUrl, { state: { from: '/profile/saved' } });
+                          navigate(editUrl, { state: { from: '/dashboard#saved' } });
                         }}
                         className="w-full bg-violet-600 text-white text-sm font-bold py-2.5 rounded-xl shadow-sm hover:bg-violet-700 transition-all flex justify-center cursor-pointer items-center"
                        >

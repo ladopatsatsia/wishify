@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import BirthdayCardPreview from './BirthdayCardPreview';
 import ReelBirthdayCardPreview from './ReelBirthdayCardPreview';
 import MusicSearch from '../MusicSearch';
+import PublishModal from '../profile/PublishModal';
 import { useAuth } from '../../context/AuthContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
@@ -27,6 +28,9 @@ export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate
   const imageInputRef = useRef(null);
 
   const isReadOnly = !!(defaultData.urlSlug || defaultData.UrlSlug);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [cardToPublish, setCardToPublish] = useState(null);
+  const [localId, setLocalId] = useState(defaultData.id || defaultData.Id);
   
   const { user } = useAuth();
   const { cardId } = useParams();
@@ -130,13 +134,32 @@ export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate
         throw new Error('Failed to save card');
       }
 
+      const result = await response.json();
+      const savedId = localId || result.id || result.Id;
+      if (savedId && !localId) setLocalId(savedId);
+
       setIsSaved(true);
+      return { ...cardData, id: savedId };
     } catch (e) {
       console.error(e);
       alert('Error saving card: ' + e.message);
+      return null;
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePurchase = async () => {
+    const savedCard = await handleSave();
+    if (savedCard) {
+      setCardToPublish(savedCard);
+      setPublishModalOpen(true);
+    }
+  };
+
+  const startPublishProcess = (cardId, slug, scheduleData) => {
+    setPublishModalOpen(false);
+    navigate('/payment', { state: { cardId, slug, schedule: scheduleData } });
   };
 
   if (showPreview) {
@@ -148,63 +171,73 @@ export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate
           setShowPreview(false);
           setIsSaved(false);
         }} 
+        onBackToEdit={() => setShowPreview(false)}
         onSave={handleSave} 
+        onPurchase={handlePurchase}
         saving={saving}
         isSaved={isSaved}
         isReadOnly={isReadOnly}
-        onGoToSaved={() => navigate('/profile/saved')}
+        onGoToSaved={() => navigate('/dashboard#saved')}
       />
     );
   }
 
   return (
     <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col font-sans">
+      <div className="flex-1 flex flex-col bg-white overflow-hidden sm:rounded-[32px] sm:shadow-2xl max-w-7xl mx-auto w-full relative">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 p-4 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between relative">
-          {/* Left: Back Button */}
-          <div className="flex items-center">
-            <button 
-              onClick={onBack} 
-              className="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 rounded-2xl transition text-slate-600 font-bold text-sm border border-transparent hover:border-slate-100 active:scale-95 cursor-pointer"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-              </svg>
-              {t('editor.common.back')}
-            </button>
-          </div>
+        <div className="bg-white border-b border-slate-100 p-2 sm:p-6 sticky top-0 z-50 shadow-sm sm:shadow-none">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center justify-between sm:justify-start gap-3">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={onBack} 
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 transition active:scale-95 cursor-pointer flex-shrink-0"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <div className="overflow-hidden">
+                  <h1 className="text-sm sm:text-xl font-black text-slate-800 tracking-tight leading-none truncate">
+                    {t('editor.birthday.studio')} {emoji}
+                  </h1>
+                  <p className="text-[8px] sm:text-[9px] font-black text-pink-500 uppercase tracking-widest leading-none mt-1">{t('editor.common.creative_mode')}</p>
+                </div>
+              </div>
+            </div>
 
-          {/* Center: Title */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none sm:pointer-events-auto">
-            <h1 className="text-xl font-black text-slate-800 tracking-tight leading-none text-nowrap">
-              {t('editor.birthday.studio')} {emoji}
-            </h1>
-            <p className="text-[10px] font-black text-pink-500 uppercase tracking-[0.3em] leading-none mt-1">{t('editor.common.creative_mode')}</p>
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setShowPreview(true)}
-              className="hidden sm:block px-5 py-2.5 border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition active:scale-95 text-xs cursor-pointer"
-            >
-              {t('editor.common.preview')}
-            </button>
-            <button 
-              onClick={handleSave}
-              disabled={saving}
-              className="px-8 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-pink-500/20 disabled:opacity-50 active:scale-95 text-xs cursor-pointer min-w-[100px]"
-            >
-              {saving ? t('editor.common.saving') : t('editor.common.save')}
-            </button>
+            <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+              <button 
+                onClick={() => setShowPreview(true)}
+                className="flex-1 sm:flex-none px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition active:scale-95 text-[10px] sm:text-xs cursor-pointer whitespace-nowrap bg-white"
+              >
+                {t('editor.common.preview')}
+              </button>
+              <button 
+                onClick={handleSave}
+                disabled={saving || isReadOnly}
+                className={`flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-black hover:opacity-90 transition shadow-lg shadow-pink-500/10 disabled:opacity-50 active:scale-95 text-[10px] sm:text-xs cursor-pointer min-w-[70px] whitespace-nowrap ${isReadOnly ? 'from-slate-400 to-slate-500 shadow-none !cursor-not-allowed' : ''}`}
+              >
+                {saving ? t('editor.common.saving') : t('editor.common.save')}
+              </button>
+              {!isReadOnly && (
+                <button 
+                  onClick={handlePurchase}
+                  disabled={saving}
+                  className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-black hover:opacity-90 transition shadow-lg shadow-emerald-500/10 disabled:opacity-50 active:scale-95 text-[10px] sm:text-xs cursor-pointer min-w-[70px] whitespace-nowrap"
+                >
+                  💳 {language === 'ka' ? 'შეძენა' : 'Purchase'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Workspace */}
-      <div className="flex-1 overflow-y-auto p-4 py-8">
-        <div className="relative bg-white rounded-3xl shadow-xl w-full max-w-2xl mx-auto overflow-hidden">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-8 bg-slate-50/30 no-scrollbar">
+        <div className="relative bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-slate-100 w-full max-w-2xl mx-auto overflow-hidden">
           
           {isSaved && (
             <div className="bg-green-50 border-b border-green-200 p-6 text-center animate-in fade-in slide-in-from-top-4 duration-500">
@@ -424,6 +457,13 @@ export default function BirthdayCardEditor({ defaultData, onBack, isReelTemplate
           }}
         />
       )}
+      <PublishModal
+        isOpen={publishModalOpen}
+        card={cardToPublish}
+        onClose={() => setPublishModalOpen(false)}
+        onProceed={startPublishProcess}
+      />
     </div>
+  </div>
   );
 }

@@ -20,8 +20,8 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var response = await _authService.RegisterAsync(request);
-        if (response == null) return BadRequest("Registration failed");
+        var (response, error) = await _authService.RegisterAsync(request);
+        if (response == null) return BadRequest(error ?? "Registration failed");
         return Ok(response);
     }
 

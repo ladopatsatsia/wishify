@@ -1,15 +1,21 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import LoveCardView from './LoveCardView';
 import MusicSearch from '../MusicSearch';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { CARDS_URL, UPLOAD_URL } from '../../api/config';
+import { useNavigate } from 'react-router-dom';
+import PublishModal from '../profile/PublishModal';
 
 const CARDS_API = CARDS_URL;
 
 export default function LoveLetterEditor({ card, existingCard, category, onBack, onClose }) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { language, t } = useLanguage();
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [cardToPublish, setCardToPublish] = useState(null);
+  const [localId, setLocalId] = useState(existingCard?.id || existingCard?.Id);
   const fileInputRef = useRef(null);
 
   const isReadOnly = !!(existingCard?.urlSlug || existingCard?.UrlSlug);
@@ -21,7 +27,17 @@ export default function LoveLetterEditor({ card, existingCard, category, onBack,
   const initialFooter = existingCard?.footer || card.content?.footer || 'Forever Yours, [Your Name]';
   const initialAudioUrl = existingCard?.audioUrl || card.content?.audioUrl || '';
   const initialAudioLabel = existingCard?.audioLabel || '';
-  const initialImages = existingCard?.imagesJson ? JSON.parse(existingCard.imagesJson) : [];
+  
+  let initialImages = [];
+  if (existingCard?.imagesJson) {
+    try {
+      initialImages = typeof existingCard.imagesJson === 'string' 
+        ? JSON.parse(existingCard.imagesJson) 
+        : existingCard.imagesJson;
+    } catch (e) {
+      console.error("Failed to parse imagesJson", e);
+    }
+  }
 
   const [heading, setHeading] = useState(initialHeading);
   const [message1, setMessage1] = useState(initialMessage1);
@@ -72,6 +88,10 @@ export default function LoveLetterEditor({ card, existingCard, category, onBack,
   };
 
   const handleSave = async () => {
+    if (!user) {
+      alert(t('auth.login_required') || "Please log in to save your cards!");
+      return;
+    }
     if (isReadOnly) {
       alert(t('editor.common.read_only_warn'));
       return;
@@ -79,8 +99,8 @@ export default function LoveLetterEditor({ card, existingCard, category, onBack,
     setSaving(true);
     try {
       const cardData = {
-        templateId: card.id,
-        recipientName: heading,
+        templateId: card.id || existingCard?.templateId,
+        recipientName: heading || "Someone Special",
         heading,
         message1,
         message2,
@@ -91,8 +111,8 @@ export default function LoveLetterEditor({ card, existingCard, category, onBack,
         categoryId: category || 'love'
       };
 
-      const url = existingCard ? `${CARDS_API}/${existingCard.id}` : CARDS_API;
-      const method = existingCard ? 'PUT' : 'POST';
+      const url = existingCard?.id ? `${CARDS_API}/${existingCard.id}` : CARDS_API;
+      const method = existingCard?.id ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
@@ -106,284 +126,311 @@ export default function LoveLetterEditor({ card, existingCard, category, onBack,
       if (response.ok) {
         const result = await response.json();
         setSaved(true);
-        const cardId = existingCard ? existingCard.id : result.id;
-        setShareUrl(`${window.location.origin}/view/love/${cardId}`);
+        const savedId = localId || result.id || result.Id;
+        if (savedId && !localId) setLocalId(savedId);
+        
+        setShareUrl(`${window.location.origin}/view/love/${savedId}`);
+        return { ...cardData, id: savedId };
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        alert(errData.message || t('editor.common.save_failed') || "Failed to save card");
+        return null;
       }
     } catch (error) {
       console.error('Error saving love letter:', error);
+      alert(t('editor.common.save_error') || "An error occurred while saving");
+      return null;
     } finally {
       setSaving(false);
     }
+  };
+
+  const handlePurchase = async () => {
+    const savedCard = await handleSave();
+    if (savedCard) {
+      setCardToPublish(savedCard);
+      setPublishModalOpen(true);
+    }
+  };
+
+  const startPublishProcess = (cardId, slug, scheduleData) => {
+    setPublishModalOpen(false);
+    navigate('/payment', { state: { cardId, slug, schedule: scheduleData } });
+  };
+
+  const previewData = {
+    ...card,
+    heading,
+    message1,
+    message2,
+    footer,
+    audioUrl: musicEnabled ? musicUrl : null,
+    imagesJson: JSON.stringify([photo].filter(Boolean))
   };
 
   if (preview) {
     return (
       <div className="fixed inset-0 z-[100] bg-black">
         <LoveCardView 
-          card={{ heading, message1, message2, footer, audioUrl: musicEnabled ? musicUrl : null, imagesJson: JSON.stringify([photo].filter(Boolean)) }} 
+          card={previewData} 
           onBackToEdit={() => setPreview(false)} 
+          onSave={handleSave}
+          onPurchase={handlePurchase}
+          onGoToSaved={() => navigate('/dashboard#saved')}
+          saving={saving}
+          isSaved={saved}
+          isReadOnly={isReadOnly}
         />
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#fff5f5] overflow-y-auto p-4 py-10 font-serif">
-      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10">
-        
-        {/* Editor Side */}
-        <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 sm:p-12 border border-rose-100 flex flex-col h-full sticky top-0">
-          <div className="flex items-center justify-between mb-8">
-             <div className="flex items-center gap-3">
-                <div className="text-4xl">✍️</div>
-                <div>
-                   <h2 className="text-2xl font-black text-gray-900 italic leading-tight">
-                      {t('editor.love.title')}
-                   </h2>
-                   <p className="text-rose-400 text-xs font-bold uppercase tracking-widest">
-                      {t('editor.love.sub_title')}
-                   </p>
+    <div className="fixed inset-0 z-[100] bg-[#F8FAFC] flex flex-col font-sans">
+      <div className="flex-1 flex flex-col bg-white overflow-hidden sm:rounded-[32px] sm:shadow-2xl max-w-7xl mx-auto w-full relative">
+      {/* Header */}
+        <div className="bg-white border-b border-slate-100 p-2 sm:p-6 sticky top-0 z-50 shadow-sm sm:shadow-none">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center justify-between sm:justify-start gap-3">
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={onBack} 
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl sm:rounded-2xl bg-slate-50 text-slate-500 hover:bg-slate-100 transition active:scale-95 cursor-pointer flex-shrink-0"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <div className="overflow-hidden">
+                  <h1 className="text-sm sm:text-xl font-black text-slate-800 tracking-tight leading-none truncate italic">
+                    {t('editor.love.title') || 'Love Letter'} 💌
+                  </h1>
+                  <p className="text-[8px] sm:text-[9px] font-black text-rose-500 uppercase tracking-widest leading-none mt-1">{t('editor.love.sub_title')}</p>
                 </div>
-             </div>
-             <button onClick={onClose} className="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center font-bold hover:bg-rose-100 transition">×</button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+              <button 
+                onClick={() => setPreview(true)}
+                className="flex-1 sm:flex-none px-3 py-2 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition active:scale-95 text-[10px] sm:text-xs cursor-pointer whitespace-nowrap bg-white"
+              >
+                {t('editor.common.preview')}
+              </button>
+              <button 
+                onClick={handleSave}
+                disabled={saving || isReadOnly}
+                className={`flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl font-black hover:opacity-90 transition shadow-lg shadow-rose-500 disabled:opacity-50 active:scale-95 text-[10px] sm:text-xs cursor-pointer min-w-[70px] whitespace-nowrap ${isReadOnly ? 'from-slate-400 to-slate-500 shadow-none !cursor-not-allowed' : ''}`}
+              >
+                {saving ? t('editor.common.saving') : t('editor.common.save')}
+              </button>
+              {!isReadOnly && (
+                <button 
+                  onClick={handlePurchase}
+                  disabled={saving}
+                  className="flex-1 sm:flex-none px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-black hover:opacity-90 transition shadow-lg shadow-emerald-500 disabled:opacity-50 active:scale-95 text-[10px] sm:text-xs cursor-pointer min-w-[70px] whitespace-nowrap"
+                >
+                  💳 {t('editor.common.purchase')}
+                </button>
+              )}
+            </div>
           </div>
+        </div>
 
-          <div className="space-y-6 flex-1">
-             <div>
-                <label className="block text-xs font-black text-rose-300 uppercase tracking-widest mb-2 px-1">
-                   {t('editor.love.who_is_for')}
-                </label>
-                <input 
-                   value={heading} 
-                   onChange={e => setHeading(e.target.value)}
-                   disabled={isReadOnly}
-                   className={`w-full bg-rose-50/50 border-2 border-rose-50 rounded-2xl px-6 py-4 text-gray-800 font-bold focus:outline-none focus:border-rose-200 transition italic ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-                />
-             </div>
+      {/* Workspace */}
+      <div className="flex-1 overflow-y-auto p-2 sm:p-8 no-scrollbar pb-20">
+        <div className="relative bg-white rounded-3xl shadow-xl w-full max-w-2xl mx-auto overflow-hidden">
+          
+          {saved && (
+            <div className="bg-emerald-50 border-b border-emerald-100 p-6 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+               <div className="text-emerald-700 font-bold text-lg mb-4 flex items-center justify-center gap-2">
+                 <span>✅</span>
+                 {t('editor.common.saved_success')}
+               </div>
+               <div className="flex gap-2 max-w-md mx-auto">
+                 <input 
+                   readOnly 
+                   value={shareUrl} 
+                   className="flex-1 bg-white border border-emerald-100 rounded-xl px-4 py-2 text-xs text-slate-600 focus:outline-none"
+                 />
+                 <button 
+                   onClick={() => {
+                     navigator.clipboard.writeText(shareUrl);
+                     alert(t('editor.common.copy_success') || "Link copied!");
+                   }}
+                   className="bg-emerald-600 text-white px-6 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition active:scale-95 shadow-md cursor-pointer"
+                 >
+                    {t('editor.common.copy') || 'COPY'}
+                 </button>
+               </div>
+            </div>
+          )}
 
-             <div>
-                <label className="block text-xs font-black text-rose-300 uppercase tracking-widest mb-2 px-1">
-                   {t('editor.love.message')}
-                </label>
-                <textarea 
-                   value={message1} 
-                   onChange={e => setMessage1(e.target.value)}
-                   rows={6}
-                   disabled={isReadOnly}
-                   className={`w-full bg-rose-50/50 border-2 border-rose-50 rounded-2xl px-6 py-4 text-gray-800 italic leading-relaxed focus:outline-none focus:border-rose-200 transition resize-none text-sm ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-                   placeholder={t('editor.love.message_placeholder')}
-                />
-             </div>
+          {isReadOnly && (
+            <div className="bg-amber-50 border-b border-amber-200 p-4 flex items-center justify-center gap-3 text-amber-700 text-sm font-bold uppercase tracking-wider">
+               <span>🔒</span>
+               {t('editor.common.read_only_warn')}
+            </div>
+          )}
 
-             <div>
-                <label className="block text-xs font-black text-rose-300 uppercase tracking-widest mb-2 px-1">
-                   {t('editor.love.final_wish')}
-                </label>
-                <input 
-                   value={message2} 
-                   onChange={e => setMessage2(e.target.value)}
-                   disabled={isReadOnly}
-                   className={`w-full bg-rose-50/50 border-2 border-rose-50 rounded-2xl px-6 py-4 text-gray-800 italic focus:outline-none focus:border-rose-200 transition ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-                />
-             </div>
-
-             <div>
-                <label className="block text-xs font-black text-rose-300 uppercase tracking-widest mb-2 px-1">
-                   {t('editor.love.signature')}
-                </label>
-                <input 
-                   value={footer} 
-                   onChange={e => setFooter(e.target.value)}
-                   disabled={isReadOnly}
-                   className={`w-full bg-rose-50/50 border-2 border-rose-50 rounded-2xl px-6 py-4 text-rose-500 font-black italic focus:outline-none focus:border-rose-200 transition ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-                />
-             </div>
-
-             {/* Photo Upload Section */}
-             <div className="space-y-3">
-                <label className="block text-xs font-black text-rose-300 uppercase tracking-widest mb-2 px-1">
-                   {t('editor.love.photo')}
-                </label>
-                <div className="flex items-center gap-4">
-                   <div className="w-20 h-20 bg-rose-50 rounded-2xl overflow-hidden border-2 border-rose-100 shadow-inner flex items-center justify-center relative group">
-                      {photo ? (
-                        <>
-                          <img src={photo} className="w-full h-full object-cover" />
-                          {!isReadOnly && (
-                            <button onClick={() => setPhoto('')} className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-white text-[10px] font-bold pb-2">REMOVE</button>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-2xl opacity-20">📸</span>
-                      )}
-                      {uploading && <div className="absolute inset-0 bg-white/60 flex items-center justify-center"><div className="w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" /></div>}
-                   </div>
-                   <div className="flex-1">
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        onChange={handleImageUpload} 
-                        className="hidden" 
-                        accept="image/*" 
-                      />
-                      <button 
-                        onClick={() => !isReadOnly && fileInputRef.current.click()}
-                        disabled={isReadOnly || uploading}
-                        className="bg-white border-2 border-rose-100 text-rose-500 px-6 py-2 rounded-xl text-xs font-black hover:bg-rose-50 transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                         {uploading ? t('editor.common.uploading') : (photo ? t('editor.love.change_photo') : t('editor.love.upload_photo'))}
-                      </button>
-                      <p className="text-[10px] text-gray-400 mt-1 font-bold italic px-1">Select a beautiful memory</p>
-                   </div>
-                </div>
-             </div>
-
-             {/* Music Toggle Section */}
-             <div className="bg-rose-50/30 p-6 rounded-[2rem] border border-rose-100 space-y-4">
-                <div className="flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                      <div className="text-2xl">🎵</div>
-                      <div>
-                         <div className="text-sm font-black text-gray-800">{t('editor.common.music')}</div>
-                         <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest">{t('editor.love.active_soundtrack') || 'Enchanting Melody'}</div>
-                      </div>
-                   </div>
-                   <button 
-                      onClick={() => !isReadOnly && setMusicEnabled(!musicEnabled)}
-                      disabled={isReadOnly}
-                      className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${musicEnabled ? 'bg-rose-500' : 'bg-gray-200'}`}
-                   >
-                       <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${musicEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
-                   </button>
-                </div>
-
-                 {musicEnabled && (
-                   <div className="animate-in fade-in zoom-in duration-300">
-                      {musicUrl ? (
-                        <div className="bg-white rounded-2xl p-4 flex items-center gap-4 border border-rose-100 shadow-sm relative group overflow-hidden">
-                           <div className="absolute inset-0 bg-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                           <div className="w-10 h-10 bg-gradient-to-br from-rose-400 to-rose-600 rounded-full flex items-center justify-center text-white text-lg shadow-lg">♪</div>
-                           <div className="flex-1 min-w-0">
-                              <div className="text-sm font-black text-gray-800 truncate">{musicLabel || 'Selected Melody'}</div>
-                              <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest">Active Soundtrack</div>
-                           </div>
-                           <button 
-                             onClick={() => !isReadOnly && setShowMusicSearch(true)}
-                             disabled={isReadOnly}
-                             className="text-[10px] font-black text-rose-500 bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition relative z-10 disabled:opacity-50 disabled:cursor-not-allowed"
-                           >
-                             {t('editor.common.change_song')}
-                           </button>
-                        </div>
-                      ) : (
-                        <button 
-                          onClick={() => !isReadOnly && setShowMusicSearch(true)}
-                          disabled={isReadOnly}
-                          className="w-full bg-white border-2 border-dashed border-rose-200 rounded-2xl p-6 text-center hover:bg-rose-50 transition group disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                           <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">✨</div>
-                           <div className="text-sm font-black text-rose-500 italic">{t('editor.love.find_magic_music')}</div>
-                           <div className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">{t('editor.love.search_by_song')}</div>
-                        </button>
-                      )}
-                   </div>
-                 )}
-             </div>
-
-             {isReadOnly && (
-                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3 text-amber-700 animate-in fade-in zoom-in duration-300">
-                  <span className="text-xl">🔒</span>
-                  <div className="text-[10px] font-bold leading-tight uppercase tracking-wider">
-                    {t('editor.common.read_only_warn')}
-                  </div>
+          <div className="p-6 space-y-6">
+            {/* Live Mini Preview */}
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{t('editor.common.live_preview')}</div>
+            <div className={`rounded-2xl bg-white border-2 border-rose-50 p-8 text-center space-y-4 shadow-inner font-serif italic`}>
+              <div className="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center text-xl mx-auto">💌</div>
+              <div className="w-full h-px bg-rose-50" />
+              <div className="font-bold text-slate-800 text-base">{heading || 'My Dearest...'}</div>
+              <div className="text-slate-500 text-[10px] leading-relaxed line-clamp-3 whitespace-pre-wrap">{message1}</div>
+              {photo && (
+                <div className="w-full aspect-video rounded-xl overflow-hidden border-2 border-rose-50 shadow-sm">
+                  <img src={photo} className="w-full h-full object-cover" alt="" />
                 </div>
               )}
-          </div>
+              <div className="text-rose-500 text-[12px] font-black">{footer}</div>
+            </div>
 
-          <div className="mt-10 space-y-4">
-             {saved && (
-                <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl text-emerald-700 font-bold animate-in fade-in zoom-in duration-300 flex flex-col gap-4 shadow-sm shadow-emerald-100">
-                   <div className="flex items-center gap-2 text-lg text-nowrap">
-                      <span className="text-2xl">✨</span>
-                      {t('editor.common.saved_success')}
-                   </div>
-                   <div className="flex gap-2">
-                      <input 
-                        readOnly 
-                        value={shareUrl} 
-                        className="flex-1 bg-white border border-emerald-100 rounded-lg px-3 py-2 text-xs text-slate-600 focus:outline-none"
-                      />
-                      <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(shareUrl);
-                          alert(t('editor.common.copy_success') || "Link copied!");
-                        }}
-                        className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 transition"
-                      >
-                         {t('editor.common.copy') || 'COPY'}
-                      </button>
-                   </div>
+            {/* Editor Sections */}
+            <div className="space-y-4 font-sans">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1 italic">🌹 {t('editor.love.who_is_for')}</label>
+                <input
+                  value={heading}
+                  onChange={e => setHeading(e.target.value)}
+                  disabled={isReadOnly}
+                  className={`w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-semibold text-slate-800 focus:outline-none focus:border-rose-400 transition italic ${isReadOnly ? 'bg-slate-50 cursor-not-allowed text-slate-400' : 'hover:border-slate-300'}`}
+                  placeholder="My Dearest..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1 italic">💌 {t('editor.love.message')}</label>
+                <textarea
+                  value={message1}
+                  onChange={e => setMessage1(e.target.value)}
+                  rows={6}
+                  disabled={isReadOnly}
+                  className={`w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-rose-400 transition resize-none text-sm italic leading-relaxed ${isReadOnly ? 'bg-slate-50 cursor-not-allowed text-slate-400' : 'hover:border-slate-300'}`}
+                  placeholder={t('editor.love.message_placeholder')}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1 italic">✨ {t('editor.love.final_wish')}</label>
+                <input
+                  value={message2}
+                  onChange={e => setMessage2(e.target.value)}
+                  disabled={isReadOnly}
+                  className={`w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-rose-400 transition italic ${isReadOnly ? 'bg-slate-50 cursor-not-allowed text-slate-400' : 'hover:border-slate-300'}`}
+                  placeholder="..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1 italic">✍️ {t('editor.love.signature')}</label>
+                <input
+                  value={footer}
+                  onChange={e => setFooter(e.target.value)}
+                  disabled={isReadOnly}
+                  className={`w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-rose-500 font-bold focus:outline-none focus:border-rose-400 transition italic ${isReadOnly ? 'bg-slate-50 cursor-not-allowed text-slate-400' : 'hover:border-slate-300'}`}
+                  placeholder="Forever Yours,"
+                />
+              </div>
+            </div>
+
+            {/* Photo Section */}
+            <div className="bg-white border-2 border-slate-100 rounded-2xl p-5 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">📸</span>
+                    <div>
+                      <div className="font-bold text-slate-800">{t('editor.love.photo')}</div>
+                      <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest px-1">Special Memory</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => !isReadOnly && fileInputRef.current?.click()}
+                    disabled={isReadOnly || uploading}
+                    className={`bg-rose-500 text-white rounded-xl px-4 py-2 text-xs font-black shadow-lg shadow-rose-200 hover:bg-rose-600 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
+                  >
+                    {uploading ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>+ {photo ? t('editor.love.change_photo') : t('editor.love.upload_photo')}</>
+                    )}
+                  </button>
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                 </div>
-             )}
- 
-             <div className="flex gap-3">
-                <button 
-                   onClick={onBack}
-                   className="flex-1 bg-white border-2 border-rose-100 text-rose-400 font-bold py-4 rounded-2xl hover:bg-rose-50 transition cursor-pointer"
+
+                {photo && (
+                  <div className="relative group max-w-xs mx-auto">
+                    <div className="aspect-square rounded-2xl overflow-hidden border-4 border-rose-50 shadow-md">
+                      <img src={photo} className="w-full h-full object-cover transition duration-300 group-hover:scale-105" alt="" />
+                    </div>
+                    {!isReadOnly && (
+                      <button
+                        onClick={() => setPhoto('')}
+                        className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full text-sm font-bold flex items-center justify-center border-2 border-white shadow-lg cursor-pointer hover:bg-red-600 transition"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                )}
+            </div>
+
+            {/* Music Section */}
+            <div className="bg-rose-50 rounded-2xl p-5 space-y-4 border border-rose-100 shadow-sm font-sans">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🎵</span>
+                  <div>
+                    <div className="font-bold text-slate-800">{t('editor.common.music')}</div>
+                    <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest">{t('editor.love.active_soundtrack')}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => !isReadOnly && setMusicEnabled(!musicEnabled)}
+                  disabled={isReadOnly}
+                  className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${musicEnabled ? 'bg-rose-500' : 'bg-slate-200'}`}
                 >
-                   ← {t('editor.common.back')}
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${musicEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
                 </button>
-                <button 
-                   onClick={() => setPreview(true)}
-                   className="flex-1 bg-white border-2 border-rose-100 text-rose-500 font-bold py-4 rounded-2xl hover:bg-rose-50 transition cursor-pointer"
-                >
-                   {t('editor.common.preview')} 👀
-                </button>
-                <button 
-                   onClick={handleSave}
-                   disabled={saving || isReadOnly}
-                   className={`flex-[1.5] bg-rose-500 text-white font-black py-4 rounded-2xl shadow-xl shadow-rose-200 hover:bg-rose-600 active:scale-95 transition flex items-center justify-center gap-2 cursor-pointer ${isReadOnly ? 'bg-slate-400 shadow-none !cursor-not-allowed' : ''}`}
-                >
-                   {saving ? (
-                      <div className="flex items-center gap-2">
-                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                         {t('editor.common.saving')}
+              </div>
+
+              {musicEnabled && (
+                <div className="space-y-4">
+                  {musicUrl ? (
+                    <div className="bg-white rounded-2xl p-4 flex items-center gap-4 border border-rose-100 shadow-sm animate-in zoom-in-95 duration-300">
+                      <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl shadow-lg ring-4 ring-rose-50">♪</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-black text-slate-800 truncate">{musicLabel || 'Active Melody'}</div>
+                        <button 
+                          onClick={() => !isReadOnly && setShowMusicSearch(true)} 
+                          className="px-3 py-1.5 bg-rose-50 text-rose-500 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-rose-100 transition-colors cursor-pointer mt-1 active:scale-95"
+                        >
+                          {t('editor.common.change_song')}
+                        </button>
                       </div>
-                   ) : isReadOnly ? (
-                      <>{t('editor.love.locked')}</>
-                   ) : (
-                      <>{t('editor.love.save_letter')}</>
-                   )}
-                </button>
-             </div>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => !isReadOnly && setShowMusicSearch(true)}
+                      disabled={isReadOnly}
+                      className="w-full bg-white border-2 border-dashed border-rose-200 rounded-[2rem] p-8 text-center hover:bg-rose-50 transition group cursor-pointer shadow-inner disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                       <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">✨</div>
+                       <span className="block text-rose-500 font-black text-lg italic">{t('editor.love.find_magic_music')}</span>
+                       <span className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest block">{t('editor.love.search_by_song')}</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Branding */}
+            <div className="text-center pt-6 opacity-30 select-none">
+                <div className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 italic">LOVE STUDIO 💌</div>
+            </div>
           </div>
         </div>
- 
-        {/* Live Mini Preview Side */}
-        <div className="hidden md:flex flex-col items-center justify-center space-y-8">
-           <div className="text-center">
-              <div className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] mb-2">{t('editor.common.live_preview')}</div>
-              <h3 className="text-xl font-bold text-gray-300 italic">{t('editor.common.preview_sub') || 'How it will look...'}</h3>
-           </div>
-           
-           <div className="w-full aspect-[4/5] bg-white shadow-[0_50px_100px_rgba(251,113,133,0.15)] rounded-lg p-10 flex flex-col items-center border border-rose-50 scale-90">
-              <div className="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center text-xl mb-10">💌</div>
-              <div className="w-full h-px bg-rose-50 mb-8" />
-              <div className="w-full space-y-4">
-                 <div className="h-4 bg-gray-100 rounded w-1/2"></div>
-                 <div className="h-3 bg-gray-50 rounded w-full"></div>
-                 <div className="h-3 bg-gray-50 rounded w-5/6"></div>
-                 <div className="h-3 bg-gray-50 rounded w-3/4"></div>
-              </div>
-              <div className="mt-20 w-full h-40 bg-rose-50 rounded-xl relative overflow-hidden">
-                 {photo && <img src={photo} className="w-full h-full object-cover" />}
-              </div>
-              <div className="mt-auto w-full flex justify-end">
-                 <div className="h-6 bg-rose-50 rounded w-1/3"></div>
-              </div>
-           </div>
-        </div>
-
       </div>
 
       {showMusicSearch && (
@@ -397,6 +444,13 @@ export default function LoveLetterEditor({ card, existingCard, category, onBack,
           }}
         />
       )}
+      <PublishModal
+        isOpen={publishModalOpen}
+        card={cardToPublish}
+        onClose={() => setPublishModalOpen(false)}
+        onProceed={startPublishProcess}
+      />
+    </div>
     </div>
   );
 }

@@ -94,7 +94,48 @@ export const cardsData = {
       }
     }
   ],
-  invitation: [],
+  invitation: [
+    {
+      id: 'i1',
+      title: 'Royal Wedding',
+      recipient: 'Guests',
+      style: {
+        bgGradient: 'from-amber-400 via-orange-400 to-amber-500',
+        emoji: '💌',
+        themeColor: 'amber',
+        fontFamily: 'font-serif',
+        layoutType: 'invitation',
+      },
+      content: {
+        heading: 'Wedding Celebration',
+        message1: 'We invite you to share in our joy as we exchange vows and begin our new life together.',
+        message2: 'Celebrating love and commitment.',
+        footer: 'With Love, Sarah & Michael',
+        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        musicLabel: 'Classic Wedding Waltz',
+      }
+    },
+    {
+      id: 'i2',
+      title: 'Blue Wedding Invitation',
+      recipient: 'Guests',
+      style: {
+        bgGradient: 'from-[#0a1128] via-[#050a1b] to-[#0a1128]',
+        emoji: '💍',
+        themeColor: 'gold',
+        fontFamily: 'font-serif',
+        layoutType: 'invitation',
+      },
+      content: {
+        heading: 'Together with Families',
+        message1: 'Liam and Adeline request the honor of your presence at their wedding celebration.',
+        message2: 'Saturday, March 26, 2026 | 4:00 PM',
+        footer: 'Liam & Adeline',
+        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+        musicLabel: 'Royal String Quartet',
+      }
+    }
+  ],
   memory: [
     {
       id: 'm1',

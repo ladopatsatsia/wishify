@@ -39,6 +39,27 @@ public static class DbSeeder
             }
         }
 
+        // 2b. Seed System Admin User
+        var sysAdminEmail = "sysadmin@wishify.ge";
+        var sysAdminUser = await userManager.FindByEmailAsync(sysAdminEmail);
+        if (sysAdminUser == null)
+        {
+            var sysAdmin = new ApplicationUser
+            {
+                UserName = sysAdminEmail,
+                Email = sysAdminEmail,
+                FirstName = "System",
+                LastName = "Admin",
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(sysAdmin, "sysadmin123");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(sysAdmin, "Admin");
+            }
+        }
+
         // 3. Seed Categories if missing
         if (!context.Categories.Any())
         {
@@ -49,6 +70,7 @@ public static class DbSeeder
                 new Category { Id = "memory", Label = "Memory", Emoji = "📸", Color = "from-teal-400 to-cyan-500" },
                 new Category { Id = "love", Label = "Love", Emoji = "❤️", Color = "from-red-400 to-pink-500" },
                 new Category { Id = "holiday", Label = "Holiday", Emoji = "🎄", Color = "from-green-400 to-emerald-500" },
+                new Category { Id = "graduation", Label = "Graduation", Emoji = "🎓", Color = "from-violet-400 to-purple-500" },
             };
             context.Categories.AddRange(categories);
             await context.SaveChangesAsync();
@@ -95,6 +117,71 @@ public static class DbSeeder
                 DefaultMessage1 = "Capturing every moment together.",
                 DefaultMessage2 = "A collection of our favorite memories.",
                 MusicLabel = "Acoustic Softness"
+            },
+            new Template 
+            { 
+                Id = "g1", 
+                CategoryId = "graduation", 
+                Title = "Triumphant Cap", 
+                BgGradient = "from-violet-300 via-purple-200 to-indigo-100", 
+                DefaultEmoji = "🎓", 
+                ThemeColor = "violet",
+                DefaultHeading = "Congrats! 🎓",
+                DefaultMessage1 = "You did it!",
+                DefaultMessage2 = "The future looks bright.",
+                MusicLabel = "Success March"
+            },
+            new Template 
+            { 
+                Id = "g2", 
+                CategoryId = "graduation", 
+                Title = "New Horizons", 
+                BgGradient = "from-teal-200 to-emerald-100", 
+                DefaultEmoji = "🚀", 
+                ThemeColor = "teal",
+                DefaultHeading = "Next Stop: Greatness!",
+                DefaultMessage1 = "Congratulations on your graduation.",
+                DefaultMessage2 = "The journey is just beginning.",
+                MusicLabel = "Adventure Tune"
+            },
+            new Template 
+            { 
+                Id = "i1", 
+                CategoryId = "invitation", 
+                Title = "Royal Wedding", 
+                BgGradient = "from-amber-400 via-orange-400 to-amber-500", 
+                DefaultEmoji = "💌", 
+                ThemeColor = "amber",
+                DefaultHeading = "Wedding Celebration",
+                DefaultMessage1 = "We invite you to share in our joy.",
+                DefaultMessage2 = "Celebrating love and commitment.",
+                MusicLabel = "Classic Wedding Waltz"
+            },
+            new Template 
+            { 
+                Id = "i2", 
+                CategoryId = "invitation", 
+                Title = "Modern Blue Wedding", 
+                BgGradient = "from-blue-600 via-indigo-900 to-blue-800", 
+                DefaultEmoji = "🥂", 
+                ThemeColor = "blue",
+                DefaultHeading = "Modern Celebration",
+                DefaultMessage1 = "Join us for our special day.",
+                DefaultMessage2 = "A celebration of modern love.",
+                MusicLabel = "Modern Wedding Vibe"
+            },
+            new Template 
+            { 
+                Id = "l3", 
+                CategoryId = "love", 
+                Title = "Eternal Love Letter", 
+                BgGradient = "from-rose-500 via-red-600 to-rose-700", 
+                DefaultEmoji = "✉️", 
+                ThemeColor = "red",
+                DefaultHeading = "My Dearest...",
+                DefaultMessage1 = "I wanted to write you something special.",
+                DefaultMessage2 = "I love you more than words can say.",
+                MusicLabel = "Romantic Piano Solo"
             }
         };
 

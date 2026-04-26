@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.infrastructure\\services\\cardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|solutionrelative:wishify.infrastructure\\services\\cardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{08BC01CF-5C36-495B-B909-BBA46B336EB6}|Wishify.WebApi\\Wishify.WebApi.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.webapi\\controllers\\cardscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{08BC01CF-5C36-495B-B909-BBA46B336EB6}|Wishify.WebApi\\Wishify.WebApi.csproj|solutionrelative:wishify.webapi\\controllers\\cardscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.infrastructure\\services\\cardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B866E3F-9D1B-459A-9D8A-D53A771C14E9}|Wishify.Infrastructure\\Wishify.Infrastructure.csproj|solutionrelative:wishify.infrastructure\\services\\cardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{08BC01CF-5C36-495B-B909-BBA46B336EB6}|Wishify.WebApi\\Wishify.WebApi.csproj|c:\\users\\ladop\\onedrive\\desktop\\test\\backend\\wishify.webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -41,7 +41,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedHeight": 686,
+          "DockedHeight": 855,
           "SelectedChildIndex": -1,
           "Children": [
             {
@@ -55,8 +55,8 @@
           ]
         },
         {
-          "DockedHeight": 140,
-          "SelectedChildIndex": 32,
+          "DockedHeight": 104,
+          "SelectedChildIndex": 35,
           "Children": [
             {
               "$type": "Bookmark",
@@ -148,10 +148,6 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
             },
             {
@@ -183,48 +179,6 @@
               "Name": "ST:131:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CardService.cs",
-              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Services\\CardService.cs",
-              "RelativeDocumentMoniker": "Wishify.Infrastructure\\Services\\CardService.cs",
-              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Services\\CardService.cs",
-              "RelativeToolTip": "Wishify.Infrastructure\\Services\\CardService.cs",
-              "ViewState": "AgIAAEUAAAAAAAAAAAAkwFwAAAAiAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-31T17:47:09.458Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "CardsController.cs",
-              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\Controllers\\CardsController.cs",
-              "RelativeDocumentMoniker": "Wishify.WebApi\\Controllers\\CardsController.cs",
-              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\Controllers\\CardsController.cs",
-              "RelativeToolTip": "Wishify.WebApi\\Controllers\\CardsController.cs",
-              "ViewState": "AgIAAH0AAAAAAAAAAAAwwI4AAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-31T17:42:16.056Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "DbSeeder.cs",
-              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Persistence\\DbSeeder.cs",
-              "RelativeDocumentMoniker": "Wishify.Infrastructure\\Persistence\\DbSeeder.cs",
-              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Persistence\\DbSeeder.cs",
-              "RelativeToolTip": "Wishify.Infrastructure\\Persistence\\DbSeeder.cs",
-              "ViewState": "AgIAAEwAAAAAAAAAAAAswFUAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:36:11.759Z"
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "Program.cs",
@@ -232,10 +186,9 @@
               "RelativeDocumentMoniker": "Wishify.WebApi\\Program.cs",
               "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\Program.cs",
               "RelativeToolTip": "Wishify.WebApi\\Program.cs",
-              "ViewState": "AgIAADMAAAAAAAAAAAAswEQAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADcAAAAAAAAAAAAswEkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T15:00:54.271Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T15:00:54.271Z"
             },
             {
               "$type": "Document",
@@ -284,11 +237,56 @@
               "ViewState": "AgIAAB4AAAAAAAAAAAAowBYAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-28T14:58:19.436Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CardsController.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\Controllers\\CardsController.cs",
+              "RelativeDocumentMoniker": "Wishify.WebApi\\Controllers\\CardsController.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.WebApi\\Controllers\\CardsController.cs",
+              "RelativeToolTip": "Wishify.WebApi\\Controllers\\CardsController.cs",
+              "ViewState": "AgIAAEEAAAAAAAAAAAAcwEgAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T17:42:16.056Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CardService.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Services\\CardService.cs",
+              "RelativeDocumentMoniker": "Wishify.Infrastructure\\Services\\CardService.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Services\\CardService.cs",
+              "RelativeToolTip": "Wishify.Infrastructure\\Services\\CardService.cs",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAowIYAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T17:47:09.458Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DbSeeder.cs",
+              "DocumentMoniker": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Persistence\\DbSeeder.cs",
+              "RelativeDocumentMoniker": "Wishify.Infrastructure\\Persistence\\DbSeeder.cs",
+              "ToolTip": "C:\\Users\\ladop\\OneDrive\\Desktop\\test\\Backend\\Wishify.Infrastructure\\Persistence\\DbSeeder.cs",
+              "RelativeToolTip": "Wishify.Infrastructure\\Persistence\\DbSeeder.cs",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAswFUAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T17:36:11.759Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             }
           ]
         },
         {
-          "DockedHeight": 116,
+          "DockedHeight": 69,
           "SelectedChildIndex": -1,
           "Children": [
             {

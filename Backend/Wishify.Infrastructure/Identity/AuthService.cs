@@ -23,7 +23,7 @@ public class AuthService : IAuthService
         _emailService = emailService;
     }
 
-    public async Task<AuthResponse?> RegisterAsync(RegisterRequest request)
+    public async Task<(AuthResponse? Response, string? Error)> RegisterAsync(RegisterRequest request)
     {
         var user = new ApplicationUser
         {
@@ -34,9 +34,14 @@ public class AuthService : IAuthService
         };
 
         var result = await _userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded) return null;
+        if (!result.Succeeded)
+        {
+            var errorMsg = result.Errors.FirstOrDefault()?.Description ?? "Registration failed";
+            return (null, errorMsg);
+        }
 
-        return await GenerateAuthResponse(user);
+        var authResponse = await GenerateAuthResponse(user);
+        return (authResponse, null);
     }
 
     public async Task<AuthResponse?> LoginAsync(LoginRequest request)
