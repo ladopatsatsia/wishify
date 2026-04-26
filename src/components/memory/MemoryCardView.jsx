@@ -127,7 +127,7 @@ export default function MemoryCardView({ card, onBackToEdit, onSave, onPurchase,
           </h1>
           <div className="h-20 w-px bg-slate-200 mx-auto mt-12 animate-bounce" />
           <div className="text-slate-400 font-medium italic text-lg">
-            {data.heroScrollText || (language === 'ka' ? 'ჩამოწკაპუნეთ ამბის სანახავად' : 'Scroll to explore our story')}
+            {data.heroScrollText || (language === 'ka' ? 'ჩვენი საუკეთესო მოგონებების კოლექცია' : 'A collection of our best memories')}
           </div>
         </div>
       </section>

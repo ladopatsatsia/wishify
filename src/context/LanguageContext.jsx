@@ -216,8 +216,8 @@ const translations = {
         limit_alert: "Maximum 25 photos in total per gallery!",
         hero_subtitle: "Hero Subtitle",
         hero_subtitle_placeholder: "Our Collection of Memories",
-        hero_scroll: "Scroll Instruction",
-        hero_scroll_placeholder: "Scroll to explore our story",
+        hero_scroll: "Gallery Short Description",
+        hero_scroll_placeholder: "Enter a brief description for your gallery",
         gallery_description: "Gallery Description",
         gallery_desc_placeholder: "Tell the story behind these photos...",
         main_photo: "Main Cover Photo"
@@ -467,8 +467,8 @@ const translations = {
         limit_alert: "ჯამში მაქსიმუმ 25 ფოტო!",
         hero_subtitle: "ზედა პატარა სათაური",
         hero_subtitle_placeholder: "ჩვენი მოგონებების კოლექცია",
-        hero_scroll: "სქროლვის ინსტრუქცია",
-        hero_scroll_placeholder: "ჩამოწკაპუნეთ ამბის სანახავად",
+        hero_scroll: "გალერეის მოკლე აღწერა",
+        hero_scroll_placeholder: "ჩაწერეთ მოკლე აღწერა თქვენი გალერეისთვის",
         gallery_description: "გალერეის აღწერა",
         gallery_desc_placeholder: "მოყევით ამ ფოტოების ისტორია...",
         main_photo: "მთავარი გარეკანის ფოტო"

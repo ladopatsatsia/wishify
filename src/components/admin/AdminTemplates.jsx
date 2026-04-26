@@ -10,23 +10,43 @@ export default function AdminTemplates() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchTemplates = async () => {
+    try {
+      const response = await fetch(`${ADMIN_URL}/templates`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (!response.ok) throw new Error('Failed to fetch templates');
+      const data = await response.json();
+      setTemplates(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        const response = await fetch(`${ADMIN_URL}/templates`, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        if (!response.ok) throw new Error('Failed to fetch templates');
-        const data = await response.json();
-        setTemplates(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTemplates();
   }, [user.token]);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm(language === 'ka' ? 'დარწმუნებული ხართ, რომ გსურთ ამ შაბლონის წაშლა?' : 'Are you sure you want to delete this template?')) return;
+    try {
+      const res = await fetch(`${ADMIN_URL}/templates/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (res.ok) {
+        fetchTemplates();
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message || 'Failed to delete template');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred while deleting the template');
+    }
+  };
 
   if (loading) {
     return (
@@ -63,7 +83,12 @@ export default function AdminTemplates() {
               </div>
               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button className="p-2 bg-slate-50 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition cursor-pointer"><Edit className="w-4 h-4" /></button>
-                <button className="p-2 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition cursor-pointer"><Trash className="w-4 h-4" /></button>
+                <button 
+                  onClick={() => handleDelete(t.id)}
+                  className="p-2 bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition cursor-pointer"
+                >
+                  <Trash className="w-4 h-4" />
+                </button>
               </div>
             </div>
 

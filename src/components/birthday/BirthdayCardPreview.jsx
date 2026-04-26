@@ -280,8 +280,123 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
 
   // MODAL MODE (used when called from editor preview)
   return (
-    <div className={`fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex ${!isOpen ? 'items-center' : 'items-start py-12 sm:py-16'} justify-center p-4 overflow-y-auto`}>
-      {/* Red X Back Button (Top Left) - Invitation Style */}
+    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex flex-col">
+      {/* Scrollable Content Layer */}
+      <div className={`absolute inset-0 overflow-y-auto flex ${!isOpen ? 'items-center' : 'items-start py-12 sm:py-16'} justify-center p-4 no-scrollbar`}>
+        {!isOpen ? (
+          /* CLOSED CARD */
+          <div style={{ perspective: '1200px' }}>
+            <div
+              className={`relative w-80 sm:w-96 h-[28rem] sm:h-[32rem] rounded-3xl shadow-2xl overflow-hidden transition-transform duration-700 ${
+                isFlipping ? 'card-flip-open' : ''
+              }`}
+              style={{ transformStyle: 'preserve-3d' }}
+            >
+              <div
+                className={`absolute inset-0 bg-gradient-to-br ${bgGradient} flex flex-col items-center justify-center p-8 rounded-3xl border-2 border-white/20`}
+                style={{ backfaceVisibility: 'hidden' }}
+              >
+                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-12 -mb-12 blur-2xl" />
+
+                <div className="text-8xl mb-6 animate-bounce-slow drop-shadow-2xl">{emoji}</div>
+                <h2 className="text-3xl sm:text-4xl font-black text-white text-center drop-shadow-lg leading-tight mb-4">
+                  {title}
+                </h2>
+                <p className="text-white/80 text-sm text-center mb-8 max-w-xs">
+                  {language === 'ka' ? 'დააწკაპუნეთ ბარათის გასახსნელად...' : language === 'ru' ? 'Нажмите, чтобы увидеть, что внутри...' : "Tap to reveal what's inside..."}
+                </p>
+
+                <button
+                  onClick={handleOpenCard}
+                  className="bg-white text-slate-800 font-bold px-8 py-3.5 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all text-base flex items-center gap-2 animate-pulse-slow cursor-pointer"
+                >
+                  <span>✨</span> {language === 'ka' ? 'გახსენი ბარათი' : language === 'ru' ? 'Открыть открытку' : 'Open Card'}
+                </button>
+
+                {musicEnabled && (
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur border border-white/30 rounded-full px-4 py-1.5 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    <span className="text-white text-xs font-semibold">{language === 'ka' ? 'მუსიკა მზადაა' : language === 'ru' ? 'Музыка готова' : 'Music Ready'}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* OPEN CARD */
+          <div className="w-full max-w-3xl mx-auto animate-card-reveal py-8">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100">
+              {/* Header */}
+              <div className={`bg-gradient-to-r ${bgGradient} p-10 text-center relative overflow-hidden`}>
+                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+                <div className="text-6xl mb-4 drop-shadow-xl">{emoji}</div>
+                <h1 className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg">{title}</h1>
+              </div>
+
+              {/* Body */}
+              <div className="p-8 sm:p-12 space-y-8">
+                <div className="text-center">
+                  <p className="text-lg sm:text-xl text-slate-700 leading-relaxed whitespace-pre-line">
+                    {message}
+                  </p>
+                </div>
+
+                {images.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
+                      {language === 'ka' ? '📸 განსაკუთრებული წამები' : language === 'ru' ? '📸 Особые моменты' : '📸 Special Moments'}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {images.map((img, i) => (
+                        <div
+                          key={i}
+                          className="aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-slate-100 hover:scale-[1.02] transition-transform"
+                        >
+                          <img
+                            src={typeof img === 'string' ? img : URL.createObjectURL(img)}
+                            alt={`Memory ${i + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-center pt-4 border-t border-slate-100">
+                  <p className="text-xl font-bold text-slate-600 italic">{signature}</p>
+                </div>
+
+                {giftBoxEnabled && giftBoxUrl && (
+                  <div className="text-center pt-6">
+                    <p className="text-sm text-slate-400 font-semibold mb-4">{language === 'ka' ? '🎁 განსაკუთრებული საჩუქარი შენთვის!' : language === 'ru' ? '🎁 Особенный подарок для тебя!' : '🎁 A special gift for you!'}</p>
+                    <a href={giftBoxUrl} target="_blank" rel="noopener noreferrer" className="inline-block animate-gift-float">
+                      <div className="relative w-32 h-32 mx-auto bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-110 transition-all cursor-pointer border-t border-white/30">
+                        <div className="absolute top-1/2 left-0 w-full h-4 bg-yellow-400 -translate-y-1/2" />
+                        <div className="absolute top-0 left-1/2 w-4 h-full bg-yellow-400 -translate-x-1/2" />
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-8 bg-yellow-400 rounded-full shadow-md" />
+                      </div>
+                      <p className="text-violet-600 font-bold mt-3 text-sm">{language === 'ka' ? 'დააწკაპუნეთ საჩუქრის გასახსნელად! 🎁' : language === 'ru' ? 'Нажми, чтобы открыть подарок! 🎁' : 'Click to open your gift! 🎁'}</p>
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {musicEnabled && audioSrc && (
+              <div className="text-center mt-6">
+                <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white px-4 py-2 rounded-full">
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span className="text-sm font-semibold">{language === 'ka' ? '🎵 მუსიკა უკრავს...' : language === 'ru' ? '🎵 Музыка играет...' : '🎵 Music is playing...'}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Red X Back Button - Stays fixed relative to viewport */}
       {onBackToEdit && (
         <button 
           onClick={handleClose}
@@ -294,7 +409,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
         </button>
       )}
 
-      {/* Fixed Bottom Footer for Preview Mode - Invitation Style */}
+      {/* Fixed Bottom Footer for Preview Mode - Stays fixed relative to viewport */}
       {onBackToEdit && (
         <div className="fixed bottom-0 left-0 right-0 z-[220] bg-white/80 backdrop-blur-xl border-t border-slate-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-500">
           <div className="max-w-2xl mx-auto flex items-center justify-center gap-4">
@@ -318,7 +433,7 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
                   <button 
                     onClick={onPurchase}
                     disabled={saving}
-                    className="flex-1 max-w-[200px] py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-emerald-500/20 disabled:opacity-50 active:scale-95 text-sm cursor-pointer flex items-center justify-center gap-2"
+                    className="flex-1 max-w-[200px] py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-black hover:opacity-90 transition shadow-xl shadow-amber-500/20 disabled:opacity-50 active:scale-95 text-sm cursor-pointer flex items-center justify-center gap-2"
                   >
                     💳 {language === 'ka' ? 'შეძენა' : 'Purchase'}
                   </button>
@@ -330,118 +445,6 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
       )}
 
       {audioSrc && <audio ref={audioRef} src={audioSrc} loop />}
-
-      {!isOpen ? (
-        /* CLOSED CARD */
-        <div style={{ perspective: '1200px' }}>
-          <div
-            className={`relative w-80 sm:w-96 h-[28rem] sm:h-[32rem] rounded-3xl shadow-2xl overflow-hidden transition-transform duration-700 ${
-              isFlipping ? 'card-flip-open' : ''
-            }`}
-            style={{ transformStyle: 'preserve-3d' }}
-          >
-            <div
-              className={`absolute inset-0 bg-gradient-to-br ${bgGradient} flex flex-col items-center justify-center p-8 rounded-3xl border-2 border-white/20`}
-              style={{ backfaceVisibility: 'hidden' }}
-            >
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-12 -mb-12 blur-2xl" />
-
-              <div className="text-8xl mb-6 animate-bounce-slow drop-shadow-2xl">{emoji}</div>
-              <h2 className="text-3xl sm:text-4xl font-black text-white text-center drop-shadow-lg leading-tight mb-4">
-                {title}
-              </h2>
-              <p className="text-white/80 text-sm text-center mb-8 max-w-xs">
-                {language === 'ka' ? 'დააწკაპუნეთ ბარათის გასახსნელად...' : language === 'ru' ? 'Нажмите, чтобы увидеть, что внутри...' : "Tap to reveal what's inside..."}
-              </p>
-
-              <button
-                onClick={handleOpenCard}
-                className="bg-white text-slate-800 font-bold px-8 py-3.5 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all text-base flex items-center gap-2 animate-pulse-slow cursor-pointer"
-              >
-                <span>✨</span> {language === 'ka' ? 'გახსენი ბარათი' : language === 'ru' ? 'Открыть открытку' : 'Open Card'}
-              </button>
-
-              {musicEnabled && (
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur border border-white/30 rounded-full px-4 py-1.5 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  <span className="text-white text-xs font-semibold">{language === 'ka' ? 'მუსიკა მზადაა' : language === 'ru' ? 'Музыка готова' : 'Music Ready'}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* OPEN CARD */
-        <div className="w-full max-w-3xl mx-auto animate-card-reveal py-8">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100">
-            {/* Header */}
-            <div className={`bg-gradient-to-r ${bgGradient} p-10 text-center relative overflow-hidden`}>
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-              <div className="text-6xl mb-4 drop-shadow-xl">{emoji}</div>
-              <h1 className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg">{title}</h1>
-            </div>
-
-            {/* Body */}
-            <div className="p-8 sm:p-12 space-y-8">
-              <div className="text-center">
-                <p className="text-lg sm:text-xl text-slate-700 leading-relaxed whitespace-pre-line">
-                  {message}
-                </p>
-              </div>
-
-              {images.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider text-center">
-                    {language === 'ka' ? '📸 განსაკუთრებული წამები' : language === 'ru' ? '📸 Особые моменты' : '📸 Special Moments'}
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {images.map((img, i) => (
-                      <div
-                        key={i}
-                        className="aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-slate-100 hover:scale-[1.02] transition-transform"
-                      >
-                        <img
-                          src={typeof img === 'string' ? img : URL.createObjectURL(img)}
-                          alt={`Memory ${i + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="text-center pt-4 border-t border-slate-100">
-                <p className="text-xl font-bold text-slate-600 italic">{signature}</p>
-              </div>
-
-              {giftBoxEnabled && giftBoxUrl && (
-                <div className="text-center pt-6">
-                  <p className="text-sm text-slate-400 font-semibold mb-4">{language === 'ka' ? '🎁 განსაკუთრებული საჩუქარი შენთვის!' : language === 'ru' ? '🎁 Особенный подарок для тебя!' : '🎁 A special gift for you!'}</p>
-                  <a href={giftBoxUrl} target="_blank" rel="noopener noreferrer" className="inline-block animate-gift-float">
-                    <div className="relative w-32 h-32 mx-auto bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.3)] hover:scale-110 transition-all cursor-pointer border-t border-white/30">
-                      <div className="absolute top-1/2 left-0 w-full h-4 bg-yellow-400 -translate-y-1/2" />
-                      <div className="absolute top-0 left-1/2 w-4 h-full bg-yellow-400 -translate-x-1/2" />
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-8 bg-yellow-400 rounded-full shadow-md" />
-                    </div>
-                    <p className="text-violet-600 font-bold mt-3 text-sm">{language === 'ka' ? 'დააწკაპუნეთ საჩუქრის გასახსნელად! 🎁' : language === 'ru' ? 'Нажми, чтобы открыть подарок! 🎁' : 'Click to open your gift! 🎁'}</p>
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {musicEnabled && audioSrc && (
-            <div className="text-center mt-6">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white px-4 py-2 rounded-full">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-sm font-semibold">{language === 'ka' ? '🎵 მუსიკა უკრავს...' : language === 'ru' ? '🎵 Музыка играет...' : '🎵 Music is playing...'}</span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       <style>{`
         @keyframes card-flip {
@@ -468,26 +471,26 @@ export default function BirthdayCardPreview({ data, onClose, standalone, onPerso
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-10px) rotate(2deg); }
         }
-          .animate-gift-float { animation: gift-float 3s ease-in-out infinite; }
-        `}</style>
+        .animate-gift-float { animation: gift-float 3s ease-in-out infinite; }
+      `}</style>
       
-        {/* Photo Gallery Lightbox (shared between both modes) */}
-        {selectedImage && (
-          <div 
-            className="fixed inset-0 z-[500] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm"
-            onClick={() => setSelectedImage(null)}
-          >
-            <button className="absolute top-6 right-6 text-white text-4xl hover:scale-110 transition-transform cursor-pointer">
-              ×
-            </button>
-            <img 
-              src={selectedImage} 
-              alt="Gallery Enlarge" 
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" 
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        )}
-      </div>
+      {/* Photo Gallery Lightbox (shared between both modes) */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[500] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button className="absolute top-6 right-6 text-white text-4xl hover:scale-110 transition-transform cursor-pointer">
+            ×
+          </button>
+          <img 
+            src={selectedImage} 
+            alt="Gallery Enlarge" 
+            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" 
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+    </div>
   );
 }
